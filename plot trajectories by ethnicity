@@ -1,0 +1,46 @@
+##############################################################
+#Plot to visualise trajectories by ethnicity
+alldata<-alldata[!alldata$Ethnicity12=="Other",]
+alldata<-alldata[!alldata$Ethnicity12=="unknown",]
+
+
+rhg_col2<-c("dodgerblue2", "#E31A1C", "green4", "#6A3D9A", "#FF7F00", "brown", "maroon", "darkturquoise", "black")
+
+refdata<-read.table("UK90ref.csv",header=TRUE, sep=",")
+
+alldata$ageyrs<-alldata$ageattest/52.12
+alldata$ageyrs<-round(alldata$ageyrs,digits=1)
+alldata<-rbind(alldata, refdata)
+fem<-alldata[alldata$Gender=="F",]
+mal<-alldata[alldata$Gender=="M",]
+attach(fem)
+seq.long.sum<-ddply(fem,.(Ethnicity12,ageyrs),summarize,value=median(BMI))
+f<-ggplot(seq.long.sum,aes(x=ageyrs,y=value,colour=Ethnicity12))+
+scale_colour_manual(values = rhg_col2,name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Girls' age (yrs)")+
+ylab("Mean body mass index by ethnicity")+
+theme(legend.key = element_rect(colour = NA))+
+xlim(4.1,11.4)+
+ylim(15,20)+
+geom_smooth(se=FALSE)+
+theme(legend.position=c(0.2,0.8))
+
+seq.long.sum2<-ddply(mal,.(Ethnicity12,ageyrs),summarize,value=median(BMI))
+m<-ggplot(seq.long.sum2,aes(x=ageyrs,y=value,colour=Ethnicity12))+
+scale_colour_manual(values = rhg_col2,name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Boys' age (yrs)")+
+ylab("Mean body mass index by ethnicity")+
+theme(legend.key = element_rect(colour = NA))+
+xlim(4.1,11.4)+
+ylim(15,20)+
+geom_smooth(se=FALSE)+
+theme(legend.position='none')
+
+#################################################################################
+
+library(gridExtra)
+grid.arrange(f,m, ncol=2)
