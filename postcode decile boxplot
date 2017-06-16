@@ -1,0 +1,25 @@
+subsad$PostcodeDecile<-as.factor(subsad$PostcodeDecile)
+levels(subsad$PostcodeDecile)
+levels(subsad$PostcodeDecile)[1:3]<-"0-2"
+levels(subsad$PostcodeDecile)[7:9]<-"8-10"
+levels(subsad$PostcodeDecile)[2:6]<-"3-7"
+
+#Split postcode deciles by year 
+subsadx4<-subsad[subsad$AcademicYear=="2013/2014"&subsad$ageattest>=4&subsad$ageattest<=5,]
+boxplot(subsadx4$BMI~subsadx4$PostcodeDecile, data=subsadx4, main="4-5yrs, 2013/2014",notch=TRUE,ylim=c(10,30), ylab="body mass index",xlab="postcode decile",col=(c("cadetblue","aquamarine","darkgrey")))
+subsadx10<-subsad[subsad$AcademicYear=="2013/2014"&subsad$ageattest>=10&subsad$ageattest<=11,]
+boxplot(subsadx10$BMI~subsadx10$PostcodeDecile, data=subsadx10, main="10-11yrs, 2013/2014",notch=TRUE,ylim=c(10,50), ylab="body mass index",xlab="postcode decile",col=(c("cadetblue","aquamarine","darkgrey")))
+
+
+subsada4<-subsad[subsad$AcademicYear=="2014/2015"&subsad$ageattest>=4&subsad$ageattest<=5,]
+boxplot(subsada4$BMI~subsada4$PostcodeDecile, data=subsada4, main="4-5yrs, 2014/2015",notch=TRUE,ylim=c(10,30), ylab="body mass index",xlab="postcode decile",col=(c("cadetblue","aquamarine","darkgrey")))
+subsada10<-subsad[subsad$AcademicYear=="2014/2015"&subsad$ageattest>=10&subsad$ageattest<=11,]
+boxplot(subsada10$BMI~subsada10$PostcodeDecile, data=subsada10, main="10-11yrs, 2014/2015",notch=TRUE,ylim=c(10,50), ylab="body mass index",xlab="postcode decile",col=(c("cadetblue","aquamarine","darkgrey")))
+grid.arrange(a4,a10, ncol=2)
+
+
+subsada5<-subsad[subsad$AcademicYear=="2015/2016"&subsad$ageattest>=4&subsad$ageattest<=5,]
+boxplot(subsada5$BMI~subsada5$PostcodeDecile, data=subsada5, main="4-5yrs, 2015/2016",notch=TRUE,ylim=c(10,30), ylab="body mass index",xlab="postcode decile",col=(c("cadetblue","aquamarine","darkgrey")))
+subsada11<-subsad[subsad$AcademicYear=="2015/2016"&subsad$ageattest>=10&subsad$ageattest<=11,]
+boxplot(subsada11$BMI~subsada11$PostcodeDecile, data=subsada11, main="10-11yrs, 2015/2016",notch=TRUE,ylim=c(10,50), ylab="body mass index",xlab="postcode decile",col=(c("cadetblue","aquamarine","darkgrey")))
+grid.arrange(a4,a10, ncol=2)
