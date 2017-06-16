@@ -181,7 +181,7 @@ which((multi$IsAccountRegistered=="0"))#how many unregistered children had 2 or 
 
 no<-multi[multi$IsAccountRegistered=="0",]
 yes<-multi[multi$IsAccountRegistered=="1",]
-which((yes$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#how many registered children had 2 or more measurements #8521
+which(yes$measure1<multi$measure2)#how many registered children had 2 or more measurements #8521
 
 
 
