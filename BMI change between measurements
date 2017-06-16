@@ -119,13 +119,13 @@ as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,w
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
 multiplebase<-multiple[,c(1,2)]
-multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 38)]
-multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 39)]
-multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 40)]
-multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 41)]
-multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 42)]
-multiple5<-multiple[!is.na(multiple$weightcat5),c(1, 43)]
-multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 44)]
+multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 37)]
+multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 38)]
+multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 39)]
+multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 40)]
+multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 41)]
+multiple5<-multiple[!is.na(multiple$weightcat5),c(1, 42)]
+multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 43)]
 multiplereg<-multiple[c(1, 10)]
 library(plyr)
 
@@ -141,7 +141,6 @@ multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi<-multi2
 multi$ChildID<-multi$Group.1
-table(multi$IsAccountRegistered)
 
 length(multi$ChildID)#32977
 attach(multi)
@@ -181,12 +180,8 @@ which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="0"))#which unre
 which((multi$IsAccountRegistered=="0"))#how many unregistered children had 2 or more measurements #23118
 
 no<-multi[multi$IsAccountRegistered=="0",]
-
 yes<-multi[multi$IsAccountRegistered=="1",]
-
-
-#DOES THIS CHANGE WITH CHAMP REG?
-yes<-
+which((yes$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#how many registered children had 2 or more measurements #8521
 
 
 
