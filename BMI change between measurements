@@ -1,0 +1,220 @@
+#CALCULATE CLASS WHEN MEASURED (Install Lubridate)
+thisyear<-alldata
+thisyear$sumage<-round(thisyear$ageattestyr,digits=0)
+thisyear$birthmonth<-month(as.POSIXlt(thisyear$DateOfBirth, format="%Y-%m-%d"))
+thisyear$assmonth<-month(as.POSIXlt(thisyear$AssessmentDate, format="%Y-%m"))
+thisyear$class<-0
+thisyear$class<-ifelse(thisyear$birthmonth<9 & thisyear$ageattestyr==4,0,NA) #All 4 year olds are in Reception
+
+thisyear$class<-ifelse(thisyear$ageattestyr==5,1,thisyear$class) #most 5 year olds are in year one
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==5 &thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==5 &thisyear$assmonth<=8,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
+
+thisyear$class<-ifelse(thisyear$ageattestyr==6,2,thisyear$class) # most 6 year olds are in year 2
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==6&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==6 &thisyear$assmonth<=8,1,thisyear$class) #6 year olds with a birthday before September that are measured in the spring term are in Reception
+
+thisyear$class<-ifelse(thisyear$ageattestyr==7,3,thisyear$class) # most 7 year olds are in year 3
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==7 &thisyear$assmonth>8,2,thisyear$class) #7 year olds that have a birthday from September onwards that are measured in the autumn term are in yr2
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==7 &thisyear$assmonth<=8,2,thisyear$class) #7 year olds with a birthday before September that are measured in the spring term are in yr1
+
+thisyear$class<-ifelse(thisyear$ageattestyr==8,4,thisyear$class) # most 8 year olds are in year 4
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==8 &thisyear$assmonth>8,3,thisyear$class) #8 year olds that have a birthday from September onwards that are measured in the autumn term are in yr3
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==8 &thisyear$assmonth<=8,3,thisyear$class) #8 year olds with a birthday before September that are measured in the spring term are in yr3
+
+thisyear$class<-ifelse(thisyear$ageattestyr==9,5,thisyear$class) # most 9 year olds are in year 5
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==9 &thisyear$assmonth>8,4,thisyear$class) #9 year olds that have a birthday from September onwards that are measured in the autumn term are in yr4
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==9 &thisyear$assmonth<=8,4,thisyear$class) #9 year olds with a birthday before September that are measured in the spring term are in yr4
+
+thisyear$class<-ifelse(thisyear$ageattestyr==10,6,thisyear$class) # most 10 year olds are in year 6
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==10 &thisyear$assmonth>8,5,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==10 &thisyear$assmonth<=8,5,thisyear$class) #10 year olds with a birthday before September that are measured in the spring term are in yr5
+
+thisyear$class<-ifelse(thisyear$ageattestyr==11,6,thisyear$class)
+champ2<-thisyear
+attach(champ2)
+champ2$class<-as.numeric(champ2$class)
+
+#CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
+
+d<-duplicated(champ2[,c(1,22)],fromLast=FALSE)
+table(d)
+#2991 (~3% of children) have multiple measurements within a year
+head(champ2[d,],n=10)
+champ2<-champ2[!d,]
+
+#DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
+champ2$weightcat<-1#normal
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=90.879,2,champ2$weightcat)#overweight
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=97.725,3,champ2$weightcat)#obese
+champ2$weightcat<-ifelse(champ2$Centile_BMI<2.275,4,champ2$weightcat)#underweight
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=99.617,5,champ2$weightcat)#morbid
+champ2$weightcat<-ifelse(champ2$Centile_BMI<0.383,6,champ2$weightcat)#very underweight
+table(champ2$weightcat)
+alldata<-champ2
+attach(alldata)
+
+#Assign class at test vector
+alldata$Recordr<-as.numeric(ifelse(class==0,1,0))
+alldata$Record1<-as.numeric(ifelse(class==1,1,0))
+alldata$Record2<-as.numeric(ifelse(class==2,1,0))
+alldata$Record3<-as.numeric(ifelse(class==3,1,0))
+alldata$Record4<-as.numeric(ifelse(class==4,1,0))
+alldata$Record5<-as.numeric(ifelse(class==5,1,0))
+alldata$Record6<-as.numeric(ifelse(class==6,1,0))
+
+#Print BMI at each test
+alldata$BMIr<-as.numeric(ifelse(class==0,BMI,NA))
+alldata$BMI1<-as.numeric(ifelse(class==1,BMI,NA))
+alldata$BMI2<-as.numeric(ifelse(class==2,BMI,NA))
+alldata$BMI3<-as.numeric(ifelse(class==3,BMI,NA))
+alldata$BMI4<-as.numeric(ifelse(class==4,BMI,NA))
+alldata$BMI5<-as.numeric(ifelse(class==5,BMI,NA))
+alldata$BMI6<-as.numeric(ifelse(class==6,BMI,NA))
+
+#Print weightcat at each age
+alldata$weightcatr<-as.numeric(ifelse(class==0,weightcat,NA))
+alldata$weightcat1<-as.numeric(ifelse(class==1,weightcat,NA))
+alldata$weightcat2<-as.numeric(ifelse(class==2,weightcat,NA))
+alldata$weightcat3<-as.numeric(ifelse(class==3,weightcat,NA))
+alldata$weightcat4<-as.numeric(ifelse(class==4,weightcat,NA))
+alldata$weightcat5<-as.numeric(ifelse(class==5,weightcat,NA))
+alldata$weightcat6<-as.numeric(ifelse(class==6,weightcat,NA))
+attach(alldata)
+
+#Determine how many measurements taken per child
+
+alldata$NoRecords<-(Recordr+Record1+Record2+Record3+Record4+Record5+Record6)
+Recs<-aggregate(alldata$NoRecords, by=list(Category=ChildID), FUN=sum)
+names(Recs)[names(Recs)=="x"] <- "NoRecs"
+names(Recs)[names(Recs)=="Category"] <- "ChildID"
+
+##############################################################################
+#SELECTING DATA FOR REC-3 AND 3-6
+fours<-which(!is.na(alldata$weightcatr))
+fourdata<-alldata[fours,]
+table(fourdata$AcademicYear)
+threes<-which(!is.na(alldata$weightcat3))
+thrdata<-alldata[threes,]
+table(thrdata$AcademicYear)
+sixes<-which(!is.na(alldata$weightcat6))
+sixdata<-alldata[sixes,]
+table(sixdata$AcademicYear)
+recand3<-which(alldata$ChildID %in% fourdata$ChildID & alldata$ChildID %in% thrdata$ChildID)
+thrand6<-which(alldata$ChildID %in% thrdata$ChildID & alldata$ChildID %in% sixdata$ChildID)
+firstpair<-alldata[recand3,]
+firstpair<- firstpair[ c(1, 36, 39) ]
+firstpair<-aggregate(firstpair, by=list(Category=firstpair$ChildID), FUN=max,na.rm=TRUE)
+secpair<-alldata[thrand6,]
+#############################################################################
+
+
+#Merge to have BMI at different ages on the same line
+
+Recs2<-Recs[Recs$NoRecs>1,]
+multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
+multiple<-with(multiple, multiple[order(ChildID),])
+attach(multiple)
+as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
+multiple$ChildID<-as.factor(multiple$ChildID)
+multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
+multiplebase<-multiple[,c(1,2)]
+multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 38)]
+multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 39)]
+multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 40)]
+multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 41)]
+multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 42)]
+multiple5<-multiple[!is.na(multiple$weightcat5),c(1, 43)]
+multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 44)]
+multiplereg<-multiple[c(1, 10)]
+library(plyr)
+
+multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple5,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
+
+multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
+multi<-multi2
+multi$ChildID<-multi$Group.1
+table(multi$IsAccountRegistered)
+
+length(multi$ChildID)#32977
+attach(multi)
+measure1<-weightcatr
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&weightcat1>=1,paste(weightcat1),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat2>=1,paste(weightcat2),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat3>=1,paste(weightcat3),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat4>=1,paste(weightcat4),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat5>=1,paste(weightcat5),measure1)
+
+measure2<-ifelse(!is.na(weightcatr),paste(weightcat1),NA)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)),paste(weightcat2),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)),paste(weightcat3),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)),paste(weightcat4),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)|!is.na(weightcat4))&weightcat5>=1,paste(weightcat5),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)|!is.na(weightcat4)|!is.na(weightcat5))&weightcat6>=1,paste(weightcat6),measure2)
+measure2<-as.numeric(measure2)
+multi$measure1<-measure1
+multi$measure2<-measure2
+
+table(multi$IsAccountRegistered)
+table(multi$measure1)
+table(multi$measure2)
+
+#WHAT IS THE CHANGE AFTER THE SECOND MEASUREMENT?
+
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#which registered children increaed weight category from rec to their next measurement #727
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#how many registered children had 2 or more measurements #8521
+
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="0"))#which unregistered children increaed weight category from rec to their next measurement #2254
+which((multi$IsAccountRegistered=="0"))#how many unregistered children had 2 or more measurements #23118
+
+no<-multi[multi$IsAccountRegistered=="0",]
+
+yes<-multi[multi$IsAccountRegistered=="1",]
+
+
+#DOES THIS CHANGE WITH CHAMP REG?
+yes<-
+
+
+
+which((fourten$SDfour)>2)#which children were obese at 4 and also measured at 10
+
+
+which((multiple$weightcatr>0)&(multiple$weightcat3>0))#which children remained obese from 4 to 10
+
+
+
+which((fiveleven$SDfive)>2)#which children were obese at 5 and also measured at eleven
+which((fiveeleven$SDeleven)>2&as.numeric(fiveeleven$SDfive)>2)#which children remained obese from 5 to 11
+which((fiveeleven$SDeleven)<1.33&as.numeric(fiveeleven$SDfive)>2)#which children obese at 5 are normal weight at 11
+which((fourten$SDten)<1.33&as.numeric(fourten$SDfour)>2)#which children obese at 4 are normal weight at 10
+
+#See how champ registered children compare
+which (fourten$IsAccountRegistered>0.5)
+which (fiveeleven$IsAccountRegistered>0.5)
+which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
+
+#Check for unregistered children
+which (fourten$IsAccountRegistered<0.5)
+which (fiveeleven$IsAccountRegistered<0.5)
+which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
+#Percentages calculated in excel show little apparent difference at this stage, but there are too few samples to draw conclusions
