@@ -1,0 +1,111 @@
+#Read in data
+setwd("c:/Users/mqbpjhr4/Documents")
+champtable<-read.table("ncmp_1516_final_non_disclosive_rand_id_published.csv", header=T,sep=",")
+tail(champtable)
+#IN EXCEL, APPLY THE NCMP ERROR REJECTION CUTOFFS BASED ON Z SCORE FOR HEIGHT, WEIGHT, BMI (+ OR - 7)
+attach(champtable)
+#Check how many children and schools are recorded
+as.factor(ncmppseudosystemid) #1048575 children
+ChildID<-as.character(ncmppseudosystemid)
+
+head(champtable)
+champtable$weightcat<-"normal"
+champtable$weightcat<-ifelse(champtable$bmipscore>=0.90879,print("overweight"),champtable$weightcat)
+champtable$weightcat<-ifelse(champtable$bmipscore>=0.97725,"obese",champtable$weightcat)
+champtable$weightcat<-ifelse(champtable$bmipscore<0.02275,"underweight",champtable$weightcat)
+champtable$weightcat<-ifelse(champtable$bmipscore>=0.996,"morbidly obese",champtable$weightcat)
+champtable$weightcat<-ifelse(champtable$bmipscore<0.00383,"very underweight",champtable$weightcat)
+table(champtable$weightcat)
+attach(champtable)
+
+#CREATE DATA SUBSET FOR THIS YEAR'S DATA 
+error<-((qnorm(0.95)*bmi)/(sqrt(length(bmi))))
+
+champtable$Obesity<-as.numeric(ifelse(champtable$weightcat=="obese",1,0))
+champtable$Overweight<-as.numeric(ifelse(champtable$weightcat=="overweight",1,0))
+champtable$MorbidObesity<-as.numeric(ifelse(champtable$weightcat=="morbidly obese",1,0))
+champtable$Underweight<-as.numeric(ifelse(champtable$weightcat=="underweight",1,0))
+champtable$VeryUnderweight<-as.numeric(ifelse(champtable$weightcat=="very underweight",1,0))
+champtable$Normal<-as.numeric(ifelse(champtable$weightcat=="normal",1,0))
+
+
+
+attach(champtable)
+
+#Summary stats by class and gender
+aggdatamean <-aggregate(champtable, by=list(schoolyear,genderdescription), FUN=mean, na.rm=TRUE)
+names(aggdatamean)[names(aggdatamean)=="bmi"] <- "MeanBMI"
+aggerror <-aggregate(error, by=list(schoolyear,genderdescription), mean, na.rm=TRUE)
+names(aggerror)[names(aggerror)=="x"] <- "SE95"
+aggdatamedian <-aggregate(bmi, by=list(schoolyear,genderdescription), median, na.rm=TRUE)
+names(aggdatamedian)[names(aggdatamedian)=="x"] <- "MedianBMI"
+
+aggdataobsums <-aggregate(champtable$Obesity, by=list(schoolyear,genderdescription), FUN=sum, na.rm=TRUE)
+names(aggdataobsums)[names(aggdataobsums)=="x"] <- "TotalObese"
+aggdataovsums <-aggregate(champtable$Overweight, by=list(schoolyear,genderdescription), FUN=sum, na.rm=TRUE)
+names(aggdataovsums)[names(aggdataovsums)=="x"] <- "TotalOverweight"
+aggdataunsums <-aggregate(champtable$Underweight, by=list(schoolyear,genderdescription), FUN=sum, na.rm=TRUE)
+names(aggdataunsums)[names(aggdataunsums)=="x"] <- "TotalUnderweight"
+aggdatansums <-aggregate(champtable$Normal, by=list(schoolyear,genderdescription), FUN=sum, na.rm=TRUE)
+names(aggdatansums)[names(aggdatansums)=="x"] <- "TotalNormal"
+aggdatamosums <-aggregate(champtable$MorbidObesity, by=list(schoolyear,genderdescription), FUN=sum, na.rm=TRUE)
+names(aggdatamosums)[names(aggdatamosums)=="x"] <- "TotalMorbid"
+aggdatavosums <-aggregate(champtable$VeryUnderweight, by=list(schoolyear,genderdescription), FUN=sum, na.rm=TRUE)
+names(aggdatavosums)[names(aggdatavosums)=="x"] <- "TotalVUnderweight"
+
+champtable$ncmppseudosystemid<-"1"
+champtable$ncmppseudosystemid<-as.numeric(champtable$ncmppseudosystemid)
+aggdatasums <-aggregate(champtable$ncmppseudosystemid, by=list(schoolyear,genderdescription), FUN=sum, na.rm=TRUE)
+names(aggdatasums)[names(aggdatasums)=="x"] <- "TotalChildren"
+
+summarydata<-merge(aggdatamean,aggdatamedian,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2A<-merge(summarydata,aggdataobsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2B<-merge(summarydata2A,aggdataunsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2C<-merge(summarydata2B,aggdatansums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2D<-merge(summarydata2C,aggdatamosums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2<-merge(summarydata2D,aggdatavosums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata3<-merge(summarydata2,aggdataovsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata4<-merge(summarydata3,aggdatasums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata5<-merge(summarydata4,aggerror,all=TRUE, by=c('Group.1','Group.2'))
+names(summarydata5)
+
+NCMPfigures2015<-file(paste("ncmp_1516.csv"), open="w")
+cat("Gender", "Class","TotalChildren","MeanBMI","SE95","MedianBMI","NumberMorbid","NumberObese","NumberOverweight","NumberNormalWeight","NumberUnderweight","NumberVUnderweight","PropMorbid","PropObese","PropOverweight","PropNormal","PropUnderweight","PropVUnderweight","\n", sep=",",file="ncmp_1516.csv",append=TRUE)
+for (n in 1:4){
+cat((paste(summarydata5$Group.2[n])),(paste(summarydata5$Group.1[n])),(paste(summarydata5$TotalChildren[n])), (paste(summarydata5$MeanBMI[n])),(paste(summarydata5$SE95[n])),
+(paste(summarydata5$MedianBMI[n])),(paste(summarydata5$TotalMorbid[n])),(paste(summarydata5$TotalObese[n])),(paste(summarydata5$TotalOverweight[n])),(paste(summarydata5$TotalNormal[n])),
+(paste(summarydata5$TotalUnderweight[n])),(paste(summarydata5$TotalVUnderweight[n])),
+(paste(summarydata5$TotalMorbid[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalObese[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalOverweight[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalNormal[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalUnderweight[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalVUnderweight[n]/summarydata5$TotalChildren[n])),
+"\n", file="ncmp_1516.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
+
+#OR FOR QUICK INDIVIDUAL PARAMETER QUERIES:
+as.numeric(mergedtable$Overweight)
+sum(BMI>=girls2016$OverweightBMI &girls2016$ageattest=="4")
+mean(BMI[girls2016$ageattest=="4"])
+sum(girls2016$ageattest=="4") 
+
+
+#PLOT TREND IN MEANS
+girlsmeans<-aggregate(BMI~ageattest,girls2016,mean)
+boysmeans<-aggregate(BMI~ageattest,boys2016,mean)
+library(tigerstats)
+error<-((qnorm(0.95)*girlsmeans$BMI)/(sqrt(length(girlsmeans$BMI))))
+error2<-((qnorm(0.95)*boysmeans$BMI)/(sqrt(length(boysmeans$BMI))))
+plot(girlsmeans$BMI~girlsmeans$ageattest, ylab="Mean BMI by age",xlab="Age at test",type="l",col="red",xlim=c(4,12),ylim=c(0,32),main="BMI derived from measurements collected in 2016")
+lines(error+girlsmeans$BMI~girlsmeans$ageattest, type="l",col="red",lty=2)
+lines(girlsmeans$BMI-error~girlsmeans$ageattest, type="l",col="red",lty=2)
+lines(boysmeans$BMI~boysmeans$ageattest, xlab="Mean BMI by age",ylab="Age at test",type="l",col="blue")
+lines(error+boysmeans$BMI~boysmeans$ageattest, xlab="Mean BMI by age",ylab="Age at test",lty=2,col="blue")
+lines(boysmeans$BMI-error~boysmeans$ageattest, xlab="Mean BMI by age",ylab="Age at test",lty=2,col="blue")
+legend(4,21,lty=c(1,2,1,2),col=c("blue","blue","red","red"),c("Male","95% confidence","Female","95% confidence"),cex=0.8)
+
+#THERE IS AN APPARENT DIVERGENCE IN THE PATTERN FOR GIRLS AND BOYS WHICH SHOULD BE FURTHER EXPLORED
+
+girls2016<-subset(thisyear, thisyear$Gender=="F")
+boys2016<-subset(thisyear, thisyear$Gender=="M")
