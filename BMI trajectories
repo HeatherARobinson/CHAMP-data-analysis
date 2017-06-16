@@ -1,0 +1,158 @@
+
+#FIXED EFFECTS SPECIFICATION- SELECTING EFFECTS TO INCLUDE IN MIXED EFFECTS MODEL VIA GLM- BMI RESPONSE
+library(lme4)
+library(arm)
+#ChildID causes problems in the model so has been removed but will be added to the VI model.
+GLM1 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+alldata$AcademicYear, data = alldata)
+GLM2 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender+alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM2, test = "Chisq")
+#INTERACTION SIGNIFICANT
+
+GLM3 <- glm(alldata$BMI ~ alldata$ageattest+alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM3, test = "Chisq")
+#THREE WAY INTERACTION BETWEEN AGE, GENDER AND ETHNICITY 
+
+GLM4 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$AcademicYear, data = alldata)
+anova(GLM1, GLM4, test = "Chisq")
+#CHAMP REGISTRATION NOT SIGNIFICANT
+
+GLM5 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode, data = alldata)
+anova(GLM1, GLM5, test = "Chisq")
+#ACADEMIC YEAR IS SIGNIFICANT
+
+GLM6 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$AcademicYear, data = alldata)
+anova(GLM4, GLM6, test = "Chisq")
+#SCHOOL CODE IS SIGNIFICANT
+
+
+
+#all variables required for VI model
+
+GLM4 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered, data = alldata)
+GLc <- update(GLM1, subset = !is.na(alldata$AcademicYear))
+anova(GLc, GLM4, test = "Chisq")
+#Academic year is not significant, so doesn't need to be included
+GLM5 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode, data = alldata)
+GLc2 <- update(GLM4, subset = !is.na(alldata$IsAccountRegistered))
+anova(GLc2, GLM5, test = "Chisq")
+#Academic year is not significant, so doesn't need to be included
+
+#Options for anova tests= Rao (Rao's efficient score), LRT (likelihood ratio test), F, Chisq, Cp (Mallow's Cp statistic)
+
+#Postcode decile is important to include. 
+summary(GLM2)
+summary(GLM2b)
+#Postcode produces a simpler (see df) model than school code, explaining more of the deviance.
+#Postcode should be included as a fixed effect, and school possibly as a random effect
+GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + alldata$Ethnicity + alldata$PostcodeDecile, data = alldata)
+GLM3 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + alldata$PostcodeDecile, data = alldata)
+GLc<- update(GLM3, subset = !is.na(alldata$Ethnicity))
+anova(GLc, GLM2, test="Chisq")
+#Ethnicity is important and needs to be in the final model (include interaction with social decile)
+GLM4<- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + alldata$Ethnicity + alldata$PostcodeDecile +alldata$AcademicYear, data = alldata)
+GLc<- update(GLM2, subset = !is.na(alldata$AcademicYear))
+anova(GLc, GLM4, test = "Chisq")
+#CHAMP is significant
+#VARIABLE INTERCEPTS MODEL
+
+VI1<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity*subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
+summary(VI1)
+#model converges
+VI1b<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity+subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
+anova(VI1,VI1b,test="LRT")
+#The interaction between ethnicity and postcode decile is important
+
+VI2<- lmer(subsad$SDS_BMI~ subsad$ageattest+subsad$Gender + subsad$Ethnicity*subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
+anova(VI1,VI2,test="LRT")
+#The interaction between age and gender is important
+
+VI3<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity*subsad$PostcodeDecile+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
+anova(VI1,VI3,test="LRT")
+#IsAccountRegistered is not a significant predictor in this dataset 
+#probably because it depends on the point of registration
+
+VI4<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity*subsad$PostcodeDecile+(1|subsad$ChildID),REML=TRUE)
+anova(VI3,VI4,test="LRT")
+#School is important as a random effect
+
+VI5<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity*subsad$PostcodeDecile+(1|subsad$SchoolCode),REML=FALSE)
+anova(VI3,VI5,test="LRT")
+#ChildID is a significant predictor as a random effect
+
+#VI3 gives the best fit. ChildID improves fit (based on AIC), as do the interactions between age and gender, and ethnicity and postcode decile.
+
+Ethnicity2<-subsad$Ethnicity
+levels(Ethnicity2)
+levels(Ethnicity2)[1:2]<-"Other"
+levels(Ethnicity2)[17:18]<-"Other"
+VI6<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity2*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI3, VI6,test="LRT")
+#count unknown ethnicity as part of other
+
+Ethnicity3<-Ethnicity2
+levels(Ethnicity3)[5:6]<-"Mixed black/white"
+VI7<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity3*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI6, VI7,test="LRT")
+#mixed black african and mixed black caribbean can be grouped
+
+Ethnicity4<-Ethnicity3
+levels(Ethnicity4)[7]<-"Other"
+VI8<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity4*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI7, VI8,test="LRT")
+#'any other mixed background' can be grouped with other
+
+Ethnicity5<-Ethnicity4
+levels(Ethnicity5)
+levels(Ethnicity5)[2:4]<-"White"
+VI9<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity5*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI8, VI9,test="LRT")
+Ethnicity5<-Ethnicity4
+levels(Ethnicity5)[2:3]<-"White"
+VI9<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity5*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI8, VI9,TEST="LRT")
+#British and Irish can be grouped but not with other white
+
+Ethnicity6<-Ethnicity5
+levels(Ethnicity6)
+levels(Ethnicity6)[3]<-"White other"
+levels(Ethnicity6)[6]<-"Indian/Bangladeshi"
+levels(Ethnicity6)[8]<-"Indian/Bangladeshi"
+VI10<-lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity6*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI9, VI10,test="LRT")
+#Indian doesn't group with Bangladeshi
+
+Ethnicity8<-Ethnicity5
+levels(Ethnicity8)[9]<-"Other Asian"
+levels(Ethnicity8)[7]<-"Other Asian"
+VI11<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity8*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI9, VI11,test="LRT")
+#group mixed asian with Pakistani
+
+Ethnicity9<-Ethnicity8
+levels(Ethnicity9)[10]<-"Black"
+levels(Ethnicity9)[11]<-"Black"
+VI12<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity9*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI11, VI12,test="LRT")
+#Black African and other black can be grouped
+
+Ethnicity10<-Ethnicity9
+levels(Ethnicity10)[9]<-"Black"
+VI13<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity10*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI12, VI13,test="LRT")
+#Carib background can be grouped with other black but only just
+
+Ethnicity11<-Ethnicity10
+levels(Ethnicity11)[10]<-"Chinese"
+levels(Ethnicity11)[3]<-"Other white"
+levels(Ethnicity11)[6]<-"Indian"
+levels(Ethnicity11)[8]<-"Bangladeshi"
+levels(Ethnicity11)[5]<-"Other Asian"
+
+VI14<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity11*subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI13, VI14,test="LRT")
+#mixed Asian cant be grouped with other Asian
+
+subsad$Ethnicity10<-Ethnicity10
+summary(VI13)
+
+print(VI13,correlation=TRUE)
