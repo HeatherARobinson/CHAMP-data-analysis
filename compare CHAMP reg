@@ -1,0 +1,13 @@
+alldata$weightcat<-1 #normal
+alldata$weightcat<-ifelse(alldata$Centile_BMI>=90.879,2,alldata$weightca)#overweight
+alldata$weightcat<-ifelse(alldata$Centile_BMI>=97.725,3,alldata$weightcat)#obese
+alldata$weightcat<-ifelse(alldata$Centile_BMI<2.275,4,alldata$weightcat)#underweight
+alldata$weightcat<-ifelse(alldata$Centile_BMI>=99.913,5,alldata$weightcat)#morbid
+alldata$weightcat<-ifelse(alldata2$Centile_BMI<0.383,6,alldata$weightcat)#very underweight
+yr<-alldata[AcademicYear=="2016/2017",]
+table(yr$IsAccountRegistered,yr$weightcat)
+table(yr$IsAccountRegistered)
+
+yes<-subset(yr,IsAccountRegistered=="1")
+no<-subset(yr,IsAccountRegistered=="0")
+
