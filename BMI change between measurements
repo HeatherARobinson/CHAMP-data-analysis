@@ -37,7 +37,7 @@ champ2$class<-as.numeric(champ2$class)
 
 #CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
 
-d<-duplicated(champ2[,c(1,22)],fromLast=FALSE)
+d<-duplicated(champ2[,c(1,21)],fromLast=FALSE)
 table(d)
 #2991 (~3% of children) have multiple measurements within a year
 head(champ2[d,],n=10)
