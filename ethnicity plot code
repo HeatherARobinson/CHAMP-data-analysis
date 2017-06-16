@@ -1,0 +1,91 @@
+
+ncmpdata14<-read.table ("ncmp_1415_final_non_disclosive.csv",header=TRUE, sep=",")
+ncmpdata15<-read.table ("ncmp_1516_final_non_disclosive_rand_id_published.csv",header=TRUE, sep=",")
+library(plyr)
+attach(alldata)
+alldata$ChildID<-as.factor(alldata$ChildID)
+alldata$SchoolCode<-as.factor(alldata$SchoolCode)
+alldata$IsAccountRegistered<-as.factor(alldata$IsAccountRegistered)
+attach(alldata)
+levels(alldata$Ethnicity)
+levels(alldata$Ethnicity)[1:2]<-"White British/Irish"
+levels(alldata$Ethnicity)[2]<-"Other white"
+levels(alldata$Ethnicity)[3:4]<-"Mixed race black/white"
+levels(alldata$Ethnicity)[4:5]<-"Other"
+levels(alldata$Ethnicity)[5]<-"Indian"
+levels(alldata$Ethnicity)[6]<-"Pakistani"
+levels(alldata$Ethnicity)[7]<-"Bangladeshi"
+levels(alldata$Ethnicity)[8]<-"Chinese and other Asian"
+levels(alldata$Ethnicity)[12]<-"Chinese and other Asian"
+levels(alldata$Ethnicity)[9:11]<-"Black"
+levels(alldata$Ethnicity)[10]<-"Other"
+levels(alldata$Ethnicity)[11]<-"NA"
+
+
+
+#First plot to visualise trajectories by ethnicity
+
+alldata<-alldata[!alldata$Ethnicity=="Other",]
+alldata<-alldata[!alldata$Ethnicity=="unknown",]
+alldata<-alldata[!alldata$Ethnicity=="NA",]
+
+
+rhg_col2<-c("dodgerblue2", "#E31A1C", "green4", "#6A3D9A", "#FF7F00", "brown", "grey50", "darkturquoise", "black")
+
+refdata<-read.table("UK90ref.csv",header=TRUE, sep=",")
+
+alldata$ageyrs<-alldata$ageattest/52.12
+alldata$ageyrs<-round(alldata$ageyrs,digits=1)
+alldata<-rbind(alldata[,c(11,6,18,9)], refdata)
+fem<-alldata[alldata$Gender=="F",]
+mal<-alldata[alldata$Gender=="M",]
+
+seq.long.sum<-ddply(fem,.(Ethnicity,ageyrs),summarize,value=median(BMI))
+f<-ggplot(seq.long.sum,aes(x=ageyrs,y=value,colour=Ethnicity))+
+scale_colour_manual(values = rhg_col2,name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Girls' age (yrs)")+
+ylab("Median body mass index")+
+theme(legend.key = element_rect(colour = NA))+
+xlim(4.1,11.4)+
+ylim(15,20)+
+geom_smooth(se=FALSE)+
+theme(legend.position=c(0.2,0.8))+
+ggtitle("Girls, Manchester 2013/14-2015/16")
+
+seq.long.sum2<-ddply(mal,.(Ethnicity,ageyrs),summarize,value=median(BMI))
+m<-ggplot(seq.long.sum2,aes(x=ageyrs,y=value,colour=Ethnicity))+
+scale_colour_manual(values = rhg_col2,name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Boys' age (yrs)")+
+ylab("Median body mass index")+
+theme(legend.key = element_rect(colour = NA))+
+xlim(4.1,11.4)+
+ylim(15,20)+
+geom_smooth(se=FALSE)+
+theme(legend.position='none')+
+ggtitle("Boys, Manchester 2013/14-2016/17")
+
+library(gridExtra)
+grid.arrange(f,m, ncol=2)
+
+#ALTERNATIVE PLOT
+
+
+
+#Plot to visualise trajectories by ethnicity
+levels(subsad$Ethnicity10)[2:3]<-"White"
+subsad<-subsad[!subsad$Ethnicity10=="Other",]
+seq.long.sum<-ddply(subsad,.(Ethnicity10,ageattest),summarize,value=mean(BMI))
+
+ggplot(seq.long.sum,aes(x=ageattest,y=value,colour=Ethnicity10,group=Ethnicity10))+
+geom_point()+geom_line()+
+scale_colour_brewer(palette = "Dark2",name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+scale_y_continuous(minor_breaks = seq(0 , 25, 0.2), breaks = seq(0, 25, 0.2))+
+scale_x_continuous(minor_breaks = seq(4 , 11, 1), breaks = seq(4, 11, 1))+
+xlab("Child age (yrs)")+ylab("Mean body mass index by ethnicity")+
+theme(legend.key = element_rect(colour = NA))
