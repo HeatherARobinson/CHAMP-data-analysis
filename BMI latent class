@@ -1,0 +1,139 @@
+setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
+alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
+names(alldata)[names(alldata)=="X"] <- "SDS_BMI"
+attach(alldata)
+library(poLCA)
+alldata$Male<-"0"
+alldata$Male[alldata$Gender=="M"]<-"1"
+alldata$Upperdecile<-"0"
+alldata$Upperdecile[alldata$PostcodeDecile>=10]<-"1"
+alldata$Obesity<-"0"
+alldata$Obesity[alldata$SDS_BMI>=2]<-"1"
+attach(alldata)
+alldata$Male<-as.numeric(alldata$Male)
+alldata$Upperdecile<-as.numeric(alldata$Upperdecile)
+alldata$IsAccountRegistered<-as.numeric(alldata$IsAccountRegistered)
+alldata$Obesity<-as.numeric(alldata$Obesity)
+
+res2 = poLCA(cbind(Male=Male+1, 
+   Upperdecile=Upperdecile+1, IsAccountRegistered=IsAccountRegistered+1, 
+   Obesity=Obesity+1) ~ 1, 
+   maxiter=1000, nclass=2, 
+   nrep=10, data=alldata)
+Model 1: llik = -115663.9 ... best llik = -115663.9
+Model 2: llik = -115663.9 ... best llik = -115663.9
+Model 3: llik = -115663.3 ... best llik = -115663.3
+Model 4: llik = -115663.4 ... best llik = -115663.3
+Model 5: llik = -115663.5 ... best llik = -115663.3
+Model 6: llik = -115669 ... best llik = -115663.3
+Model 7: llik = -115664 ... best llik = -115663.3
+Model 8: llik = -115663.6 ... best llik = -115663.3
+Model 9: llik = -115663.8 ... best llik = -115663.3
+Model 10: llik = -115663.7 ... best llik = -115663.3
+Conditional item response (column) probabilities,
+ by outcome variable, for each class (row) 
+ 
+$Male
+           Pr(1)  Pr(2)
+class 1:  0.4981 0.5019
+class 2:  0.4763 0.5237
+
+$Upperdecile
+           Pr(1) Pr(2)
+class 1:  0.9990 1e-03
+class 2:  0.9995 5e-04
+
+$IsAccountRegistered
+           Pr(1)  Pr(2)
+class 1:  0.7116 0.2884
+class 2:  0.7590 0.2410
+
+$Obesity
+           Pr(1)  Pr(2)
+class 1:  0.9949 0.0051
+class 2:  0.4771 0.5229
+
+Estimated class population shares 
+ 0.7509 0.2491 
+ 
+Predicted class memberships (by modal posterior prob.) 
+ 0.8659 0.1341 
+ 
+========================================================= 
+Fit for 2 latent classes: 
+========================================================= 
+number of observations: 68702 
+number of estimated parameters: 9 
+residual degrees of freedom: 6 
+maximum log-likelihood: -115663.3 
+ 
+AIC(2): 231344.7
+BIC(2): 231426.9
+G^2(2): 7.576349 (Likelihood ratio/deviance statistic) 
+X^2(2): 6.147443 (Chi-square goodness of fit) 
+ 
+ALERT: iterations finished, MAXIMUM LIKELIHOOD NOT FOUND 
+
+res3 = poLCA(cbind(Male=Male+1, 
+   Upperdecile=Upperdecile+1, IsAccountRegistered=IsAccountRegistered+1, 
+   Obesity=Obesity+1) ~ 1, 
+   maxiter=1000, nclass=3, 
+   nrep=10, data=alldata)
+
+Model 1: llik = -115663 ... best llik = -115663
+Model 2: llik = -115664.1 ... best llik = -115663
+Model 3: llik = -115662.2 ... best llik = -115662.2
+Model 4: llik = -115662.8 ... best llik = -115662.2
+Model 5: llik = -115664.3 ... best llik = -115662.2
+Model 6: llik = -115662.4 ... best llik = -115662.2
+Model 7: llik = -115662.6 ... best llik = -115662.2
+Model 8: llik = -115662.3 ... best llik = -115662.2
+Model 9: llik = -115662.7 ... best llik = -115662.2
+Model 10: llik = -115663.6 ... best llik = -115662.2
+Conditional item response (column) probabilities,
+ by outcome variable, for each class (row) 
+ 
+$Male
+           Pr(1)  Pr(2)
+class 1:  0.5092 0.4908
+class 2:  0.1047 0.8953
+class 3:  0.6970 0.3030
+
+$Upperdecile
+           Pr(1)  Pr(2)
+class 1:  0.9986 0.0014
+class 2:  0.9987 0.0013
+class 3:  0.9996 0.0004
+
+$IsAccountRegistered
+           Pr(1)  Pr(2)
+class 1:  0.4070 0.5930
+class 2:  0.8201 0.1799
+class 3:  0.8397 0.1603
+
+$Obesity
+           Pr(1)  Pr(2)
+class 1:  0.9086 0.0914
+class 2:  0.8390 0.1610
+class 3:  0.8578 0.1422
+
+Estimated class population shares 
+ 0.257 0.2635 0.4795 
+ 
+Predicted class memberships (by modal posterior prob.) 
+ 0.2611 0.3668 0.3721 
+ 
+========================================================= 
+Fit for 3 latent classes: 
+========================================================= 
+number of observations: 68702 
+number of estimated parameters: 14 
+residual degrees of freedom: 1 
+maximum log-likelihood: -115662.2 
+ 
+AIC(3): 231352.4
+BIC(3): 231480.3
+G^2(3): 5.295495 (Likelihood ratio/deviance statistic) 
+X^2(3): 2.975787 (Chi-square goodness of fit) 
+ 
+ALERT: iterations finished, MAXIMUM LIKELIHOOD NOT FOUND
