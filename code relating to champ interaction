@@ -1,0 +1,44 @@
+#SUM THE NUMBER OF MEASUREMENTS TAKEN
+Recordr<-as.numeric(ifelse(class=="0",c ("1"),("0")))
+Record1<-as.numeric(ifelse(class=="1",c ("1"),("0")))
+Record2<-as.numeric(ifelse(class=="2",c ("1"),("0")))
+Record3<-as.numeric(ifelse(class=="3",c ("1"),("0")))
+Record4<-as.numeric(ifelse(class=="4",c ("1"),("0")))
+Record5<-as.numeric(ifelse(class=="5",c ("1"),("0")))
+Record6<-as.numeric(ifelse(class=="6",c ("1"),("0")))
+
+NoRecords<-(Recordr+Record1+Record2+Record3+Record4+Record5+Record6)
+Recs<-aggregate(mergedtable$NoRecords, by=list(Category=mergedtable$ChildID), FUN=sum)
+Recs$ChildID<-Recs$Category
+Tablerecs<-merge(mergedtable,Recs,all=TRUE, by=c('ChildID'))
+attach(Tablerecs)
+
+#CALCULATE HOW MANY CHILDREN WERE MEASURED MULTIPLE TIMES
+names(Tablerecs)[names(Tablerecs)=="x"] <- "Records"
+table(Tablerecs$Records)
+
+#CALCULATE REGISTRATION FREQUENCY
+table(Tablerecs$IsAccountRegistered)
+
+#HOW MANY CHILDREN MEASURED FOR THE FIRST TIME THIS YEAR HAVE REGISTERED?
+thisyearonly<-subset(Tablerecs, Tablerecs$testyr=="2016" & Tablerecs$NoRecords=="1")
+table(thisyearonly$IsAccountRegistered)
+
+#DOES WEIGHT STRATUM SIGNIFICANTLY PREDICT WHETHER A CHILD WILL BE REGISTERED WITH CHAMP?
+
+table(mergedtable$IsAccountRegistered, mergedtable$Obesity)
+fisher.test(mergedtable$Obesity,mergedtable$IsAccountRegistered)
+table(mergedtable$IsAccountRegistered, mergedtable$Overweight)
+fisher.test(mergedtable$Overweight,mergedtable$IsAccountRegistered)
+table(mergedtable$IsAccountRegistered, mergedtable$SuperObesity)
+fisher.test(mergedtable$SuperObesity,mergedtable$IsAccountRegistered)
+table(mergedtable$IsAccountRegistered, mergedtable$Underweight)
+fisher.test(mergedtable$Underweight,mergedtable$IsAccountRegistered)
+
+#DO MULTIPLE MEASUREMENTS DECREASE THE LIKELIHOOD OF OBESITY IN REGISTERED CHILDREN?
+#(OR ARE OBESE CHILDREN LESS LIKELY TO ATTEND ALL MEASUREMENTS)
+
+Registered<-subset(Tablerecs, Tablerecs$IsAccountRegistered=="1")
+regtable<-table(Tablerecs$Records, Tablerecs$Obesity)
+chisq.test(regtable)
+
