@@ -1,0 +1,6 @@
+setwd("c:/Users/mqbpjhr4/Documents")
+outtable<-read.table("champoutcomes.csv", header=T,sep=",")
+head(outtable)
+attach(outtable)
+model1<-glm(num~cat1+ cat2+ cat1:cat2 +cat1:cat2:reg,family=poisson)
+summary(model1)
