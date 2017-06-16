@@ -1,0 +1,42 @@
+ncmpdata15<-read.table ("ncmp_1516_final_non_disclosive_rand_id_published.csv",header=TRUE, sep=",")
+
+#First plot to visualise trajectories by SES
+
+alldata$ageyrs<-alldata$ageattest/52.12
+alldata$ageyrs<-round(alldata$ageyrs,digits=1)
+
+alldata$obesity<-ifelse(alldata$weightcat=="3"|alldata$weightcat=="5",1,0)
+alldata$children<-1
+alldata<-alldata[,c(12,18,24)]
+
+ncmpdata15$obesity<-ifelse(alldata$weightcat=="3"|alldata$weightcat=="5",1,0)
+alldata$children<-1
+alldata<-alldata[,c(12,18,24)]
+
+
+table(alldata$PostcodeDecile)
+levels(alldata$PostcodeDecile)[9:11]<-"8-10"
+seq.long.sum<-ddply(alldata,.(PostcodeDecile),summarize,value=sum(as.numeric(children)))
+seq.long.sum2<-ddply(alldata,.(PostcodeDecile),summarize,value=sum(obesity))
+seq.long.sum3<-merge(seq.long.sum, seq.long.sum2,by="PostcodeDecile")
+seq.long.sum3$Proportion<-(seq.long.sum3$value.y/seq.long.sum3$value.x)*100
+seq.long.sum3$S1<-seq.long.sum3$Proportion*(1-seq.long.sum3$Proportion)/seq.long.sum3$value.x
+seq.long.sum3$SE<-seq.long.sum3$S1^1/2 #STANDARD ERROR
+seq.long.sum3$ME<-qnorm(.975)*seq.long.sum3$SE #Margin of error      
+seq.long.sum3$UCI<-seq.long.sum3$ME+seq.long.sum3$Proportion #UPPER 95%
+seq.long.sum3$LCI<-seq.long.sum3$Proportion-seq.long.sum3$ME #LOWER 95%
+
+ses<-ggplot(seq.long.sum3,aes(x=PostcodeDecile,y=Proportion,colour=="blue"))+
+theme_bw() +
+geom_point()+
+geom_line(colour="blue")+
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+theme(panel.background = element_blank())+
+xlim(0,7)+
+xlab("IMD postcode decile (decreases with deprivation)")+
+ylab("Percentage of children obese")+
+theme(legend.key = element_rect(colour = NA))+
+theme(legend.position='none')+
+geom_text(data=seq.long.sum3,aes(label=value.y,x=PostcodeDecile,y=Proportion, labels=value.y), hjust= -0.5)+
+geom_errorbar(aes(ymin=Proportion-seq.long.sum3$ME, ymax=Proportion+seq.long.sum3$ME,width=.1))
+
