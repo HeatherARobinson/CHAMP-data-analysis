@@ -1,0 +1,188 @@
+setwd("c:/Users/mqbpjhr4/Documents")
+alldata<-read.table ("LMStableedited.csv",header=TRUE, sep=",")
+alldata$PostcodeDecile<-round(alldata$PostcodeDecile,digits=0)
+
+attach(alldata)
+alldata$ChildID<-as.factor(alldata$ChildID)
+alldata$SchoolCode<-as.factor(alldata$SchoolCode)
+alldata$IsAccountRegistered<-as.factor(alldata$IsAccountRegistered)
+
+attach(alldata)
+library(lubridate)
+ndate1<-paste(DateOfBirth,"-01",sep=""); ndate1
+alldata$DateOfBirth<-(as.Date(ndate1))
+alldata$birthmonth<-month(as.POSIXlt(alldata$DateOfBirth, format="%Y-%m-%d"))
+alldata$class<-0
+alldata$ageattestyr<-floor(alldata$ageattest/52.149)
+
+#Calculate children per group and collapse data by age and gender
+alldata$ChildID=as.numeric("1")
+alldatasums <-aggregate(alldata$ChildID, by=list(alldata$Gender,alldata$ageattestyr), FUN=sum, na.rm=TRUE)
+names(alldatasums)[names(alldatasums)=="x"] <- "TotalChildren"
+
+alldatamedian <-aggregate(alldata$BMI, by=list(alldata$Gender,alldata$ageattestyr), FUN=median, na.rm=TRUE)
+names(alldatamedian)[names(alldatamedian)=="BMI"] <- "MedianBMI"
+alldatamedian<-merge(alldatamedian,alldatasums,all=TRUE, by=c('Group.1','Group.2'))
+
+alldatamedian$SEM<-as.numeric(alldatamedian$x)/sqrt(alldatamedian$TotalChildren)
+
+
+#GGPLOT2 PLOT BMI trajectory BY GENDER
+Fa<-subset(alldatamedian, alldatamedian$Group.1=="F")
+Ma<-subset(alldatamedian, alldatamedian$Group.1=="M")
+Fa
+library(ggplot2)
+myplot1<-ggplot(Fa, aes(x = as.numeric(Fa$Group.2), y = Fa$x)) +
+  geom_ribbon(aes(ymin = (Fa$x-Fa$SEM), ymax = (Fa$x+Fa$SEM), alpha = .4,fill="coral")) + 
+  geom_point() + 
+  geom_line()+
+scale_x_continuous(limit=c(4,11))+
+scale_y_continuous(limit=c(14,20))+
+ggtitle("BMI 4-11 years 2013-2016- girls")+
+labs(x="Child age at assessment (years)",y="Median BMI, years 2013-2016")
+
+myplot2<-ggplot(Ma, aes(x = as.numeric(Ma$Group.2), y = Ma$x)) +
+  geom_ribbon(aes(ymin = (Ma$x-Ma$SEM), ymax = (Ma$x+Ma$SEM)), alpha = .4,fill="steelblue2") + 
+  geom_point() + 
+  geom_line()+
+scale_x_continuous(limit=c(4,11))+
+scale_y_continuous(limit=c(14,20))+
+ggtitle("BMI 4-11 years 2013-2016- boys")+
+labs(x="Child age at assessment (years)",y="Median BMI, years 2013-2016")+
+ theme(panel.background = element_rect(fill = 'lightblue'))
+Ma
+library(grid)
+pushViewport(viewport(layout = grid.layout(1, 2)))
+print(myplot1, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+
+legend('topright', c("Male","Female","1990 mean values"),pch=c(16,16,NA), col=c('red', 'blue', 'red'), bty='n', cex=.75)
+legend('topright', c("Male","Female","1990 mean values"),lty=c(NA,NA,1), col=c('red', 'blue', 'red'), bty='n', cex=.75)
+print(myplot2, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+
+
+#BASE R PLOT DEVIATION FROM 1990 MEANS BY SOCIAL DECILE
+
+plot(jitter(alldata$ageattest,factor=0.2),alldata$SDS_BMI, main="Standard deviation from 1990s mean BMI by social decile",xlim=c(4,11),ylim=c(-6,7),cex=0.1,ylab="Standard deviation from 1990 mean BMI",col=c("firebrick3", "firebrick1", "red","coral3","bisque","aliceblue","cadetblue1","cyan2","dodgerblue","blue")[as.factor(alldata$PostcodeDecile)],pch=16,xlab="Age of child at assessment (years)")
+legend(x="topright", legend = levels(as.factor(alldata$PostcodeDecile)), pch=16,cex=0.75,col=c("firebrick3", "firebrick1", "red","coral3","bisque","aliceblue","cadetblue1","cyan2","dodgerblue","blue"),bty='n')
+abline(h = 0, v = 0, col = "black")
+
+library(plyr)
+alldata<-alldata[!is.na(alldata$PostcodeDecile),]
+
+alldata$PostcodeDecile<-as.numeric(alldata$PostcodeDecile)
+yr144<-alldata[alldata$AcademicYear=="2014/2015"&alldata$ageattest=="4",]
+yr154<-alldata[alldata$AcademicYear=="2015/2016"&alldata$ageattest=="4",]
+yr1410<-alldata[alldata$AcademicYear=="2014/2015"&alldata$ageattest=="10",]
+yr1510<-alldata[alldata$AcademicYear=="2015/2016"&alldata$ageattest=="10",]
+X1<-ddply(yr144, .(PostcodeDecile), function(x) quantile(x$BMI))
+X2<-ddply(yr1410, .(PostcodeDecile), function(x) quantile(x$BMI))
+X3<-ddply(yr154, .(PostcodeDecile), function(x) quantile(x$BMI))
+X4<-ddply(yr1510, .(PostcodeDecile), function(x) quantile(x$BMI))
+
+quantile(yr14)
+plot(X1$PostcodeDecile,X1$"25%", main="Range between 25th and 75th centile by postcode decile, age=4",xlim=c(0,10),ylim=c(12,22),ylab="Body Mass Index",col="black",type="l",xlab="Postcode decile")
+legend("topright",c("2014 25th","2014 75th","2015 25th", "2015 75th"), col=c("black", "black","blue","blue"),lty=c(1,2,1,2))
+lines(X3$PostcodeDecile,X3$"25%", main="Range between 25th and 75th centile by postcode decile",ylab="Body Mass Index",col="blue")
+lines(X1$PostcodeDecile,X1$"75%", main="Range between 25th and 75th centile by postcode decile",ylab="Body Mass Index",col="black",lty=2)
+lines(X3$PostcodeDecile,X3$"75%", main="Range between 25th and 75th centile by postcode decile",ylab="Body Mass Index",col="blue",lty=2)
+
+plot(X2$PostcodeDecile,X2$"25%", main="Range between 25th and 75th centile by postcode decile, age=10",xlim=c(0,10),ylim=c(12,32),ylab="Body Mass Index",col="black",type="l",xlab="Postcode decile")
+legend("topright",c("2014 25th","2014 75th","2015 25th", "2015 75th"), col=c("black", "black","blue","blue"),lty=c(1,2,1,2))
+lines(X4$PostcodeDecile,X4$"25%", main="Range between 25th and 75th centile by postcode decile",ylab="Body Mass Index",col="blue")
+lines(X2$PostcodeDecile,X2$"75%", main="Range between 25th and 75th centile by postcode decile",ylab="Body Mass Index",col="black",lty=2)
+lines(X4$PostcodeDecile,X4$"75%", main="Range between 25th and 75th centile by postcode decile",ylab="Body Mass Index",col="blue",lty=2)
+
+
+
+,legend(x="topright", legend = c("2014 25th","2014 75th","2015 25th", "2015 75th"), col=c("firebrick3", "firebrick3","blue","blue"),lty=c(1,2,1,2))
+,bty='n')
+
+
+
+
+#Visualise trajectories by gender
+alldata$PostcodeDecile<-as.factor(alldata$PostcodeDecile)
+levels(alldata$PostcodeDecile)[1:3]<-"0-2"
+levels(alldata$PostcodeDecile)[2:4]<-"3-5"
+levels(alldata$PostcodeDecile)[3:5]<-"6-8"
+levels(alldata$PostcodeDecile)[4:5]<-"9-10"
+alldata$BMI<-as.numeric(alldata$BMI)
+alldat1<-alldata[alldata$AcademicYear=="2013/2014",]
+alldat2<-alldata[alldata$AcademicYear=="2014/2015",]
+alldat3<-alldata[alldata$AcademicYear=="2015/2016",]
+seq.post1a<-ddply(alldat1,.(PostcodeDecile,ageattest),summarize,value=quantile(BMI,0.75))
+seq.post1b<-ddply(alldat1,.(PostcodeDecile,ageattest),summarize,value=quantile(BMI,0.25))
+seq.post2a<-ddply(alldat2,.(PostcodeDecile,ageattest),summarize,value=quantile(BMI,0.75))
+seq.post2b<-ddply(alldat2,.(PostcodeDecile,ageattest),summarize,value=quantile(BMI,0.25))
+seq.post3a<-ddply(alldat3,.(PostcodeDecile,ageattest),summarize,value=quantile(BMI,0.75))
+seq.post3b<-ddply(alldat3,.(PostcodeDecile,ageattest),summarize,value=quantile(BMI,0.25))
+cbPalette <- c("#FF0000", "#0066FF", "#FF0000", "#0066FF")
+
+#SUMMARY PLOT BY POSTCODE DECILE OVER TIME
+# Load
+library(wesanderson)
+
+one<-ggplot(seq.post1a,aes(x=ageattest,y=value,colour=PostcodeDecile,group=PostcodeDecile))+
+geom_point()+geom_line()+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Child age (yrs)")+ylab("SD from UK90 body mass index by postcode decile")+
+theme(legend.key = element_rect(colour = NA))+
+scale_colour_brewer(palette="Blues")
+
+two<-ggplot(seq.post2,aes(x=ageattest,y=value,colour=PostcodeDecile,group=PostcodeDecile))+
+geom_point()+geom_line()+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Child age (yrs)")+ylab("SD from UK90 body mass index by postcode decile")+
+theme(legend.key = element_rect(colour = NA))
+two
+
+scale_colour_manual(values=wes_palette(name="Zissou"))+
+
+
+#GGPLOT2 YEAR ON YEAR VARIATION IN WEIGHT CATEGORY COMPOSITION
+
+install.packages("devtools")
+library(devtools)
+install_github("easyGgplot2", "kassambara")
+library(easyGgplot2)
+Iamfour<-subset(alldata, alldata$ageattest=="4")
+Iamten<-subset(alldata,alldata$ageattest=="10")
+four<-ggplot2.barplot(data=Iamfour, xName="AcademicYear",xTickLabelFont=c(10, "bold", "black"), brewerPalette='Set3', ytitle="Number of children measured",na.rm=TRUE,groupName="weightcat", mainTitle="Weight categories of four year olds by year", legendTitle="Weight category")
+ten<-ggplot2.barplot(data=Iamten, xTickLabelFont=c(10, "bold", "black"),brewerPalette='Set3', xName="AcademicYear", ytitle="Number of children measured",na.rm=TRUE,groupName="weightcat", mainTitle="Weight categories of ten year olds by year", legendTitle="Weight category")
+
+library(grid)
+pushViewport(viewport(layout = grid.layout(1, 2)))
+print(four+theme(axis.text.y=element_text(size=10), axis.title=element_text(size=12)), vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(ten+theme(axis.text.y=element_text(size=10)), vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+
+
+
+
+
+library(ggplot2)
+p <- ggplot(subsad, aes(x=subsad$ageattest, y=subsad$SDS_BMI, colour=Ethnicity5)) +
+  geom_point(size=2)+
+labs(title="Varying responses: predicted deviation from 1990s mean BMI by ethnicity",y="Predicted standard deviation from mean BMI 1990",x="child age (years)")+
+scale_color_discrete(name="Ethnicity code")+
+ylim(-6,6)+
+  geom_line(aes(y=predict(VI1), group=Ethnicity5) +
+    theme_bw(base_size=22))
+
+#There are differences in the timepoints at which children are closer to or further from the 1990 BMI mean, depending on their ethnicity.
+
+
+
+
+#PLOT ALL TRAJECTORIES GGPLOT2
+attach(alldata)
+plot(ageattest,SDS_BMI,lty=1)
+
+
+g <- ggplot(aes(x = ageattest, y = SDS_BMI),data=alldata) +
+geom_smooth(aes(group = 1), method = "lm", size = 3, se = FALSE)+
+geom_line(aes(group = Ethnicity),color=Ethnicity,alpha=0.1)+
+scale_color_discrete(name="Ethnicity")+
+ylim(0,1)+
+theme_bw()
