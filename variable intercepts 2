@@ -1,0 +1,82 @@
+library(lme4)
+SchoolCode<-as.factor(SchoolCode)
+ChildID<-as.factor(ChildID)
+#VARIABLE INTERCEPTS MODEL
+VI1<- lmer(BMI~ ageattest*Gender*Ethnicity+PostcodeDecile+(1|ChildID)+(1|SchoolCode),REML=FALSE)
+summary(VI1)
+#model converges
+
+Ethnicity2<-Ethnicity
+levels(Ethnicity2)
+levels(Ethnicity2)[1:2]<-"White"
+VI2<- lmer(BMI~ ageattest*Gender*Ethnicity2*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI1, VI2,test="LRT")
+#Group British and Irish white- significantly better
+
+Ethnicity3<-Ethnicity2
+levels(Ethnicity3)[1:2]<-"White"
+VI3<- lmer(BMI~ ageattest*Gender*Ethnicity3*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI2, VI3,test="LRT")
+#Marginal- group white other with British white
+
+Ethnicity4<-Ethnicity3
+levels(Ethnicity4)[11:12]<-"Black African and other"
+VI4<- lmer(BMI~ ageattest*Gender*Ethnicity4*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI3, VI4,test="LRT")
+#Black African and other black can be grouped
+
+Ethnicity5<-Ethnicity4
+levels(Ethnicity5)
+levels(Ethnicity5)[2:3]<-"Mixed black and white"
+VI5<- lmer(BMI~ ageattest*Gender*Ethnicity5*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI4, VI5,test="LRT")
+#Can group mixed black and white ethnicities
+
+Ethnicity6<-Ethnicity5
+levels(Ethnicity6)[9:10]<-"Black"
+VI6<- lmer(BMI~ ageattest*Gender*Ethnicity6*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI5, VI6,TEST="LRT")
+#Can group Carribean and African- significantly better fit
+
+Ethnicity7<-Ethnicity6
+levels(Ethnicity7)
+levels(Ethnicity7)[5:6]<-"Indian/Pakistani"
+VI7<-lmer(BMI~ ageattest*Gender*Ethnicity7*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI6, VI7,test="LRT")
+#Indian can group with Pakistani- marginal
+
+Ethnicity8<-Ethnicity7
+levels(Ethnicity8)[3]<-"Asian"
+levels(Ethnicity8)[5]<-"Asian"
+VI8<- lmer(BMI~ ageattest*Gender + Ethnicity8*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI8, VI7,test="LRT")
+#Group mixed asian with Pakistani and Indian
+
+Ethnicity9<-Ethnicity8
+levels(Ethnicity9)[5]<-"Asian"
+VI9<- lmer(BMI~ ageattest*Gender + Ethnicity9*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI9, VI8,test="LRT")
+#Group Asian with Bangladeshi
+
+Ethnicity10<-Ethnicity9
+levels(Ethnicity10)[5]<-"Asian"
+VI10<- lmer(BMI~ ageattest+Gender*Ethnicity10*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI9, VI10,test="LRT")
+#Group other Asian with Asian
+
+Ethnicity11<-Ethnicity10
+levels(Ethnicity11)[4]<-"other"
+levels(Ethnicity11)[7]<-"other"
+
+Ethnicity12<-Ethnicity11
+levels(Ethnicity12)[6]<-"Asian"
+VI11<- lmer(BMI~ ageattest+Gender*Ethnicity12*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI10, VI11,test="LRT")
+#Group Chinese with Asian
+
+levels(Ethnicity12)[7]<-"NA"
+VI11<- lmer(BMI~ ageattest+Gender*Ethnicity12*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+summary(VI11)
+
+
+#########################
