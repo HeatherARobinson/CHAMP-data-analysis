@@ -1,0 +1,45 @@
+setwd("c:/Users/mqbpjhr4/Documents")
+champtable<-read.table("CMFTfile.csv", header=T,sep=",")
+head(champtable)
+#CHECK FOR WEIGHT AND HEIGHT DATA ENTRY ERRORS. 
+#USES THE NHS 'VALIDATION OF CHILD MEASUREMENT PROGRAMME DATA' REPORT 2016 ERROR REJECTION CUTOFFS 
+#CUTOFFS USED FOR RECEPTION AND YR6 ONLY
+#Update this with a table?
+attach(champtable)
+library(lubridate)
+ndate1<-paste(DateOfBirth,"-01",sep=""); ndate1 #The data does not have day values within the dates, so these are assigned as the 1st of the month for R purposes.
+ndate1<-(as.Date(ndate1))
+ndate2<-paste(AssessmentDate,"-01",sep=""); ndate2
+ndate2<-(as.Date(ndate2))
+require(lubridate)
+champtable$ageattest<-floor(difftime(strptime(ndate2, format="%Y-%m-%d"),
+strptime(ndate1, format="%Y-%m-%d"),units="weeks"))
+champtable$ageattest<-as.numeric(champtable$ageattest)
+attach(champtable)
+#Gives ages in weeks
+
+
+#REMOVE OUT OF RANGE AGES DUE TO DATE ENTRY ERRORS
+champ<-champtable
+champ$ageattest<-as.numeric(champ$ageattest)
+champ<-subset(champ, champ$ageattest<=625 & champ$ageattest>=208)
+attach(champ)
+champ$ageattest<-as.integer(champ$ageattest)
+
+champ <- champ[order(champ$ChildID),] 
+
+#DEFINE FACTORS
+sch<-as.character(SchoolCode)
+ID<-as.character(ChildID)
+champ$BMI<-champ$WeightKG/(champ$HeightCM/100)^2
+
+LMStable<-file(paste("LMStable1005.csv"), open="w")
+cat("ChildID","SchoolCode","AcademicYear","AssessmentDate","DateOfBirth","Gender","HeightCM","WeightKG","BMI","IsAccountRegistered","Ethnicity","PostcodeDecile","ageattest","\n", sep=",",file="LMStable1005.csv",append=TRUE)
+for (n in 1:108364){cat((paste(champ$ChildID[n])),(paste(champ$SchoolCode[n])),(paste(champ$AcademicYear[n])),(paste(champ$AssessmentDate[n])),(paste(champ$DateOfBirth[n])),(paste(champ$Gender[n])), (paste(champ$HeightCM[n])),(paste(champ$WeightKG[n])),(paste(champ$BMI[n])),(paste(champ$IsAccountRegistered[n])),(paste(champ$Ethnicity[n])),(paste(champ$IMDdecile[n])),(paste(champ$ageattest[n])),"\n", file="LMStable1005.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
+#USE the excel plugin LMSGrowth to add SDs from BMIs and save table.
+
+
+
+
+
