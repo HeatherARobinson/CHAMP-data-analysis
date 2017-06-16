@@ -1,0 +1,683 @@
+setwd("c:/Users/mqbpjhr4/Documents")
+champtable<-read.table("NCMPfile.csv", header=T,sep=",")
+head(champtable)
+#CHECK FOR WEIGHT AND HEIGHT DATA ENTRY ERRORS. 
+#USES THE NHS 'VALIDATION OF CHILD MEASUREMENT PROGRAMME DATA' REPORT 2016 ERROR REJECTION CUTOFFS 
+#CUTOFFS USED FOR RECEPTION AND YR6 ONLY
+#Update this with a table?
+attach(champtable)
+library(lubridate)
+ndate1<-paste(DateOfBirth,"-01",sep=""); ndate1 #The data does not have day values within the dates, so these are assigned as the 1st of the month for R purposes.
+ndate1<-(as.Date(ndate1))
+ndate2<-paste(AssessmentDate,"-01",sep=""); ndate2
+ndate2<-(as.Date(ndate2))
+require(lubridate)
+champtable$ageattest<-floor(difftime(strptime(ndate2, format="%Y-%m-%d"),
+strptime(ndate1, format="%Y-%m-%d"),units="weeks"))
+champtable$ageattest<-as.numeric(champtable$ageattest)
+attach(champtable)
+#Gives ages in weeks
+
+
+#REMOVE OUT OF RANGE AGES DUE TO DATE ENTRY ERRORS
+champ<-champtable
+champ$ageattest<-as.numeric(champ$ageattest)
+champ<-subset(champ, champ$ageattest<=625 & champ$ageattest>=208)
+attach(champ)
+champ$ageattest<-as.integer(champ$ageattest)
+
+champ <- champ[order(champ$ChildID),] 
+
+#DEFINE FACTORS
+sch<-as.character(SchoolCode)
+ID<-as.character(ChildID)
+champ$BMI<-champ$WeightKG/(champ$HeightCM/100)^2
+
+LMStable<-file(paste("LMStable1005.csv"), open="w")
+cat("ChildID","SchoolCode","AcademicYear","AssessmentDate","DateOfBirth","Gender","HeightCM","WeightKG","BMI","IsAccountRegistered","Ethnicity","PostcodeDecile","ageattest","\n", sep=",",file="LMStable1005.csv",append=TRUE)
+for (n in 1:108364){cat((paste(champ$ChildID[n])),(paste(champ$SchoolCode[n])),(paste(champ$AcademicYear[n])),(paste(champ$AssessmentDate[n])),(paste(champ$DateOfBirth[n])),(paste(champ$Gender[n])), (paste(champ$HeightCM[n])),(paste(champ$WeightKG[n])),(paste(champ$BMI[n])),(paste(champ$IsAccountRegistered[n])),(paste(champ$Ethnicity[n])),(paste(champ$IMDdecile[n])),(paste(champ$ageattest[n])),"\n", file="LMStable1005.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
+#USE the excel plugin LMSGrowth to add SDs from BMIs and save table.
+
+
+#IN EXCEL, APPLY THE NCMP ERROR REJECTION CUTOFFS BASED ON Z SCORE FOR HEIGHT, WEIGHT, BMI (+ OR - 7)
+################################
+
+setwd("c:/Users/mqbpjhr4/Documents")
+alldata<-read.table("LMStableedited.csv",header=TRUE, sep=",")
+length(alldata$ChildID)
+alldata<-subset(alldata,!is.na(alldata$BMI),)
+length(alldata$ChildID) #44 records removed
+alldata$ChildID<-as.factor(alldata$ChildID)
+levels(alldata$ChildID) #63339 children
+alldata$PostcodeDecile<-round(alldata$PostcodeDecile,digits=0)
+alldata<-alldata[floor(alldata$ageattest/52.12)<12&floor(alldata$ageattest/52.12)>3,]
+
+#########################
+#remove duplicates
+
+alldata2<-alldata[order(alldata$ChildID,alldata$AssessmentDate),]
+names(alldata2)
+d<-duplicated(alldata2[,c(1,4)])
+head(alldata2[d,],n=10)
+head(alldata2,n=20)
+alldata2<-alldata2[!d,]
+length(alldata$ChildID)-length(alldata2$ChildID) #134 duplicate entries removed
+alldata<-alldata2
+
+#############################
+
+library(lubridate)
+alldata$DateOfBirth<-(as.Date(paste(alldata$DateOfBirth,"-01",sep="")))
+alldata$AssessmentDate<-as.Date(paste(alldata$AssessmentDate,"-01",sep=""))
+alldata$assyr<-year(as.POSIXlt(alldata$AssessmentDate, format="%Y-%m-%d"))
+alldata$ageattestyr<-floor(alldata$ageattest/52.149) #Round year down to give age
+
+attach(alldata)
+alldata$ChildID<-as.factor(alldata$ChildID)
+alldata$SchoolCode<-as.factor(alldata$SchoolCode)
+alldata$IsAccountRegistered<-as.factor(alldata$IsAccountRegistered)
+
+#############################
+#CARRY OUT PRELIMINARY REGRESSION
+
+library(lme4)
+library(arm)
+
+#FIXED EFFECTS SPECIFICATION- SELECTING EFFECTS TO INCLUDE IN MIXED EFFECTS MODEL VIA GLM- BMI RESPONSE
+library(lme4)
+library(arm)
+#ChildID causes problems in the model so has been removed but will be added to the VI model.
+GLM1 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+alldata$AcademicYear, data = alldata)
+GLM2 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender+alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM2, test = "Chisq")
+#INTERACTION SIGNIFICANT
+
+GLM3 <- glm(alldata$BMI ~ alldata$ageattest+alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM3, test = "Chisq")
+#THREE WAY INTERACTION BETWEEN AGE, GENDER AND ETHNICITY 
+
+GLM4 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$AcademicYear, data = alldata)
+anova(GLM1, GLM4, test = "Chisq")
+#CHAMP REGISTRATION NOT SIGNIFICANT
+
+GLM5 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode, data = alldata)
+anova(GLM1, GLM5, test = "Chisq")
+#ACADEMIC YEAR IS SIGNIFICANT
+
+GLM6 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$AcademicYear, data = alldata)
+anova(GLM4, GLM6, test = "Chisq")
+#SCHOOL CODE IS SIGNIFICANT
+
+#CHAMP status not required for VI model, Acdemic year, IMD and school code significant
+
+####################################################
+
+#Z SCORE RESPONSE
+
+GLM1 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+alldata$AcademicYear, data = alldata)
+GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender+alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM2, test = "Chisq")
+#INTERACTION SIGNIFICANT
+
+GLM3 <- glm(alldata$SDS_BMI ~ alldata$ageattest+alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM3, test = "Chisq")
+#THREE WAY INTERACTION BETWEEN AGE, GENDER AND ETHNICITY 
+
+GLM4 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$AcademicYear, data = alldata)
+anova(GLM1, GLM4, test = "Chisq")
+#CHAMP REGISTRATION NOT SIGNIFICANT
+
+GLM5 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode, data = alldata)
+anova(GLM1, GLM5, test = "Chisq")
+#ACADEMIC YEAR IS SIGNIFICANT
+
+GLM6 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$AcademicYear, data = alldata)
+anova(GLM4, GLM6, test = "Chisq")
+#SCHOOL CODE IS SIGNIFICANT
+summary(GLM6)
+
+#CHAMP status not required for VI model, Acdemic year, IMD and school code significant
+
+############################################################
+
+#VARIABLE INTERCEPTS MODEL
+
+SchoolCode<-as.factor(SchoolCode)
+ChildID<-as.factor(ChildID)
+#VARIABLE INTERCEPTS MODEL
+VI1<- lmer(BMI~ ageattest*Gender*Ethnicity+PostcodeDecile+(1|ChildID)+(1|SchoolCode),REML=FALSE)
+summary(VI1)
+#model converges
+
+Ethnicity2<-Ethnicity
+levels(Ethnicity2)
+levels(Ethnicity2)[1:2]<-"White"
+VI2<- lmer(BMI~ ageattest*Gender*Ethnicity2*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI1, VI2,test="LRT")
+#Group British and Irish white- significantly better
+
+Ethnicity3<-Ethnicity2
+levels(Ethnicity3)[1:2]<-"White"
+VI3<- lmer(BMI~ ageattest*Gender*Ethnicity3*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI2, VI3,test="LRT")
+#Marginal- group white other with British white
+
+Ethnicity4<-Ethnicity3
+levels(Ethnicity4)[11:12]<-"Black African and other"
+VI4<- lmer(BMI~ ageattest*Gender*Ethnicity4*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI3, VI4,test="LRT")
+#Black African and other black can be grouped
+
+Ethnicity5<-Ethnicity4
+levels(Ethnicity5)
+levels(Ethnicity5)[2:3]<-"Mixed black and white"
+VI5<- lmer(BMI~ ageattest*Gender*Ethnicity5*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI4, VI5,test="LRT")
+#Can group mixed black and white ethnicities
+
+Ethnicity6<-Ethnicity5
+levels(Ethnicity6)[9:10]<-"Black"
+VI6<- lmer(BMI~ ageattest*Gender*Ethnicity6*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI5, VI6,TEST="LRT")
+#Can group Carribean and African- significantly better fit
+
+Ethnicity7<-Ethnicity6
+levels(Ethnicity7)
+levels(Ethnicity7)[5:6]<-"Indian/Pakistani"
+VI7<-lmer(BMI~ ageattest*Gender*Ethnicity7*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI6, VI7,test="LRT")
+#Indian can group with Pakistani- marginal
+
+Ethnicity8<-Ethnicity7
+levels(Ethnicity8)[3]<-"Asian"
+levels(Ethnicity8)[5]<-"Asian"
+VI8<- lmer(BMI~ ageattest*Gender + Ethnicity8*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI8, VI7,test="LRT")
+#Group mixed asian with Pakistani and Indian
+
+Ethnicity9<-Ethnicity8
+levels(Ethnicity9)[5]<-"Asian"
+VI9<- lmer(BMI~ ageattest*Gender + Ethnicity9*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI9, VI8,test="LRT")
+#Group Asian with Bangladeshi
+
+Ethnicity10<-Ethnicity9
+levels(Ethnicity10)[5]<-"Asian"
+VI10<- lmer(BMI~ ageattest+Gender*Ethnicity10*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI9, VI10,test="LRT")
+#Group other Asian with Asian
+
+Ethnicity11<-Ethnicity10
+levels(Ethnicity11)[4]<-"other"
+levels(Ethnicity11)[7]<-"other"
+
+Ethnicity12<-Ethnicity11
+levels(Ethnicity12)[6]<-"Asian"
+VI11<- lmer(BMI~ ageattest+Gender*Ethnicity12*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+anova(VI10, VI11,test="LRT")
+#Group Chinese with Asian
+
+levels(Ethnicity12)[7]<-"NA"
+VI11<- lmer(BMI~ ageattest+Gender*Ethnicity12*PostcodeDecile +(1|ChildID)+(1|SchoolCode),REML=FALSE)
+summary(VI11)
+
+###########################################################################################
+
+#PLOT MEDIAN BMI BY AGE AND GENDER
+
+library(plyr)
+alldata$ageattest<-alldata$ageattest
+alldata<-alldata[alldata$ageattest<=11&alldata$ageattest>3,]
+#Visualise trajectories by gender
+
+seq.gender <-aggregate(alldata$BMI, by=list(alldata$Gender,alldata$ageattest), FUN=median, na.rm=TRUE)
+seq.gender<-rename(seq.gender,c("Group.1"="Gender","Group.2"="ageyrs","x"="BMI"))
+UK90<-read.table ("UK90REF.csv",header=TRUE, sep=",")
+curve<-rbind(seq.gender,UK90)
+cbPalette <- c("#FF0000", "#0066FF", "#FF0000", "#0066FF")
+
+ggplot(curve,aes(x=ageyrs,y=BMI,colour=Gender,linetype=Gender,group=Gender))+
+scale_linetype_manual(values=c(rep("solid",2),rep("dashed",2)))+
+scale_color_manual(values = c("#FF0000", "#0066FF", "#FF0000", "#0066FF"),name="Gender")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+scale_y_continuous(minor_breaks = seq(0 , 25, 0.2), breaks = seq(0, 25, 0.2))+
+scale_x_continuous(minor_breaks = seq(3.6 , 10.6, 1), breaks = seq(4, 11, 1))+
+xlab("Child age (yrs)")+ylab("Median body mass index by gender")+
+theme(legend.key = element_rect(colour = NA))+
+geom_smooth(method="loess")+
+ggtitle("Median body mass index, Manchester 2013-2016")
+
+
+####################################################################################
+
+###############################
+#MEASURE CENTILE DIFFERENCES BETWEEN CURVES
+
+attach(alldata)
+levels(alldata$Ethnicity)
+levels(alldata$Ethnicity)[1:3]<-"White British/Irish"
+
+refdata<-read.table("UK90ref.csv",header=TRUE, sep=",")
+refdata$ageyrs<-floor(refdata$ageattest)
+alldata$ageyrs<-as.numeric(floor(alldata$ageyrs))
+alldata<-rbind(alldata[,c(11,6,17,9)], refdata)
+
+fem<-alldata[alldata$Gender=="F",]
+mal<-alldata[alldata$Gender=="M",]
+seq.long.sum<-ddply(fem,.(Ethnicity,as.numeric(ageyrs)),summarize,value=median(as.numeric(BMI)))
+seq.long.sum2<-ddply(mal,.(Ethnicity,as.numeric(ageyrs)),summarize,value=median(as.numeric(BMI)))
+white<-subset(seq.long.sum,Ethnicity=="White British/Irish")
+UK90<-subset(seq.long.sum,Ethnicity=="UK90")
+
+f<-merge(white,UK90,by="as.numeric(ageyrs)")
+f <- f[-c(2,4) ]
+f <- f[-c(1) ]
+diff(f)/f[-nrow(f),] * 100
+f <- f[c(2,1)]
+j<-f/lag(f,1) - 1
+mean(j$value.x)
+
+white2<-subset(seq.long.sum2,Ethnicity=="White British/Irish")
+UK902<-subset(seq.long.sum2,Ethnicity=="UK90")
+f2<-merge(white2,UK902,by="as.numeric(ageyrs)")
+f2<- f2[ -c(2,4) ]
+f2<- f2[ -c(1) ]
+f2<- f2[c(2,1)]
+j<-f/lag(f,1) - 1
+mean(j$value.x,na.rm=TRUE)
+
+#################################################
+#ETHNICITY PLOT
+
+library(plyr)
+attach(alldata)
+alldata$ChildID<-as.factor(alldata$ChildID)
+alldata$SchoolCode<-as.factor(alldata$SchoolCode)
+alldata$IsAccountRegistered<-as.factor(alldata$IsAccountRegistered)
+attach(alldata)
+levels(alldata$Ethnicity)
+levels(alldata$Ethnicity)[1:2]<-"White British/Irish"
+levels(alldata$Ethnicity)[2]<-"Other white"
+levels(alldata$Ethnicity)[3:4]<-"Mixed race black/white"
+levels(alldata$Ethnicity)[4:5]<-"Other"
+levels(alldata$Ethnicity)[5]<-"Indian"
+levels(alldata$Ethnicity)[6]<-"Pakistani"
+levels(alldata$Ethnicity)[7]<-"Bangladeshi"
+levels(alldata$Ethnicity)[8]<-"Chinese and other Asian"
+levels(alldata$Ethnicity)[12]<-"Chinese and other Asian"
+levels(alldata$Ethnicity)[9:11]<-"Black"
+levels(alldata$Ethnicity)[10]<-"Other"
+levels(alldata$Ethnicity)[11]<-"NA"
+alldata<-alldata[!alldata$Ethnicity=="Other",]
+alldata<-alldata[!alldata$Ethnicity=="unknown",]
+alldata<-alldata[!alldata$Ethnicity=="NA",]
+
+
+rhg_col2<-c("dodgerblue2", "#E31A1C", "green4", "#6A3D9A", "#FF7F00", "brown", "grey50", "darkturquoise", "black")
+
+refdata<-read.table("UK90ref.csv",header=TRUE, sep=",")
+
+alldata$ageyrs<-alldata$ageattest/52.12
+alldata$ageyrs<-round(alldata$ageyrs,digits=1)
+alldata<-rbind(alldata[,c(11,6,18,9)], refdata)
+fem<-alldata[alldata$Gender=="F",]
+mal<-alldata[alldata$Gender=="M",]
+
+seq.long.sum<-ddply(fem,.(Ethnicity,ageyrs),summarize,value=median(BMI))
+f<-ggplot(seq.long.sum,aes(x=ageyrs,y=value,colour=Ethnicity))+
+scale_colour_manual(values = rhg_col2,name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Girls' age (yrs)")+
+ylab("Median body mass index")+
+theme(legend.key = element_rect(colour = NA))+
+xlim(4.1,11.4)+
+ylim(15,20)+
+geom_smooth(se=FALSE)+
+theme(legend.position=c(0.2,0.8))+
+ggtitle("Girls, Manchester 2013/14-2015/16")
+
+seq.long.sum2<-ddply(mal,.(Ethnicity,ageyrs),summarize,value=median(BMI))
+m<-ggplot(seq.long.sum2,aes(x=ageyrs,y=value,colour=Ethnicity))+
+scale_colour_manual(values = rhg_col2,name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+xlab("Boys' age (yrs)")+
+ylab("Median body mass index")+
+theme(legend.key = element_rect(colour = NA))+
+xlim(4.1,11.4)+
+ylim(15,20)+
+geom_smooth(se=FALSE)+
+theme(legend.position='none')+
+ggtitle("Boys, Manchester 2013/14-2016/17")
+
+library(gridExtra)
+grid.arrange(f,m, ncol=2)
+#################################################################
+#PLOT OBESITY PREVALENCE BY IMD
+
+alldata$ageyrs<-alldata$ageattest/52.12
+alldata$ageyrs<-round(alldata$ageyrs,digits=1)
+
+alldata$obesity<-ifelse(alldata$weightcat=="3"|alldata$weightcat=="5",1,0)
+alldata$children<-1
+alldata<-alldata[,c(12,18,24)]
+
+ncmpdata15$obesity<-ifelse(alldata$weightcat=="3"|alldata$weightcat=="5",1,0)
+alldata$children<-1
+alldata<-alldata[,c(12,18,24)]
+
+
+table(alldata$PostcodeDecile)
+levels(alldata$PostcodeDecile)[9:11]<-"8-10"
+seq.long.sum<-ddply(alldata,.(PostcodeDecile),summarize,value=sum(as.numeric(children)))
+seq.long.sum2<-ddply(alldata,.(PostcodeDecile),summarize,value=sum(obesity))
+seq.long.sum3<-merge(seq.long.sum, seq.long.sum2,by="PostcodeDecile")
+seq.long.sum3$Proportion<-(seq.long.sum3$value.y/seq.long.sum3$value.x)*100
+seq.long.sum3$S1<-seq.long.sum3$Proportion*(1-seq.long.sum3$Proportion)/seq.long.sum3$value.x
+seq.long.sum3$SE<-seq.long.sum3$S1^1/2 #STANDARD ERROR
+seq.long.sum3$ME<-qnorm(.975)*seq.long.sum3$SE #Margin of error      
+seq.long.sum3$UCI<-seq.long.sum3$ME+seq.long.sum3$Proportion #UPPER 95%
+seq.long.sum3$LCI<-seq.long.sum3$Proportion-seq.long.sum3$ME #LOWER 95%
+
+ses<-ggplot(seq.long.sum3,aes(x=PostcodeDecile,y=Proportion,colour=="blue"))+
+theme_bw() +
+geom_point()+
+geom_line(colour="blue")+
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+theme(panel.background = element_blank())+
+xlim(0,7)+
+xlab("IMD postcode decile (decreases with deprivation)")+
+ylab("Percentage of children obese")+
+theme(legend.key = element_rect(colour = NA))+
+theme(legend.position='none')+
+geom_text(data=seq.long.sum3,aes(label=value.y,x=PostcodeDecile,y=Proportion, labels=value.y), hjust= -0.5)+
+geom_errorbar(aes(ymin=Proportion-seq.long.sum3$ME, ymax=Proportion+seq.long.sum3$ME,width=.1))
+############################################################################################
+
+#WRITE FILES OF SUMMARY FIGURES
+
+champtable<-read.table("LMStableedited.csv", header=T,sep=",")
+tail(champtable)
+attach(champtable)
+#Check how many children and schools are recorded
+as.factor(SchoolCode) #201 schools
+as.factor(ChildID) #63348 children
+SchoolCode<-as.character(SchoolCode)
+ChildID<-as.character(ChildID)
+
+#DETERMINE OVERWEIGHT, OBESE, SEVERELY OBESE
+champ2$weightcat<-"normal"
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=90.879,"overweight",champ2$weightcat)
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=97.725,"obese",champ2$weightcat)
+champ2$weightcat<-ifelse(champ2$Centile_BMI<2.275,"underweight",champ2$weightcat)
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=99.913,"morbidly obese",champ2$weightcat)
+champ2$weightcat<-ifelse(champ2$Centile_BMI<0.383,"very underweight",champ2$weightcat)
+table(champ2$weightcat)
+attach(champ2)
+
+aggdatachamp <-aggregate(champ2$IsAccountRegistered, by=list(champ2$ChildID), FUN=sum, na.rm=TRUE)
+names(aggdatachamp)[names(aggdatachamp)=="x"] <- "totalchamp"
+champ2$ones<-1
+aggdataall <-aggregate(champ2$ones, by=list(champ2$ChildID), FUN=sum, na.rm=TRUE)
+names(aggdataall)[names(aggdataall)=="x"] <- "Totalrecords"
+regchange<-aggdatachamp/aggdataall
+
+#CREATE SUBSET FOR ONE YEAR'S DATA 
+thisyear<-subset(champ2, champ2$AcademicYear=="2016/2017")
+attach(thisyear)
+
+error<-((qnorm(0.95)*BMI)/(sqrt(length(BMI))))
+thisyear$Obesity<-as.numeric(ifelse(thisyear$weightcat=="obese",1,0))
+thisyear$Overweight<-as.numeric(ifelse(thisyear$weightcat=="overweight",1,0))
+thisyear$MorbidObesity<-as.numeric(ifelse(thisyear$weightcat=="morbidly obese",1,0))
+thisyear$Underweight<-as.numeric(ifelse(thisyear$weightcat=="underweight",1,0))
+thisyear$VeryUnderweight<-as.numeric(ifelse(thisyear$weightcat=="very underweight",1,0))
+thisyear$Normal<-as.numeric(ifelse(thisyear$weightcat=="normal",1,0))
+
+#CALCULATE STATUS AT MEASUREMENT
+ndate1<-paste(DateOfBirth,"-01",sep=""); ndate1
+ndate2<-paste(AssessmentDate,"-01",sep=""); ndate1
+thisyear$DateOfBirth<-(as.Date(ndate1))
+thisyear$AssessmentDate<-(as.Date(ndate2))
+thisyear$sumage<-round(thisyear$ageattestyr,digits=0)
+thisyear$birthmonth<-month(as.POSIXlt(thisyear$DateOfBirth, format="%Y-%m-%d"))
+thisyear$assmonth<-month(as.POSIXlt(thisyear$AssessmentDate, format="%Y-%m"))
+
+#WORK OUT SCHOOL YEAR GROUP
+thisyear$class<-0
+thisyear$class<-ifelse(thisyear$birthmonth<9 & thisyear$ageattestyr==4,0,NA) #All 4 year olds are in Reception
+
+thisyear$class<-ifelse(thisyear$ageattestyr==5,1,thisyear$class) #most 5 year olds are in year one
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==5 &thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==5 &thisyear$assmonth<=8,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
+
+thisyear$class<-ifelse(thisyear$ageattestyr==6,2,thisyear$class) # most 6 year olds are in year 2
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==6&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==6 &thisyear$assmonth<=8,1,thisyear$class) #6 year olds with a birthday before September that are measured in the spring term are in Reception
+
+thisyear$class<-ifelse(thisyear$ageattestyr==7,3,thisyear$class) # most 7 year olds are in year 3
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==7 &thisyear$assmonth>8,2,thisyear$class) #7 year olds that have a birthday from September onwards that are measured in the autumn term are in yr2
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==7 &thisyear$assmonth<=8,2,thisyear$class) #7 year olds with a birthday before September that are measured in the spring term are in yr1
+
+thisyear$class<-ifelse(thisyear$ageattestyr==8,4,thisyear$class) # most 8 year olds are in year 4
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==8 &thisyear$assmonth>8,3,thisyear$class) #8 year olds that have a birthday from September onwards that are measured in the autumn term are in yr3
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==8 &thisyear$assmonth<=8,3,thisyear$class) #8 year olds with a birthday before September that are measured in the spring term are in yr3
+
+thisyear$class<-ifelse(thisyear$ageattestyr==9,5,thisyear$class) # most 9 year olds are in year 5
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==9 &thisyear$assmonth>8,4,thisyear$class) #9 year olds that have a birthday from September onwards that are measured in the autumn term are in yr4
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==9 &thisyear$assmonth<=8,4,thisyear$class) #9 year olds with a birthday before September that are measured in the spring term are in yr4
+
+thisyear$class<-ifelse(thisyear$ageattestyr==10,6,thisyear$class) # most 10 year olds are in year 6
+thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==10 &thisyear$assmonth>8,5,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
+thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==10 &thisyear$assmonth<=8,5,thisyear$class) #10 year olds with a birthday before September that are measured in the spring term are in yr5
+thisyear$class<-ifelse(thisyear$ageattestyr==11,6,thisyear$class)
+attach(thisyear)
+
+#Summarise stats by class and gender
+aggdatamean <-aggregate(thisyear, by=list(class,Gender), FUN=mean, na.rm=TRUE)
+names(aggdatamean)[names(aggdatamean)=="BMI"] <- "MeanBMI"
+aggerror <-aggregate(error, by=list(class,Gender), mean, na.rm=TRUE)
+names(aggerror)[names(aggerror)=="x"] <- "SE95"
+aggdatamedian <-aggregate(BMI, by=list(class,Gender), median, na.rm=TRUE)
+names(aggdatamedian)[names(aggdatamedian)=="x"] <- "MedianBMI"
+
+aggdataobsums <-aggregate(thisyear$Obesity, by=list(class,Gender), FUN=sum, na.rm=TRUE)
+names(aggdataobsums)[names(aggdataobsums)=="x"] <- "TotalObese"
+aggdataovsums <-aggregate(thisyear$Overweight, by=list(class,Gender), FUN=sum, na.rm=TRUE)
+names(aggdataovsums)[names(aggdataovsums)=="x"] <- "TotalOverweight"
+aggdataunsums <-aggregate(thisyear$Underweight, by=list(class,Gender), FUN=sum, na.rm=TRUE)
+names(aggdataunsums)[names(aggdataunsums)=="x"] <- "TotalUnderweight"
+aggdatansums <-aggregate(thisyear$Normal, by=list(class,Gender), FUN=sum, na.rm=TRUE)
+names(aggdatansums)[names(aggdatansums)=="x"] <- "TotalNormal"
+aggdatamosums <-aggregate(thisyear$MorbidObesity, by=list(class,Gender), FUN=sum, na.rm=TRUE)
+names(aggdatamosums)[names(aggdatamosums)=="x"] <- "TotalMorbid"
+aggdatavosums <-aggregate(thisyear$VeryUnderweight, by=list(class,Gender), FUN=sum, na.rm=TRUE)
+names(aggdatavosums)[names(aggdatavosums)=="x"] <- "TotalVUnderweight"
+
+thisyear$ChildID<-"1"
+thisyear$ChildID<-as.numeric(thisyear$ChildID)
+aggdatasums <-aggregate(thisyear$ChildID, by=list(class,Gender), FUN=sum, na.rm=TRUE)
+names(aggdatasums)[names(aggdatasums)=="x"] <- "TotalChildren"
+
+summarydata<-merge(aggdatamean,aggdatamedian,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2A<-merge(summarydata,aggdataobsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2B<-merge(summarydata2A,aggdataunsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2C<-merge(summarydata2B,aggdatansums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2D<-merge(summarydata2C,aggdatamosums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2<-merge(summarydata2D,aggdatavosums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata3<-merge(summarydata2,aggdataovsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata4<-merge(summarydata3,aggdatasums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata5<-merge(summarydata4,aggerror,all=TRUE, by=c('Group.1','Group.2'))
+names(summarydata5)
+
+#WRITE FILE
+
+summaryfigures2016<-file(paste("summaryfigures2016.csv"), open="w")
+cat("Gender", "Class","TotalChildren","MeanBMI","SE95","MedianBMI","NumberMorbid","NumberObese","NumberOverweight","NumberNormalWeight","NumberUnderweight","NumberVUnderweight","PropMorbid","PropObese","PropOverweight","PropNormal","PropUnderweight","PropVUnderweight","\n", sep=",",file="summaryfigures2016.csv",append=TRUE)
+for (n in 1:14){
+cat((paste(summarydata5$Group.2[n])),(paste(summarydata5$Group.1[n])),(paste(summarydata5$TotalChildren[n])), (paste(summarydata5$MeanBMI[n])),(paste(summarydata5$SE95[n])),
+(paste(summarydata5$MedianBMI[n])),(paste(summarydata5$TotalMorbid[n])),(paste(summarydata5$TotalObese[n])),(paste(summarydata5$TotalOverweight[n])),(paste(summarydata5$TotalNormal[n])),
+(paste(summarydata5$TotalUnderweight[n])),(paste(summarydata5$TotalVUnderweight[n])),
+(paste(summarydata5$TotalMorbid[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalObese[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalOverweight[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalNormal[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalUnderweight[n]/summarydata5$TotalChildren[n])),
+(paste(summarydata5$TotalVUnderweight[n]/summarydata5$TotalChildren[n])),
+"\n", file="summaryfigures2016.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
+####################################################################
+
+champ2<-thisyear
+attach(champ2)
+champ2$class<-as.numeric(champ2$class)
+
+#CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
+
+d<-duplicated(champ2[,c(1,22)],fromLast=FALSE)
+table(d)
+#2991 (~3% of children) have multiple measurements within a year
+head(champ2[d,],n=10)
+champ2<-champ2[!d,]
+
+#DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
+champ2$weightcat<-1#normal
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=90.879,2,champ2$weightcat)#overweight
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=97.725,3,champ2$weightcat)#obese
+champ2$weightcat<-ifelse(champ2$Centile_BMI<2.275,4,champ2$weightcat)#underweight
+champ2$weightcat<-ifelse(champ2$Centile_BMI>=99.913,5,champ2$weightcat)#morbid
+champ2$weightcat<-ifelse(champ2$Centile_BMI<0.383,6,champ2$weightcat)#very underweight
+table(champ2$weightcat)
+alldata<-champ2
+attach(alldata)
+
+#Assign class at test vector
+alldata$Recordr<-as.numeric(ifelse(class==0,1,0))
+alldata$Record1<-as.numeric(ifelse(class==1,1,0))
+alldata$Record2<-as.numeric(ifelse(class==2,1,0))
+alldata$Record3<-as.numeric(ifelse(class==3,1,0))
+alldata$Record4<-as.numeric(ifelse(class==4,1,0))
+alldata$Record5<-as.numeric(ifelse(class==5,1,0))
+alldata$Record6<-as.numeric(ifelse(class==6,1,0))
+
+#Print BMI at each test
+alldata$BMIr<-as.numeric(ifelse(class==0,BMI,NA))
+alldata$BMI1<-as.numeric(ifelse(class==1,BMI,NA))
+alldata$BMI2<-as.numeric(ifelse(class==2,BMI,NA))
+alldata$BMI3<-as.numeric(ifelse(class==3,BMI,NA))
+alldata$BMI4<-as.numeric(ifelse(class==4,BMI,NA))
+alldata$BMI5<-as.numeric(ifelse(class==5,BMI,NA))
+alldata$BMI6<-as.numeric(ifelse(class==6,BMI,NA))
+
+#Print weightcat at each age
+alldata$weightcatr<-as.numeric(ifelse(class==0,weightcat,NA))
+alldata$weightcat1<-as.numeric(ifelse(class==1,weightcat,NA))
+alldata$weightcat2<-as.numeric(ifelse(class==2,weightcat,NA))
+alldata$weightcat3<-as.numeric(ifelse(class==3,weightcat,NA))
+alldata$weightcat4<-as.numeric(ifelse(class==4,weightcat,NA))
+alldata$weightcat5<-as.numeric(ifelse(class==5,weightcat,NA))
+alldata$weightcat6<-as.numeric(ifelse(class==6,weightcat,NA))
+attach(alldata)
+
+#Determine how many measurements taken per child
+
+alldata$NoRecords<-(Recordr+Record1+Record2+Record3+Record4+Record5+Record6)
+Recs<-aggregate(alldata$NoRecords, by=list(Category=ChildID), FUN=sum)
+names(Recs)[names(Recs)=="x"] <- "NoRecs"
+names(Recs)[names(Recs)=="Category"] <- "ChildID"
+
+##############################################################################
+#SELECTING DATA FOR REC-3 AND 3-6
+fours<-which(!is.na(alldata$weightcatr))
+fourdata<-alldata[fours,]
+table(fourdata$AcademicYear)
+threes<-which(!is.na(alldata$weightcat3))
+thrdata<-alldata[threes,]
+table(thrdata$AcademicYear)
+sixes<-which(!is.na(alldata$weightcat6))
+sixdata<-alldata[sixes,]
+table(sixdata$AcademicYear)
+recand3<-which(alldata$ChildID %in% fourdata$ChildID & alldata$ChildID %in% thrdata$ChildID)
+thrand6<-which(alldata$ChildID %in% thrdata$ChildID & alldata$ChildID %in% sixdata$ChildID)
+firstpair<-alldata[recand3,]
+firstpair<- firstpair[ c(1, 36, 39) ]
+firstpair<-aggregate(firstpair, by=list(Category=firstpair$ChildID), FUN=max,na.rm=TRUE)
+secpair<-alldata[thrand6,]
+#############################################################################
+
+#RESHAPE DATA TO LOOK AT MULTIPLE MEASUREMENTS
+#Merge to have BMI at different ages on the same line
+
+Recs2<-Recs[Recs$NoRecs>1,]
+multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
+multiple<-with(multiple, multiple[order(ChildID),])
+attach(multiple)
+as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
+multiple$ChildID<-as.factor(multiple$ChildID)
+multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
+multiplebase<-multiple[,c(1,2)]
+multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 38)]
+multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 39)]
+multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 40)]
+multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 41)]
+multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 42)]
+multiple5<-multiple[!is.na(multiple$weightcat5),c(1, 43)]
+multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 44)]
+multiplereg<-multiple[c(1, 10)]
+library(plyr)
+
+multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple5,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
+
+multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
+multi<-multi2
+multi$ChildID<-multi$Group.1
+table(multi$IsAccountRegistered)
+
+length(multi$ChildID)#32977
+attach(multi)
+measure1<-weightcatr
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&weightcat1>=1,paste(weightcat1),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat2>=1,paste(weightcat2),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat3>=1,paste(weightcat3),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat4>=1,paste(weightcat4),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat5>=1,paste(weightcat5),measure1)
+
+measure2<-ifelse(!is.na(weightcatr),paste(weightcat1),NA)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)),paste(weightcat2),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)),paste(weightcat3),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)),paste(weightcat4),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)|!is.na(weightcat4))&weightcat5>=1,paste(weightcat5),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)|!is.na(weightcat4)|!is.na(weightcat5))&weightcat6>=1,paste(weightcat6),measure2)
+measure2<-as.numeric(measure2)
+multi$measure1<-measure1
+multi$measure2<-measure2
+
+table(multi$IsAccountRegistered)
+table(multi$measure1)
+table(multi$measure2)
+
+#WHAT IS THE CHANGE AFTER THE SECOND MEASUREMENT?
+
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#which registered children increased their weight category from rec to their next measurement #727
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#how many registered children had 2 or more measurements #8521
+
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="0"))#which unregistered children increased their weight category from rec to their next measurement #2254
+which((multi$IsAccountRegistered=="0"))#how many unregistered children had 2 or more measurements #23118
+
+###########################################################
