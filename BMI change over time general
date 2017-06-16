@@ -28,13 +28,6 @@ multi$measure2<-measure2
 
 which((multi$measure1<multi$measure2))#which children increaed weight category from rec to their next measurement
 
-#DOES THIS CHANGE WITH CHAMP REG?
-multiple
-
-
-
-
-
 
 measure3<-ifelse(!is.na(measure2)&!is.na(weightcat1),paste(weightcat1),NA)
 measure2<-ifelse(!is.na(measure1)&!is.na(weightcat2)
@@ -77,31 +70,3 @@ multiple$measure3<-ifelse(multiple$measure2>1&multiple$measure3=="NA"&multiple$B
 multiple$measure3<-ifelse(multiple$measure2>1&multiple$measure3=="NA"&multiple$BMI4>1&!multiple$weightcat3==multiple$measure1&!multiple$weightcat4==multiple$measure1,multiple$weightcat4,multiple$measure2)
 multiple$measure3<-ifelse(multiple$measure2>1&multiple$measure3=="NA"&multiple$BMI5>1&!multiple$weightcat3==multiple$measure1&!multiple$weightcat5==multiple$measure1,multiple$weightcat5,multiple$measure2)
 multiple$measure3<-ifelse(multiple$measure2>1&multiple$measure3=="NA"&multiple$BMI6>1&!multiple$weightcat3==multiple$measure1&!multiple$weightcat6==multiple$measure1,multiple$weightcat6,multiple$measure2)
-
-which((fourten$SDfour)>2)#which children were obese at 4 and also measured at 10
-
-
-which((multiple$weightcatr>0)&(multiple$weightcat3>0))#which children remained obese from 4 to 10
-
-
-which((fiveleven$SDfive)>2)#which children were obese at 5 and also measured at eleven
-which((fiveeleven$SDeleven)>2&as.numeric(fiveeleven$SDfive)>2)#which children remained obese from 5 to 11
-which((fiveeleven$SDeleven)<1.33&as.numeric(fiveeleven$SDfive)>2)#which children obese at 5 are normal weight at 11
-which((fourten$SDten)<1.33&as.numeric(fourten$SDfour)>2)#which children obese at 4 are normal weight at 10
-
-#See how champ registered children compare
-which (fourten$IsAccountRegistered>0.5)
-which (fiveeleven$IsAccountRegistered>0.5)
-which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
-
-#Check for unregistered children
-which (fourten$IsAccountRegistered<0.5)
-which (fiveeleven$IsAccountRegistered<0.5)
-which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
-#Percentages calculated in excel show little apparent difference at this stage, but there are too few samples to draw conclusions
