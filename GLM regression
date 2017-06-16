@@ -1,0 +1,65 @@
+###################################################
+#GLM TESTS FOR MODEL INCLUSION
+
+###################################################
+
+library(lme4)
+library(arm)
+
+#FIXED EFFECTS SPECIFICATION- SELECTING EFFECTS TO INCLUDE IN MIXED EFFECTS MODEL VIA GLM- BMI RESPONSE
+library(lme4)
+library(arm)
+#ChildID causes problems in the model so has been removed but will be added to the VI model.
+GLM1 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+alldata$AcademicYear, data = alldata)
+GLM2 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender+alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM2, test = "Chisq")
+#INTERACTION SIGNIFICANT
+
+GLM3 <- glm(alldata$BMI ~ alldata$ageattest+alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM3, test = "Chisq")
+#THREE WAY INTERACTION BETWEEN AGE, GENDER AND ETHNICITY 
+
+GLM4 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$AcademicYear, data = alldata)
+anova(GLM1, GLM4, test = "Chisq")
+#CHAMP REGISTRATION NOT SIGNIFICANT
+
+GLM5 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode, data = alldata)
+anova(GLM1, GLM5, test = "Chisq")
+#ACADEMIC YEAR IS SIGNIFICANT
+
+GLM6 <- glm(alldata$BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$AcademicYear, data = alldata)
+anova(GLM4, GLM6, test = "Chisq")
+#SCHOOL CODE IS SIGNIFICANT
+
+#CHAMP status not required for VI model, Acdemic year, IMD and school code significant
+
+####################################################
+
+#Z SCORE RESPONSE
+
+GLM1 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+alldata$AcademicYear, data = alldata)
+GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender+alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM2, test = "Chisq")
+#INTERACTION SIGNIFICANT
+
+GLM3 <- glm(alldata$SDS_BMI ~ alldata$ageattest+alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$IsAccountRegistered+AcademicYear, data = alldata)
+anova(GLM1, GLM3, test = "Chisq")
+#THREE WAY INTERACTION BETWEEN AGE, GENDER AND ETHNICITY 
+
+GLM4 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode+alldata$AcademicYear, data = alldata)
+anova(GLM1, GLM4, test = "Chisq")
+#CHAMP REGISTRATION NOT SIGNIFICANT
+
+GLM5 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$SchoolCode, data = alldata)
+anova(GLM1, GLM5, test = "Chisq")
+#ACADEMIC YEAR IS SIGNIFICANT
+
+GLM6 <- glm(alldata$SDS_BMI ~ alldata$ageattest*alldata$Gender*alldata$Ethnicity+alldata$PostcodeDecile+alldata$AcademicYear, data = alldata)
+anova(GLM4, GLM6, test = "Chisq")
+#SCHOOL CODE IS SIGNIFICANT
+summary(GLM6)
+
+#CHAMP status not required for VI model, Acdemic year, IMD and school code significant
+
+############################################################
+
