@@ -1,5 +1,5 @@
 #CALCULATE CLASS WHEN MEASURED (Install Lubridate)
-thisyear<-alldata
+thisyear<-alldata[!alldata$AcademicYear=="2012/2013"]
 thisyear$sumage<-round(thisyear$ageattestyr,digits=0)
 thisyear$birthmonth<-month(as.POSIXlt(thisyear$DateOfBirth, format="%Y-%m-%d"))
 thisyear$assmonth<-month(as.POSIXlt(thisyear$AssessmentDate, format="%Y-%m"))
@@ -110,6 +110,82 @@ secpair<-alldata[thrand6,]
 
 
 #Merge to have BMI at different ages on the same line
+
+Recs2<-Recs[Recs$NoRecs>1,]
+multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
+multiple<-with(multiple, multiple[order(ChildID),])
+attach(multiple)
+as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
+multiple$ChildID<-as.factor(multiple$ChildID)
+multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
+multiplebase<-multiple[,c(1,2)]
+multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 37)]
+multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 38)]
+multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 39)]
+multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 40)]
+multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 41)]
+multiple5<-multiple[!is.na(multiple$weightcat5),c(1, 42)]
+multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 43)]
+multiplereg<-multiple[c(1, 10)]
+library(plyr)
+
+multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple5,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
+
+multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
+multi<-multi2
+multi$ChildID<-multi$Group.1
+
+length(multi$ChildID)#31642
+attach(multi)
+measure1<-weightcatr
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&weightcat1>=1,paste(weightcat1),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat2>=1,paste(weightcat2),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat3>=1,paste(weightcat3),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat4>=1,paste(weightcat4),measure1)
+measure1<-ifelse(is.na(measure1)&weightcat5>=1,paste(weightcat5),measure1)
+
+measure2<-ifelse(!is.na(weightcatr),paste(weightcat1),NA)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)),paste(weightcat2),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)),paste(weightcat3),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)),paste(weightcat4),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)|!is.na(weightcat4))&weightcat5>=1,paste(weightcat5),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)|!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3)|!is.na(weightcat4)|!is.na(weightcat5))&weightcat6>=1,paste(weightcat6),measure2)
+measure2<-as.numeric(measure2)
+multi$measure1<-measure1
+multi$measure2<-measure2
+
+table(multi$IsAccountRegistered)
+table(multi$measure1)
+table(multi$measure2)
+
+#WHAT IS THE CHANGE AFTER THE SECOND MEASUREMENT?
+
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#which registered children increaed weight category from rec to their next measurement #727
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#how many registered children had 2 or more measurements #8521
+
+which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="0"))#which unregistered children increaed weight category from rec to their next measurement #2254
+which((multi$IsAccountRegistered=="0"))#how many unregistered children had 2 or more measurements #23118
+
+no<-multi[multi$IsAccountRegistered=="0",]
+yes<-multi[multi$IsAccountRegistered=="1",]
+which(yes$measure1<multi$measure2)#how many registered children had 2 or more measurements #8521
+
+###########################################
+
+#Considering children with single measurements
 
 Recs2<-Recs[Recs$NoRecs>1,]
 multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
