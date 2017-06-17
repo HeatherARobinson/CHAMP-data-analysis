@@ -1,5 +1,5 @@
 #CALCULATE CLASS WHEN MEASURED (Install Lubridate)
-thisyear<-alldata[!alldata$AcademicYear=="2012/2013"]
+thisyear<-alldata[!alldata$AcademicYear=="2012/2013",]
 thisyear$sumage<-round(thisyear$ageattestyr,digits=0)
 thisyear$birthmonth<-month(as.POSIXlt(thisyear$DateOfBirth, format="%Y-%m-%d"))
 thisyear$assmonth<-month(as.POSIXlt(thisyear$AssessmentDate, format="%Y-%m"))
