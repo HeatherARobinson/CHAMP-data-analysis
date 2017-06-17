@@ -51,6 +51,7 @@ champ2$weightcat<-ifelse(champ2$Centile_BMI<2.275,4,champ2$weightcat)#underweigh
 champ2$weightcat<-ifelse(champ2$Centile_BMI>=99.617,5,champ2$weightcat)#morbid
 champ2$weightcat<-ifelse(champ2$Centile_BMI<0.383,6,champ2$weightcat)#very underweight
 table(champ2$weightcat)
+champ2$NoRecords<-1
 alldata<-champ2
 attach(alldata)
 
