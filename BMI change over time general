@@ -1,5 +1,3 @@
-alldata$ageattestyr<-as.integer(alldata$ageattestyr)
-
 thisyear<-alldata
 library(lubridate)
 #CALCULATE CLASS WHEN MEASURED (Install Lubridate)
@@ -12,7 +10,9 @@ thisyear$birthmonth<-month(as.POSIXlt(thisyear$DateOfBirth, format="%Y-%m-%d"))
 thisyear$assmonth<-month(as.POSIXlt(thisyear$AssessmentDate, format="%Y-%m"))
 thisyear$class<-NA
 thisyear$ageattestyr<-floor(thisyear$ageattest/52.149) #Round year down to give age
-thisyear$class<-ifelse(thisyear$birthmonth<9 & thisyear$ageattestyr==4,0,thisyear$class) #All 4 year olds are in Reception
+
+
+thisyear$class<-ifelse(thisyear$ageattestyr==4,0,thisyear$class) #All 4 year olds are in Reception
 thisyear$class<-ifelse(thisyear$ageattestyr==5,1,thisyear$class) #most 5 year olds are in year one
 thisyear$class<-ifelse(thisyear$birthmonth>=9 & thisyear$ageattestyr==5 &thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
 thisyear$class<-ifelse(thisyear$birthmonth<=thisyear$assmonth & thisyear$ageattestyr==5 &thisyear$assmonth<=8,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
@@ -80,24 +80,6 @@ alldata$NoRecords<-(Recordr+Record1+Record2+Record3+Record4+Record5+Record6)
 Recs<-aggregate(alldata$NoRecords, by=list(Category=ChildID), FUN=sum)
 names(Recs)[names(Recs)=="x"] <- "NoRecs"
 names(Recs)[names(Recs)=="Category"] <- "ChildID"
-fours<-which(!is.na(alldata$weightcatr))
-fourdata<-alldata[fours,]
-table(fourdata$AcademicYear)
-threes<-which(!is.na(alldata$weightcat3))
-thrdata<-alldata[threes,]
-table(thrdata$AcademicYear)
-sixes<-which(!is.na(alldata$weightcat6))
-sixdata<-alldata[sixes,]
-table(sixdata$AcademicYear)
-
-
-
-recand3<-which(alldata$ChildID %in% fourdata$ChildID & alldata$ChildID %in% thrdata$ChildID)
-thrand6<-which(alldata$ChildID %in% thrdata$ChildID & alldata$ChildID %in% sixdata$ChildID)
-firstpair<-alldata[recand3,]
-firstpair<- firstpair[ c(1, 36, 39) ]
-firstpair<-aggregate(firstpair, by=list(Category=firstpair$ChildID), FUN=max,na.rm=TRUE)
-secpair<-alldata[thrand6,]
 
 #Merge to have BMI at different ages on the same line
 
@@ -108,13 +90,13 @@ attach(multiple)
 as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiplebase<-multiple[,c(1,2)]
-multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 36)]
-multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 37)]
-multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 38)]
-multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 39)]
-multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 40)]
-multiple5<-multiple[!is.na(multiple$weightcat5),c(1,41)]
-multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 42)]
+multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 37)]
+multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 38)]
+multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 39)]
+multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 40)]
+multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 41)]
+multiple5<-multiple[!is.na(multiple$weightcat5),c(1,42)]
+multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 43)]
 multipleref<-multiple[c(1, 10)]
 library(plyr)
 
