@@ -143,15 +143,8 @@ multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi<-multi2
 multi$ChildID<-multi$Group.1
 
-#which registered children increaed weight category from rec to their next measurement #727
-which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#how many registered children had 2 or more measurements #8521
-
-which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="0"))#which unregistered children increaed weight category from rec to their next measurement #2254
-which((multi$IsAccountRegistered=="0"))#how many unregistered children had 2 or more measurements #23118
-
-no<-multi[multi$IsAccountRegistered=="0",]
 yes<-multi[multi$IsAccountRegistered=="1",]
-which(yes$measure1<multi$measure2)#how many registered children had 2 or more measurements #8521
+which(yes$measure1<multi$measure2)#how many registered children had 2 or more measurements 
 
 ###########################################
 
