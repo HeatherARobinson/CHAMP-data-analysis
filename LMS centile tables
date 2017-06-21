@@ -1,0 +1,28 @@
+alldata<-read.table("LMStableedited.csv",header=TRUE, sep=",")
+length(alldata$ChildID)
+alldata<-subset(alldata,!is.na(alldata$BMI),)
+length(alldata$ChildID) #44 records removed
+alldata$ChildID<-as.factor(alldata$ChildID)
+levels(alldata$ChildID) #63339 children
+alldata$PostcodeDecile<-round(alldata$PostcodeDecile,digits=0)
+alldata<-alldata[floor(alldata$ageattest/52.12)<12&floor(alldata$ageattest/52.12)>3,]
+
+alldata2<-alldata[order(alldata$ChildID,alldata$AssessmentDate),]
+names(alldata2)
+d<-duplicated(alldata2[,c(1,4)])
+head(alldata2[d,],n=10)
+head(alldata2,n=20)
+alldata2<-alldata2[!d,]
+length(alldata$ChildID)-length(alldata2$ChildID) #134 duplicate entries removed
+alldata<-alldata2
+
+library(gamlss)
+data(alldata)
+
+f<-alldata[alldata$Gender=="F",]
+f1 <- lms(y=BMI, x=ageattest, data=na.omit(f), )
+fitted(f1)
+
+m<-alldata[alldata$Gender=="M",]
+m1 <- lms(y=BMI, x=age, data=na.omit(m), )
+fitted(m1)
