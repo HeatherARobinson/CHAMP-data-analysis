@@ -5,7 +5,7 @@ alldata<-subset(alldata,!is.na(alldata$BMI),)
 length(alldata$ChildID) #44 records removed
 alldata$ChildID<-as.factor(alldata$ChildID)
 levels(alldata$ChildID) #63339 children
-alldata$PostcodeDecile<-round(alldata$PostcodeDecile,digits=0)
+alldata$PostcodeDecile<-ceiling(alldata$PostcodeDecile)
 alldata<-alldata[floor(alldata$ageattest/52.12)<12&floor(alldata$ageattest/52.12)>3,]
 
 alldata2<-alldata[order(alldata$ChildID,alldata$AssessmentDate),]
