@@ -1,4 +1,4 @@
-ncmpdata15<-read.table ("ncmp_1516_final_non_disclosive_rand_id_published.csv",header=TRUE, sep=",")
+alldata<-read.table ("LMStableedited.csv",header=TRUE, sep=",")
 
 #First plot to visualise trajectories by SES
 
@@ -9,7 +9,7 @@ alldata$obesity<-ifelse(alldata$weightcat=="3"|alldata$weightcat=="5",1,0)
 alldata$children<-1
 alldata<-alldata[,c(12,18,24)]
 
-ncmpdata15$obesity<-ifelse(alldata$weightcat=="3"|alldata$weightcat=="5",1,0)
+alldata$obesity<-ifelse(alldata$weightcat=="3"|alldata$weightcat=="5",1,0)
 alldata$children<-1
 alldata<-alldata[,c(12,18,24)]
 
