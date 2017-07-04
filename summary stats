@@ -4,18 +4,12 @@ alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
 names(alldata)[names(alldata)=="X"] <- "SDS_BMI"
 #LOCAL:
 alldata$weightcat<-"normal"
-alldata$weightcat[alldata$SDS_BMI>=1.333]<-"overweight"
-alldata$weightcat[alldata$SDS_BMI>=2]<-"obese"
-alldata$weightcat[alldata$SDS_BMI>=2.878]<-"extremely_obese"
-alldata$weightcat[alldata$SDS_BMI>=3.33]<-"morbidly_obese"
-alldata$weightcat[alldata$SDS_BMI<=-2]<-"underweight"
-alldata$weightcat[alldata$SDS_BMI<=-2.43]<-"very_underweight"
-alldata$weightcat[alldata$SDS_BMI<=-2.669]<-"severely_underweight"
-
-#NATIONAL:
-alldata$weightcat<-"normal"
-alldata$weightcat[alldata$SDS_BMI>=1.96]<-"overweight"
-alldata$weightcat[alldata$SDS_BMI>=1.04]<-"obese"
+alldata$weightcat[alldata$Centile_BMI>=90.879]<-"overweight"
+alldata$weightcat[alldata$Centile_BMI>=97.725]<-"obese"
+alldata$weightcat[alldata$Centile_BMI>=99.617]<-"severely_obese"
+alldata$weightcat[alldata$Centile_BMI>=99.913]<-"morbidly_obese"
+alldata$weightcat[alldata$Centile_BMI<=-2.275]<-"underweight"
+alldata$weightcat[alldata$Centile_BMI<=-0.383]<-"very_underweight"
 
 #Assessing CHAMP uptake
 table(alldata$weightcat,alldata$IsAccountRegistered)
