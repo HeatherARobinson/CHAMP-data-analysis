@@ -3,7 +3,6 @@ champtable<-read.table("CMFTfile.csv", header=T,sep=",")
 head(champtable)
 #CHECK FOR WEIGHT AND HEIGHT DATA ENTRY ERRORS. 
 #USES THE NHS 'VALIDATION OF CHILD MEASUREMENT PROGRAMME DATA' REPORT 2016 ERROR REJECTION CUTOFFS 
-#CUTOFFS USED FOR RECEPTION AND YR6 ONLY
 #Update this with a table?
 attach(champtable)
 library(lubridate)
@@ -33,7 +32,7 @@ sch<-as.character(SchoolCode)
 ID<-as.character(ChildID)
 champ$BMI<-champ$WeightKG/(champ$HeightCM/100)^2
 
-LMStable<-file(paste("LMStable1005.csv"), open="w")
+LMStable<-file(paste("LMStableedited.csv"), open="w")
 cat("ChildID","SchoolCode","AcademicYear","AssessmentDate","DateOfBirth","Gender","HeightCM","WeightKG","BMI","IsAccountRegistered","Ethnicity","PostcodeDecile","ageattest","\n", sep=",",file="LMStable1005.csv",append=TRUE)
 for (n in 1:108364){cat((paste(champ$ChildID[n])),(paste(champ$SchoolCode[n])),(paste(champ$AcademicYear[n])),(paste(champ$AssessmentDate[n])),(paste(champ$DateOfBirth[n])),(paste(champ$Gender[n])), (paste(champ$HeightCM[n])),(paste(champ$WeightKG[n])),(paste(champ$BMI[n])),(paste(champ$IsAccountRegistered[n])),(paste(champ$Ethnicity[n])),(paste(champ$IMDdecile[n])),(paste(champ$ageattest[n])),"\n", file="LMStable1005.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
 } 
