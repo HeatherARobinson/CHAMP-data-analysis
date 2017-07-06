@@ -1,6 +1,6 @@
 #Read in edited data including SDs and BMIs
 setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
-alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
+alldata<-read.table ("LMStableedited.csv",header=TRUE, sep=",")
 names(alldata)[names(alldata)=="X"] <- "SDS_BMI"
 #LOCAL:
 alldata$weightcat<-"normal"
@@ -31,7 +31,7 @@ table(alldata$weightcat,alldata$IsAccountRegistered)
 
 
 #CREATE DATA SUBSET FOR THIS YEAR'S DATA 
-thisyear<-subset(alldata, alldata$AcademicYear=="2016/2017" & alldata$BMI<50)
+thisyear<-subset(alldata, alldata$AcademicYear=="2014/2015" & alldata$BMI<50)
 
 thisyear$SchoolYear<-thisyear$class
 attach(thisyear)
@@ -48,7 +48,7 @@ thisyear$Underweight<-as.numeric(thisyear$Underweight)
 thisyear$vUnderweight<-as.numeric(ifelse(thisyear$Centile_BMI<=-0.383,c("1"),("0")))
 thisyear$vUnderweight<-as.numeric(thisyear$vUnderweight)
 #AGGREGATE VALUES BY AGE AND GENDER
-
+thisyear$SchoolYear<-thisyear$class
 attach(thisyear)
 aggdatamean <-aggregate(thisyear, by=list(Gender,SchoolYear), FUN=mean, na.rm=TRUE)
 names(aggdatamean)[names(aggdatamean)=="BMI"] <- "MeanBMI"
