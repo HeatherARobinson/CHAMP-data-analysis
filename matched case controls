@@ -175,7 +175,7 @@ multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
 multiple10<-multiple[!is.na(multiple$dr),c(1, 52)]
 multiple11<-multiple[!is.na(multiple$d1),c(1, 53)]
 multiple12<-multiple[!is.na(multiple$d2),c(1, 54)]
-multiple13<-multiple[!is.na(multiple$d3),c(1, 551)]
+multiple13<-multiple[!is.na(multiple$d3),c(1, 55)]
 multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
 multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
 multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
