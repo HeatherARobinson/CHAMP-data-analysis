@@ -129,8 +129,6 @@ multiple4<-multiple[!is.na(multiple$cent4),c(1, 49)]
 multiple5<-multiple[!is.na(multiple$cent5),c(1, 50)]
 multiple6<-multiple[!is.na(multiple$cent6),c(1, 51)]
 multiple$ageattestyr<-as.numeric(multiple$ageattestyr)
-multiplez<-multiple[c(1,17)]
-head(multiplez)
 multiple7<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
 colnames(multiple7)<- c("ChildID","AgeF")
 multiple8<-aggregate(as.numeric(multiple$Gender),by=list(ChildID),FUN=min)
@@ -206,19 +204,57 @@ multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
 
-d<-ifelse(!is.na(measure1),paste(dr),NA)
+
+###############################################
+
+#CALCULATE DIFF BETWEEN MEASUREMENTS
+
+
+length(multi$ChildID)#25024
+attach(multi)
+measure1<-centr
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent1),paste(cent1),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent2),paste(cent2),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent3),paste(cent3),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent4),paste(cent4),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent5),paste(cent5),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent6),paste(cent6),measure1)
+
+measure2<-as.numeric(cent6)
+measure2<-ifelse(is.na(measure2)&(!is.na(cent5)),paste(cent5),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(cent4)),paste(cent4),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(cent3)),paste(cent3),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(cent2)),paste(cent2),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(cent1)),paste(cent1),measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(centr)),paste(centr),measure2)
+multi$measure1<-as.numeric(measure1)
+multi$measure2<-as.numeric(measure2)
+multi$cendiff<-multi$measure2-multi$measure1
+attach(multi)
+multi$dir<-ifelse(multi$cendiff>0,1,0)
+table(multi$IsAccountRegistered)
+table(multi$measure1)
+table(multi$measure2)
+attach(multi)
+
+d<-dr
 d<-as.numeric(d)
-d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d1),d)
+d<-ifelse(is.na(d),paste(d1),d)
 d<-as.numeric(d)
-d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d2),d)
+d<-ifelse(is.na(d),paste(d2),d)
 d<-as.numeric(d)
-d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d3),d)
+d<-ifelse(is.na(d),paste(d3),d)
 d<-as.numeric(d)
-d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d4),d)
+d<-ifelse(is.na(d),paste(d4),d)
 d<-as.numeric(d)
-d<-ifelse(is.na(d)&(!is.na(measure1))paste(d5),d)
+d<-ifelse(is.na(d)),paste(d5),d)
 d<-as.numeric(d)
-d<-ifelse(is.na(d)&(!is.na(measure1))paste(d6),d)
+d<-ifelse(is.na(d))paste(d6),d)
 d<-as.numeric(d)
 db<-d6
 db<-as.numeric(db)
@@ -232,55 +268,12 @@ db<-ifelse(is.na(db),paste(d2),db)
 db<-as.numeric(db)
 db<-ifelse(is.na(db),paste(d1),db)
 db<-as.numeric(db)
-multi$measure1<-measure1
-multi$measure2<-measure2
-table(multi$IsAccountRegistered)
-table(multi$measure1)
-table(multi$measure2)
-table(db2)
+
 table(db)
 head(multi)
-multi$d<-as.numeric(d), origin="1960-10-01")
-multi$db<-as.Date(db, origin="1960-10-01")
-multi$cendiff<-multi$measure2-multi$measure1
+multi$d<-as.numeric(d)
+multi$db<-as.numeric(db)
 attach(multi)
-multi$dir<-ifelse(multi$cendiff>0,1,0)
-
-
-###############################################
-
-#CALCULATE DIFF BETWEEN MEASUREMENTS
-
-
-length(multi$ChildID)#25024
-attach(multi)
-measure1<-centr
-measure1<-as.numeric(measure1)
-measure1<-ifelse(is.na(measure1)&cent1>=1,paste(cent1),measure1)
-measure1<-ifelse(is.na(measure1)&cent2>=1,paste(cent2),measure1)
-measure1<-ifelse(is.na(measure1)&cent3>=1,paste(cent3),measure1)
-measure1<-ifelse(is.na(measure1)&cent4>=1,paste(cent4),measure1)
-measure1<-ifelse(is.na(measure1)&cent5>=1,paste(cent5),measure1)
-
-measure2<-ifelse(!is.na(centr),paste(cent1),NA)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(centr)|!is.na(cent1)),paste(cent2),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(centr)|!is.na(cent1)|!is.na(cent2)),paste(cent3),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(centr)|!is.na(cent1)|!is.na(cent2)|!is.na(cent3)),paste(cent4),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(centr)|!is.na(cent1)|!is.na(cent2)|!is.na(cent3)|!is.na(cent4))&cent5>=1,paste(cent5),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(centr)|!is.na(cent1)|!is.na(cent2)|!is.na(cent3)|!is.na(cent4)|!is.na(cent5))&cent6>=1,paste(cent6),measure2)
-measure2<-as.numeric(measure2)
-multi$measure1<-measure1
-multi$measure2<-measure2
-table(multi$IsAccountRegistered)
-table(multi$measure1)
-table(multi$measure2)
-attach(multi)
-
 ###############################################
 
 #MATCH CASES AND CONTROLS
@@ -293,7 +286,10 @@ head(cc, 10)
 #ONCE MATCHED:
 library(survival)
 model<-clogit((Fail~cendiff+strata(Set)), data = cc)
-
+multi<-multi[complete.cases(multi),]
+multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
+attach(multi)
+library(MatchIt)
 set.seed(1234)
-match.it <- matchit(IsAccountRegistered~AgeF+Gender+Eth2+centdiff,data=multi, method="nearest", ratio=1)
+match.it <- matchit(IsAccountRegistered~AgeF+Gender+Eth2+cendiff,data=multi, method="nearest", ratio=1)
 a <- summary(match.it)
