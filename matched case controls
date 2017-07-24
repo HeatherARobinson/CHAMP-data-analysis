@@ -120,7 +120,7 @@ attach(multiple)
 as.numeric(c(centr,cent1,cent2,cent3,cent4,cent5,cent6))
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
-multiplebase<-multiple[,c(1,2)]
+multiplebase<-multiple[,c(1,12)]
 multiplefirst<-multiple[!is.na(multiple$centr),c(1, 45)]
 multiple1<-multiple[!is.na(multiple$cent1),c(1, 46)]
 multiple2<-multiple[!is.na(multiple$cent2),c(1, 47)]
@@ -196,7 +196,7 @@ multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple15,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple16,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
-multi<- subset(multi, select = -c(SchoolCode) )
+
 attach(multi)
 
 
@@ -288,8 +288,9 @@ library(survival)
 model<-clogit((Fail~cendiff+strata(Set)), data = cc)
 multi<-multi[complete.cases(multi),]
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
+multi<-multi[!is.na(multi$IsAccountRegistered)&!is.na(multi$AgeF)&!is.na(multi$Gender)&!is.na(multi$Eth2)&!is.na(multi$cendiff)&!is.na(multi$PostcodeDecile),]
 attach(multi)
 library(MatchIt)
 set.seed(1234)
-match.it <- matchit(IsAccountRegistered~AgeF+Gender+Eth2+cendiff,data=multi, method="nearest", ratio=1)
+match.it <- matchit(IsAccountRegistered~AgeF+Gender+Eth2+cendiff+PostcodeDecile,data=multi, method="nearest", ratio=1)
 a <- summary(match.it)
