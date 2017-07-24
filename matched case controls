@@ -150,12 +150,17 @@ levels(Ethnicity2)[6]<-"Asian"
 levels(Ethnicity2)[7]<-"NA"
 levels(Ethnicity2)[4]<-"NA"
 levels(Ethnicity2)[6]<-"NA"
+levels(Ethnicity2)[4]<-"other"
+levels(Ethnicity2)[2]<-"other"
+
 multiple$Ethnicity2<-Ethnicity2
 attach(multiple)
 multiple9<-aggregate(as.numeric(multiple$Ethnicity2),by=list(multiple$ChildID),FUN=min)
 colnames(multiple9)<- c("ChildID","Eth2")
 multiplereg<-multiple[c(1, 10)]
 library(plyr)
+
+
 
 multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
@@ -167,13 +172,82 @@ multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple7,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple8,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
+multiple10<-multiple[!is.na(multiple$dr),c(1, 52)]
+multiple11<-multiple[!is.na(multiple$d1),c(1, 53)]
+multiple12<-multiple[!is.na(multiple$d2),c(1, 54)]
+multiple13<-multiple[!is.na(multiple$d3),c(1, 551)]
+multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
+multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
+multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
+multiple13<-multiple[!is.na(multiple$d3),c(1, 55)]
+multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
+multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
+multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
+multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple5,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple7,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple8,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple10,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple11,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple12,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple13,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple15,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple16,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
 multi<- subset(multi, select = -c(SchoolCode) )
 attach(multi)
+
+
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
 
+d<-ifelse(!is.na(measure1),paste(dr),NA)
+d<-as.numeric(d)
+d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d1),d)
+d<-as.numeric(d)
+d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d2),d)
+d<-as.numeric(d)
+d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d3),d)
+d<-as.numeric(d)
+d<-ifelse(is.na(d)&(!is.na(measure1)),paste(d4),d)
+d<-as.numeric(d)
+d<-ifelse(is.na(d)&(!is.na(measure1))paste(d5),d)
+d<-as.numeric(d)
+d<-ifelse(is.na(d)&(!is.na(measure1))paste(d6),d)
+d<-as.numeric(d)
+db<-d6
+db<-as.numeric(db)
+db<-ifelse(is.na(db),paste(d5),db)
+db<-as.numeric(db)
+db<-ifelse(is.na(db),paste(d4),db)
+db<-as.numeric(db)
+db<-ifelse(is.na(db),paste(d3),db)
+db<-as.numeric(db)
+db<-ifelse(is.na(db),paste(d2),db)
+db<-as.numeric(db)
+db<-ifelse(is.na(db),paste(d1),db)
+db<-as.numeric(db)
+multi$measure1<-measure1
+multi$measure2<-measure2
+table(multi$IsAccountRegistered)
+table(multi$measure1)
+table(multi$measure2)
+table(db2)
+table(db)
+head(multi)
+multi$d<-as.numeric(d), origin="1960-10-01")
+multi$db<-as.Date(db, origin="1960-10-01")
+multi$cendiff<-multi$measure2-multi$measure1
+attach(multi)
+multi$dir<-ifelse(multi$cendiff>0,1,0)
 
 
 ###############################################
@@ -209,22 +283,13 @@ table(multi$IsAccountRegistered)
 table(multi$measure1)
 table(multi$measure2)
 attach(multi)
-multi$measure1<-as.numeric(multi$measure1)
-multi$measure2<-as.numeric(multi$measure2)
-multi$cendiff<-multi$measure2-multi$measure1
-multi$d1<-as.numeric(as.Date(734373))
-multi$d2<-as.numeric(as.Date(734673))
-multi$d3<-as.numeric(as.Date("1970-01-01"))
-levels(Eth2)[2]<-4
-attach(multi)
-multi$dir<-ifelse(multi$cendiff>0,1,0)
 
 ###############################################
 
 #MATCH CASES AND CONTROLS
 
 library(Epi)
-cc<-ccwc(entry=d1,exit=d2, fail=dir, origin=d3,controls=1, data=multi,   include  = list(cendiff), match = list(Gender, AgeF, Eth2, IsAccountRegistered), silent   = TRUE)
+cc<-ccwc(entry=d,exit=db, fail=dir, origin=d,controls=1, data=multi,   include  = list(cendiff), match = list(Gender, AgeF, Eth2, IsAccountRegistered), silent   = TRUE)
 head(cc, 10)
 
 ##############################################
