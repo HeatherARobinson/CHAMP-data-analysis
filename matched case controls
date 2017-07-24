@@ -179,10 +179,7 @@ multiple13<-multiple[!is.na(multiple$d3),c(1, 551)]
 multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
 multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
 multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
-multiple13<-multiple[!is.na(multiple$d3),c(1, 55)]
-multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
-multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
-multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
+
 multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
@@ -297,3 +294,6 @@ head(cc, 10)
 library(survival)
 model<-clogit((Fail~cendiff+strata(Set)), data = cc)
 
+set.seed(1234)
+match.it <- matchit(IsAccountRegistered~AgeF+Gender+Eth2+centdiff,data=multi, method="nearest", ratio=1)
+a <- summary(match.it)
