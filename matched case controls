@@ -208,8 +208,6 @@ multi<-multi2
 ###############################################
 
 #CALCULATE DIFF BETWEEN MEASUREMENTS
-
-
 length(multi$ChildID)#25024
 attach(multi)
 measure1<-centr
@@ -242,6 +240,7 @@ table(multi$measure1)
 table(multi$measure2)
 attach(multi)
 
+#MARK THE DATES OF 1ST AND SECOND MEASUREMENTS
 d<-dr
 d<-as.numeric(d)
 d<-ifelse(is.na(d),paste(d1),d)
@@ -271,27 +270,13 @@ multi$db<-as.numeric(db)
 multi<-multi[!is.na(multi$db)&!is.na(multi$Eth2)&!is.na(multi$PostcodeDecile),]
 save(multi, file ="multi.Rda")
 
+#CREATE SUBSETS BY BMI CATEGORY
+
 over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
 obese<-multi[multi$measure1>97.725,]
 
-library(Epi)
-
-co<-ccwc(entry=measure1,exit=measure2, fail=1, origin=d,controls=1, data=over,   match = list(Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
-head(co, 10)
-cn<-ccwc(entry=measure1,exit=measure2, fail=1, origin=d,controls=1, data=normal,   match = list(Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
-head(cn, 10)
-cob<-ccwc(entry=measure1,exit=measure2, fail=1, origin=d,controls=1, data=obese,   match = list(Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
-head(cob, 10)
-##############################################
-#ONCE MATCHED:
-library(survival)
-modelco<-clogit((Fail~strata(Set)), data = co)
-modelcn<-clogit((Fail~strata(Set)), data = cn)
-modelcob<-clogit((Fail~strata(Set)), data = cob)
-
-##############################################
-OR
+MATCH CASES AND CONTROLS
 ##############################################
 
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
