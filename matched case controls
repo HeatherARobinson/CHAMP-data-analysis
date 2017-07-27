@@ -296,11 +296,15 @@ OR
 
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 
-library(MatchIt)
+library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(cendiff~IsAccountRegistered+AgeF+Gender+Eth2+PostcodeDecile,data=over, method="nearest", ratio=1)
-match.no<- matchit(cendiff~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=normal, method="nearest", ratio=1)
-match.ob<- matchit(cendiff~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=obese, method="nearest", ratio=1)
+match.ov<- matchit(dir~IsAccountRegistered+AgeF+Gender+Eth2+PostcodeDecile,data=over[,c(2:3,11:13,21,25)], method="nearest", ratio=1)
+match.no<- matchit(dirf~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=normal, method="nearest", ratio=1)
+match.ob<- matchit(dir~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=obese, method="nearest", ratio=1)
+
+matchd.ov<- match.data(dir~IsAccountRegistered+AgeF+Gender+Eth2+PostcodeDecile,data=over[,c(2:3,11:13,21,25)], method="nearest", ratio=1)
+matchd.no<- match.datat(dirf~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=normal, method="nearest", ratio=1)
+matchd.ob<- match.data(dir~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=obese, method="nearest", ratio=1)
 ov<- summary(match.ov)
 ob<- summary(match.ob)
 no<- summary(match.no)
