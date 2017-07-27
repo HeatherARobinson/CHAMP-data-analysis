@@ -268,18 +268,23 @@ db<-ifelse(is.na(db),paste(d2),db)
 db<-as.numeric(db)
 db<-ifelse(is.na(db),paste(d1),db)
 multi$db<-as.numeric(db)
-
+multi<-multi[!is.na(multi$db)&!is.na(multi$Eth2)&!is.na(multi$PostcodeDecile),]
 save(multi, file ="multi.Rda")
-over<-multi(multi$measure1>=90.879,]
+
+over<-multi(multi$measure1>=90.879&multi$measure1<97.725,]
 normal<-multi(multi$measure1>=2.275&multi$measure1<90.879,]
+obese<-multi(multi$measure1>97.725,]
+
 over<-multi[multi$measure1>=90.879]
 over<-multi[multi$measure1>=90.879,]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
 over<-over[!is.na(over$db)&!is.na(over$Eth2)&!is.na(over$PostcodeDecile),]
 attach(over)
 head(over)
-library(epi)
-cc<-ccwc(entry=d,exit=db, fail=cendiff, origin=d,controls=1, data=over,   match = list(measure1,Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
+library(Epi)
+co<-ccwc(entry=d,exit=db, fail=cendiff, origin=d,controls=1, data=over,   match = list(measure1,Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
+head(cc, 10)
+cn<-ccwc(entry=d,exit=db, fail=cendiff, origin=d,controls=1, data=normal,   match = list(measure1,Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
 head(cc, 10)
 ##############################################
 #ONCE MATCHED:
