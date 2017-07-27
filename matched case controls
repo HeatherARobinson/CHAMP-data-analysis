@@ -270,6 +270,11 @@ multi$db<-as.numeric(db)
 multi<-multi[!is.na(multi$db)&!is.na(multi$Eth2)&!is.na(multi$PostcodeDecile),]
 save(multi, file ="multi.Rda")
 
+#Find difference over couse of 1 year
+multi$days<-as.numeric(multi$db)-as.numeric(multi$d)
+multi$cendiffs<-multi$cendiff/multi$days*365.25
+attach(multi)
+
 #CREATE SUBSETS BY BMI CATEGORY
 
 over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
@@ -283,9 +288,9 @@ multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=over[,c(2:3,11:13,21,24)], method="nearest", ratio=1)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=normal[,c(2:3,11:13,21,24)], method="nearest", ratio=1)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=obese[,c(2:3,11:13,21,24)], method="nearest", ratio=1)
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=over[,c(2:3,11:13,21,29)], method="nearest", ratio=1)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=normal[,c(2:3,11:13,21,29)], method="nearest", ratio=1)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=obese[,c(2:3,11:13,21,29)], method="nearest", ratio=1)
 
 matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
@@ -305,11 +310,11 @@ ovyes<-matchd.ov[matchd.ov$IsAccountRegistered==1,]
 ovno<-matchd.ov[matchd.ov$IsAccountRegistered==0,]
 
 
-mean(ovyes$cendiff)
-mean(ovno$cendiff)
-mean(obno$cendiff)
-mean(obyes$cendiff)
-mean(normyes$cendiff)
-mean(normno$cendiff)
+mean(ovyes$cendiffs)
+mean(ovno$cendiffs)
+mean(obno$cendiffs)
+mean(obyes$cendiffs)
+mean(normyes$cendiffs)
+mean(normno$cendiffs)
 
 
