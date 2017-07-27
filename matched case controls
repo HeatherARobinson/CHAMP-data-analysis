@@ -274,18 +274,19 @@ head(multi)
 multi$d<-as.numeric(d)
 multi$db<-as.numeric(db)
 attach(multi)
+save(multi, file ="multi.Rda")
 ###############################################
 
 #MATCH CASES AND CONTROLS
 
 library(Epi)
-cc<-ccwc(entry=d,exit=db, fail=dir, origin=d,controls=1, data=multi,   include  = list(cendiff), match = list(Gender, AgeF, Eth2, IsAccountRegistered), silent   = TRUE)
+cc<-ccwc(entry=d,exit=db, fail=1, origin=d,controls=1, data=multi,   include  = list(cendiff), match = list(Gender, AgeF, Eth2, IsAccountRegistered), silent   = TRUE)
 head(cc, 10)
 
 ##############################################
 #ONCE MATCHED:
 library(survival)
-model<-clogit((Fail~cendiff+strata(Set)), data = cc)
+model<-clogit((~fail+strata(Set)), data = cc)
 multi<-multi[complete.cases(multi),]
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 multi<-multi[!is.na(multi$IsAccountRegistered)&!is.na(multi$AgeF)&!is.na(multi$Gender)&!is.na(multi$Eth2)&!is.na(multi$cendiff)&!is.na(multi$PostcodeDecile),]
