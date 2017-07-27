@@ -309,3 +309,17 @@ matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weight
 mean(matchd.ob$distance)
 mean(matchd.ov$distance)
 mean(matchd.no$distance)
+
+normno<-matchd.no[matchd.no$IsAccountRegistered==0,]
+normyes<-matchd.no[matchd.no$IsAccountRegistered==1,]
+mean(normno$distance)
+mean(normyes$distance)
+obyes<-matchd.ob[matchd.ob$IsAccountRegistered==1,]
+obno<-matchd.ob[matchd.ob$IsAccountRegistered==0,]
+mean(obyes$distance)
+mean(obno$distance)
+ovyes<-matchd.ov[matchd.ov$IsAccountRegistered==1,]
+ovno<-matchd.ov[matchd.ov$IsAccountRegistered==0,]
+mean(ov$distance)
+mean(ovno$distance)
+
