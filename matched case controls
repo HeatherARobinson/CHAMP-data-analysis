@@ -252,10 +252,10 @@ d<-ifelse(is.na(d),paste(d3),d)
 d<-as.numeric(d)
 d<-ifelse(is.na(d),paste(d4),d)
 d<-as.numeric(d)
-d<-ifelse(is.na(d)),paste(d5),d)
+d<-ifelse(is.na(d),paste(d5),d)
 d<-as.numeric(d)
-d<-ifelse(is.na(d))paste(d6),d)
-d<-as.numeric(d)
+d<-ifelse(is.na(d),paste(d6),d)
+multi$d<-as.numeric(d)
 db<-d6
 db<-as.numeric(db)
 db<-ifelse(is.na(db),paste(d5),db)
@@ -267,22 +267,11 @@ db<-as.numeric(db)
 db<-ifelse(is.na(db),paste(d2),db)
 db<-as.numeric(db)
 db<-ifelse(is.na(db),paste(d1),db)
-db<-as.numeric(db)
-
-table(db)
-head(multi)
-multi$d<-as.numeric(d)
 multi$db<-as.numeric(db)
-attach(multi)
-save(multi, file ="multi.Rda")
-###############################################
 
-#MATCH CASES AND CONTROLS
-
-library(Epi)
-cc<-ccwc(entry=d,exit=db, fail=1, origin=d,controls=1, data=multi,   include  = list(cendiff), match = list(Gender, AgeF, Eth2, IsAccountRegistered), silent   = TRUE)
+library(epi)
+cc<-ccwc(entry=d,exit=db, fail=cendiff, origin=d,controls=1, data=over,   match = list(measure1,Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
 head(cc, 10)
-
 ##############################################
 #ONCE MATCHED:
 library(survival)
