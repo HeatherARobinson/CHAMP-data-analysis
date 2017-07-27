@@ -271,30 +271,36 @@ multi$db<-as.numeric(db)
 multi<-multi[!is.na(multi$db)&!is.na(multi$Eth2)&!is.na(multi$PostcodeDecile),]
 save(multi, file ="multi.Rda")
 
-over<-multi(multi$measure1>=90.879&multi$measure1<97.725,]
-normal<-multi(multi$measure1>=2.275&multi$measure1<90.879,]
-obese<-multi(multi$measure1>97.725,]
-
-over<-multi[multi$measure1>=90.879]
-over<-multi[multi$measure1>=90.879,]
+over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
-over<-over[!is.na(over$db)&!is.na(over$Eth2)&!is.na(over$PostcodeDecile),]
-attach(over)
-head(over)
+obese<-multi[multi$measure1>97.725,]
+
 library(Epi)
-co<-ccwc(entry=d,exit=db, fail=cendiff, origin=d,controls=1, data=over,   match = list(measure1,Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
-head(cc, 10)
-cn<-ccwc(entry=d,exit=db, fail=cendiff, origin=d,controls=1, data=normal,   match = list(measure1,Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
-head(cc, 10)
+
+co<-ccwc(entry=measure1,exit=measure2, fail=1, origin=d,controls=1, data=over,   match = list(Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
+head(co, 10)
+cn<-ccwc(entry=measure1,exit=measure2, fail=1, origin=d,controls=1, data=normal,   match = list(Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
+head(cn, 10)
+cob<-ccwc(entry=measure1,exit=measure2, fail=1, origin=d,controls=1, data=obese,   match = list(Gender, AgeF, Eth2, IsAccountRegistered,PostcodeDecile), silent   = TRUE)
+head(cob, 10)
 ##############################################
 #ONCE MATCHED:
 library(survival)
-model<-clogit((~fail+strata(Set)), data = cc)
-multi<-multi[complete.cases(multi),]
+modelco<-clogit((Fail~strata(Set)), data = co)
+modelcn<-clogit((Fail~strata(Set)), data = cn)
+modelcob<-clogit((Fail~strata(Set)), data = cob)
+
+##############################################
+OR
+##############################################
+
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
-multi<-multi[!is.na(multi$IsAccountRegistered)&!is.na(multi$AgeF)&!is.na(multi$Gender)&!is.na(multi$Eth2)&!is.na(multi$cendiff)&!is.na(multi$PostcodeDecile),]
-attach(multi)
+
 library(MatchIt)
 set.seed(1234)
-match.it <- matchit(IsAccountRegistered~AgeF+Gender+Eth2+cendiff+PostcodeDecile,data=multi, method="nearest", ratio=1)
-a <- summary(match.it)
+match.ov<- matchit(cendiff~IsAccountRegistered+AgeF+Gender+Eth2+PostcodeDecile,data=over, method="nearest", ratio=1)
+match.no<- matchit(cendiff~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=normal, method="nearest", ratio=1)
+match.ob<- matchit(cendiff~IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=obese, method="nearest", ratio=1)
+ov<- summary(match.ov)
+ob<- summary(match.ob)
+no<- summary(match.no)
