@@ -280,6 +280,8 @@ load(multi, file ="multi.Rda")
 #Find difference over couse of 1 year
 multi$days<-as.numeric(multi$db)-as.numeric(multi$d)
 multi$cendiffs<-multi$cendiff/multi$days*365.25
+multi$bmidecile<-findInterval(multi$measure1,c(10,20,30,40,50,60,70,80,90))
+multi$imdquintile<-findInterval(multi$PostcodeDecile,c(0,2,4,6,8,10))
 attach(multi)
 
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
@@ -288,6 +290,7 @@ over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
 obese<-multi[multi$measure1>97.725,]
 
+
 #MATCH CASES AND CONTROLS
 ##############################################
 
@@ -295,9 +298,9 @@ multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+measure1+PostcodeDecile,data=over[,c(2:3,11:13,21:22,29)], method="nearest", ratio=2)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+measure1+PostcodeDecile,data=normal[,c(2:3,11:13,21:22,29)], method="nearest", ratio=2)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+measure1+PostcodeDecile,data=obese[,c(2:3,11:13,21:22,29)], method="nearest", ratio=2)
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmideciles+imdquintile,data=over[,c(2,11:13,21,29:31)], method="exact", ratio=2)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmideciles+imdquintile,data=normal[,c(2,11:13,21,29:31)], method="exact", ratio=2)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmideciles+imdquintile,data=obese[,c(2,11:13,21,29:31)], method="exact", ratio=2)
 
 matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
