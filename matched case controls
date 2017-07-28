@@ -324,4 +324,10 @@ mean(obyes$cendiffs)
 mean(normyes$cendiffs)
 mean(normno$cendiffs)
 
+median(ovyes$cendiffs)
+median(ovno$cendiffs)
+median(obno$cendiffs)
+median(obyes$cendiffs)
+median(normyes$cendiffs)
+median(normno$cendiffs)
 
