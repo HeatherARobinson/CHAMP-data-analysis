@@ -298,17 +298,13 @@ multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmideciles+imdquintile,data=over[,c(2,11:13,21,29:31)], method="exact", ratio=2)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmideciles+imdquintile,data=normal[,c(2,11:13,21,29:31)], method="exact", ratio=2)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmideciles+imdquintile,data=obese[,c(2,11:13,21,29:31)], method="exact", ratio=2)
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=over[,c(2,11:13,21,29:31)], method="exact", ratio=2)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,11:13,21,29:31)], method="exact", ratio=2)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,11:13,21,29:31)], method="exact", ratio=2)
 
 matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weights", subclass="subclass")
-
-mean(matchd.ob$distance)
-mean(matchd.ov$distance)
-mean(matchd.no$distance)
 
 normno<-matchd.no[matchd.no$IsAccountRegistered==0,]
 normyes<-matchd.no[matchd.no$IsAccountRegistered==1,]
