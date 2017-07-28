@@ -82,7 +82,7 @@ alldata$weightcat5<-as.numeric(ifelse(class==5,weightcat,NA))
 alldata$weightcat6<-as.numeric(ifelse(class==6,weightcat,NA))
 attach(alldata)
 
-#Print weightcat at each age
+#Print centile at each age
 alldata$centr<-as.numeric(ifelse(class==0,Centile_BMI,NA))
 alldata$cent1<-as.numeric(ifelse(class==1,Centile_BMI,NA))
 alldata$cent2<-as.numeric(ifelse(class==2,Centile_BMI,NA))
@@ -121,13 +121,13 @@ as.numeric(c(centr,cent1,cent2,cent3,cent4,cent5,cent6))
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
 multiplebase<-multiple[,c(1,12)]
-multiplefirst<-multiple[!is.na(multiple$centr),c(1, 45)]
-multiple1<-multiple[!is.na(multiple$cent1),c(1, 46)]
-multiple2<-multiple[!is.na(multiple$cent2),c(1, 47)]
-multiple3<-multiple[!is.na(multiple$cent3),c(1, 48)]
-multiple4<-multiple[!is.na(multiple$cent4),c(1, 49)]
-multiple5<-multiple[!is.na(multiple$cent5),c(1, 50)]
-multiple6<-multiple[!is.na(multiple$cent6),c(1, 51)]
+multiplefirst<-multiple[!is.na(multiple$centr),c(1, 42)]
+multiple1<-multiple[!is.na(multiple$cent1),c(1, 43)]
+multiple2<-multiple[!is.na(multiple$cent2),c(1, 44)]
+multiple3<-multiple[!is.na(multiple$cent3),c(1, 45)]
+multiple4<-multiple[!is.na(multiple$cent4),c(1, 46)]
+multiple5<-multiple[!is.na(multiple$cent5),c(1, 47)]
+multiple6<-multiple[!is.na(multiple$cent6),c(1, 48)]
 multiple$ageattestyr<-as.numeric(multiple$ageattestyr)
 multiple7<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
 colnames(multiple7)<- c("ChildID","AgeF")
@@ -170,13 +170,13 @@ multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple7,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple8,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
-multiple10<-multiple[!is.na(multiple$dr),c(1, 52)]
-multiple11<-multiple[!is.na(multiple$d1),c(1, 53)]
-multiple12<-multiple[!is.na(multiple$d2),c(1, 54)]
-multiple13<-multiple[!is.na(multiple$d3),c(1, 55)]
-multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
-multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
-multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
+multiple10<-multiple[!is.na(multiple$dr),c(1, 49)]
+multiple11<-multiple[!is.na(multiple$d1),c(1, 50)]
+multiple12<-multiple[!is.na(multiple$d2),c(1, 51)]
+multiple13<-multiple[!is.na(multiple$d3),c(1, 52)]
+multiple14<-multiple[!is.na(multiple$d4),c(1, 53)]
+multiple15<-multiple[!is.na(multiple$d5),c(1, 54)]
+multiple16<-multiple[!is.na(multiple$d6),c(1, 55)]
 
 multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
@@ -269,20 +269,26 @@ db<-ifelse(is.na(db),paste(d1),db)
 multi$db<-as.numeric(db)
 multi<-multi[!is.na(multi$db)&!is.na(multi$Eth2)&!is.na(multi$PostcodeDecile),]
 multi<-multi[!multi$db==multi$d,]
+
 save(multi, file ="multi.Rda")
+
+###############################################
+#BREAKPOINT
+################################################
+load(multi, file ="multi.Rda")
 
 #Find difference over couse of 1 year
 multi$days<-as.numeric(multi$db)-as.numeric(multi$d)
 multi$cendiffs<-multi$cendiff/multi$days*365.25
 attach(multi)
 
-#CREATE SUBSETS BY BMI CATEGORY
+#CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
 
 over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
 obese<-multi[multi$measure1>97.725,]
 
-MATCH CASES AND CONTROLS
+#MATCH CASES AND CONTROLS
 ##############################################
 
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
