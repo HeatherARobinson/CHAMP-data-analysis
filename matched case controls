@@ -288,9 +288,9 @@ multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=over[,c(2:3,11:13,21,29)], method="nearest", ratio=1)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=normal[,c(2:3,11:13,21,29)], method="nearest", ratio=1)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+PostcodeDecile,data=obese[,c(2:3,11:13,21,29)], method="nearest", ratio=1)
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+measure1+PostcodeDecile,data=over[,c(2:3,11:13,21,29)], method="nearest", ratio=2)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+measure1+PostcodeDecile,data=normal[,c(2:3,11:13,21,29)], method="nearest", ratio=2)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+measure1+PostcodeDecile,data=obese[,c(2:3,11:13,21,29)], method="nearest", ratio=2)
 
 matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
