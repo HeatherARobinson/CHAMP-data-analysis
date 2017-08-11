@@ -1,0 +1,88 @@
+library(lubridate)
+library(dplyr)
+#CHECK FOR WEIGHT AND HEIGHT DATA ENTRY ERRORS. 
+#USE NHS 'VALIDATION OF CHILD MEASUREMENT PROGRAMME DATA' REPORT 2016 FOR ERROR REJECTION CUTOFFS 
+#CUTOFFS USED FOR RECEPTION AND YR6 ONLY-Update this
+champ<-subset(champtable, champtable$HeightCM>=70 & champtable$HeightCM<=200 & champtable$WeightKG>=7 & champtable$WeightKG<=160)
+s<-table(champtable$SchoolCode)
+s = as.data.frame(s)
+champ$SchoolCode<-ifelse(champ$SchoolCode %in% s$Var1,champ$SchoolCode,"NA") 
+attach(champ)
+#Create additional derived variables
+champ$BMI<-WeightKG/(HeightCM/100)^2
+ndate1<-paste(DateOfBirth,"-01",sep=""); ndate1
+ndate1<-(as.Date(ndate1))
+ndate2<-paste(AssessmentDate,"-01",sep=""); ndate2
+ndate2<-(as.Date(ndate2))
+champ$ageattest<-floor(difftime(strptime(ndate2, format="%Y-%m-%d"),strptime(ndate1, format="%Y-%m-%d"),units="weeks")/52)
+champ$ageattest<-as.integer(champ$ageattest)
+attach(champ)
+champ<-subset(champ, champ$ageattest<=11 & champ$ageattest>=4)
+attach(champ)
+levels(as.factor(champ$SchoolCode))
+table(champ$ageattest)
+setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
+champtable<-read.table("champ.csv", header=T,sep=",")
+library(lubridate)
+library(dplyr)
+#CHECK FOR WEIGHT AND HEIGHT DATA ENTRY ERRORS. 
+#USE NHS 'VALIDATION OF CHILD MEASUREMENT PROGRAMME DATA' REPORT 2016 FOR ERROR REJECTION CUTOFFS 
+#CUTOFFS USED FOR RECEPTION AND YR6 ONLY-Update this
+champ<-subset(champtable, champtable$HeightCM>=70 & champtable$HeightCM<=200 & champtable$WeightKG>=7 & champtable$WeightKG<=160)
+s<-table(champtable$SchoolCode)
+s = as.data.frame(s)
+champ$SchoolCode<-ifelse(champ$SchoolCode %in% s$Var1,champ$SchoolCode,"NA") 
+attach(champ)
+tab<-table(champ$SchoolCode)
+tab
+tab = as.data.frame(t)
+tab = as.data.frame(tab)
+head(tab)
+schoolstable<-file(paste("schoolstable.csv"), open="w")
+cat("School Code","Records")
+ch<-table(champ$SchoolCode, champ$ChildID,fun=SUM)
+ch<-table(champ$SchoolCode, champ$ChildID,FUN=count)
+ch<-table(champ$SchoolCode, count(champ$ChildID))
+ch<-table(champ$SchoolCode, levels(champ$ChildID))
+ch<-table(champ$SchoolCode,champ$ChildID)
+ch
+ch<-table(champ$SchoolCode,nlevels(champ$ChildID))
+ch<-table(champ$SchoolCode,nlevels(champ$ChildID),na.rm=TRUE)
+DF2<-count(champ$ChildID~champ$SchoolCode)
+DF2<-count(champ$ChildID,champ$SchoolCode)
+DF2<-count(champ$ChildID,champ$SchoolCode)
+library(plyr)
+DF2<-count(champ$ChildID,champ$SchoolCode)
+champ$ChildID<-as.factor(champ$ChildID)
+champ$SchoolCode<-as.factor(champ$SchoolCode)
+DF2<-count(champ$ChildID,champ$SchoolCode)
+head(DF2)
+DF2<-count(champ,c(ChildID,SchoolCode)
+)
+DF2<-count(champ,ChildID+SchoolCode)
+DF2<-count(champ,SchoolCode)
+DF2<-count(champ$ChildID,champ$SchoolCode)
+head(DF2)
+count(champ, c("SchoolCode", "ChildID"))
+FAB<-count(champ, c("SchoolCode", "ChildID"))
+head(FAB)
+aggregate(freq ~ SchoolCodfe, data = fab, sum)
+aggregate(freq ~ SchoolCode, data = fab, sum)
+aggregate(freq ~ SchoolCode, data = FAB, sum)
+FAB<-aggregate(freq ~ SchoolCode, data = FAB, sum)
+head(FAB)
+head(TAB)
+head(tab)
+names(tab)
+names(tab)[1]<-"ChildID"
+names(tab)[2]<-"Records"
+names(tab)[1]<-"SchoolCode"
+names(FAB)[2]<-"ChildIDs"
+merge(FAB,tab,by=ChildID)
+merge(FAB,tab,by="ChildID")
+names(FAB)
+names(tab)
+merge(FAB,tab,by="SchoolCode")
+schools<-merge(FAB,tab,by="SchoolCode")
+head(schools)
+head(schools,n=30)
