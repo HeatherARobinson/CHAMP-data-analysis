@@ -121,13 +121,13 @@ as.numeric(c(centr,cent1,cent2,cent3,cent4,cent5,cent6))
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
 multiplebase<-multiple[,c(1,12)]
-multiplefirst<-multiple[!is.na(multiple$centr),c(1, 42)]
-multiple1<-multiple[!is.na(multiple$cent1),c(1, 43)]
-multiple2<-multiple[!is.na(multiple$cent2),c(1, 44)]
-multiple3<-multiple[!is.na(multiple$cent3),c(1, 45)]
-multiple4<-multiple[!is.na(multiple$cent4),c(1, 46)]
-multiple5<-multiple[!is.na(multiple$cent5),c(1, 47)]
-multiple6<-multiple[!is.na(multiple$cent6),c(1, 48)]
+multiplefirst<-multiple[!is.na(multiple$centr),c(1, 45)]
+multiple1<-multiple[!is.na(multiple$cent1),c(1, 46)]
+multiple2<-multiple[!is.na(multiple$cent2),c(1, 47)]
+multiple3<-multiple[!is.na(multiple$cent3),c(1, 48)]
+multiple4<-multiple[!is.na(multiple$cent4),c(1, 49)]
+multiple5<-multiple[!is.na(multiple$cent5),c(1, 50)]
+multiple6<-multiple[!is.na(multiple$cent6),c(1, 51)]
 multiple$ageattestyr<-as.numeric(multiple$ageattestyr)
 multiple7<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
 colnames(multiple7)<- c("ChildID","AgeF")
@@ -170,13 +170,13 @@ multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple7,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple8,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
-multiple10<-multiple[!is.na(multiple$dr),c(1, 49)]
-multiple11<-multiple[!is.na(multiple$d1),c(1, 50)]
-multiple12<-multiple[!is.na(multiple$d2),c(1, 51)]
-multiple13<-multiple[!is.na(multiple$d3),c(1, 52)]
-multiple14<-multiple[!is.na(multiple$d4),c(1, 53)]
-multiple15<-multiple[!is.na(multiple$d5),c(1, 54)]
-multiple16<-multiple[!is.na(multiple$d6),c(1, 55)]
+multiple10<-multiple[!is.na(multiple$dr),c(1, 52)]
+multiple11<-multiple[!is.na(multiple$d1),c(1, 53)]
+multiple12<-multiple[!is.na(multiple$d2),c(1, 54)]
+multiple13<-multiple[!is.na(multiple$d3),c(1, 55)]
+multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
+multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
+multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
 
 multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
@@ -302,9 +302,9 @@ match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,da
 match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,11:13,21,29:31)], method="exact", ratio=2)
 match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,11:13,21,29:31)], method="exact", ratio=2)
 
-matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weights", subclass="subclass")
+matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 
 normno<-matchd.no[matchd.no$IsAccountRegistered==0,]
 normyes<-matchd.no[matchd.no$IsAccountRegistered==1,]
