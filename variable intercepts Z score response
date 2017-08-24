@@ -17,7 +17,7 @@ levels(Ethnicity)[4]<-"other"
 levels(Ethnicity)[7]<-"other"
 levels(Ethnicity)[6]<-"Asian"
 levels(Ethnicity)[7]<-"NA"
-VI11<- lmer(SDS_BMI~ ageattest+Gender*Ethnicity*PostcodeDecile +AcademicYear+(1|ChildID)+(1|SchoolCode),REML=FALSE)
-summary(VI11)
+VI1<- lmer(SDS_BMI~ ageattest+Gender*Ethnicity*PostcodeDecile +AcademicYear+(1|ChildID)+(1|SchoolCode),REML=FALSE)
+summary(VI1)
 
 #########################
