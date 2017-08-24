@@ -86,6 +86,7 @@ attach(alldata)
 #Determine how many measurements taken per child
 
 alldata$NoRecords<-(Recordr+Record1+Record2+Record3+Record4+Record5+Record6)
+
 Recs<-aggregate(alldata$NoRecords, by=list(Category=ChildID), FUN=sum)
 names(Recs)[names(Recs)=="x"] <- "NoRecs"
 names(Recs)[names(Recs)=="Category"] <- "ChildID"
@@ -113,7 +114,16 @@ secpair<-alldata[thrand6,]
 #Merge to have BMI at different ages on the same line
 
 Recs2<-Recs[Recs$NoRecs==2,]
-multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
+multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured twice
+
+Recs3<-Recs[Recs$NoRecs==3,]
+threes<-alldata[alldata$ChildID %in% Recs3$ChildID,] #children measured twice
+threes<-alldata[alldata$ChildID %in% Recs3$ChildID,] #children measured twice
+
+threes$IsAccountRegistered<-
+Tr<-aggregate(threes, by=list(Category=firstpair$ChildID), FUN=max)
+
+
 multiple<-with(multiple, multiple[order(ChildID),])
 attach(multiple)
 as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
@@ -208,41 +218,25 @@ multi$measure2<-measure2
 
 measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1),paste(weightcat2),NA)
 measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2),paste(weightcat3),NA)
+measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2),paste(weightcat3),measure3)
 measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3),paste(weightcat4),NA)
+measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3),paste(weightcat4),measure3)
 measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),NA)
+measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),measure3)
 measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4)&is.na(weightcat5),paste(weightcat6),NA)
+measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4)&is.na(weightcat5),paste(weightcat6),measure3)
 measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2),paste(weightcat3),NA)
-measure3<-as.numeric(measure3
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3),paste(weightcat4),NA)
+measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2),paste(weightcat3),measure3)
 measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),NA)
+measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3),paste(weightcat4),measure3)
 measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4)&is.na(weightcat5),paste(weightcat6),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&!is.na(weightcat3),paste(weightcat4),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&!is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&!is.na(weightcat3)&is.na(weightcat4)&is.na(weightcat5),paste(weightcat6),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&!is.na(weightcat4),paste(weightcat5),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&!is.na(weightcat4)&is.na(weightcat5),paste(weightcat6),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4)&!is.na(weightcat5),paste(weightcat6),NA)
+measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),measure3)
 measure3<-as.numeric(measure3)
 measure3<-ifelse(is.na(weightcatr)&!is.na(weightcat1)&!is.na(weightcat2),paste(weightcat3),NA)
 measure3<-as.numeric(measure3)
 measure3<-ifelse(is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&!is.na(weightcat3),paste(weightcat4),NA)
 measure3<-as.numeric(measure3)
 measure3<-ifelse(is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&!is.na(weightcat4),paste(weightcat5),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4)&!is.na(weightcat5),paste(weightcat6),NA)
 measure3<-as.numeric(measure3)
 measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&!is.na(weightcat3),paste(weightcat4),NA)
 measure3<-as.numeric(measure3)
