@@ -1,5 +1,5 @@
 #CALCULATE CLASS WHEN MEASURED (Install Lubridate)
-thisyear<-alldata[!alldata$AcademicYear=="2012/2013",]
+thisyear<-alldata[!alldata$AcademicYear=="2012/2013",] #Exclude pre 2013/14 measurements as there are too few of these
 thisyear$sumage<-round(thisyear$ageattestyr,digits=0)
 thisyear$birthmonth<-month(as.POSIXlt(thisyear$DateOfBirth, format="%Y-%m-%d"))
 thisyear$assmonth<-month(as.POSIXlt(thisyear$AssessmentDate, format="%Y-%m"))
@@ -117,11 +117,13 @@ Recs2<-Recs[Recs$NoRecs==2,]
 multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured twice
 
 Recs3<-Recs[Recs$NoRecs==3,]
-threes<-alldata[alldata$ChildID %in% Recs3$ChildID,] #children measured twice
-threes<-alldata[alldata$ChildID %in% Recs3$ChildID,] #children measured twice
+threevalues<-alldata[alldata$ChildID %in% Recs3$ChildID,] #children measured three times
 
-threes$IsAccountRegistered<-
-Tr<-aggregate(threes, by=list(Category=firstpair$ChildID), FUN=max)
+Recs4<-Recs[Recs$NoRecs==4,]
+fourvalues<-alldata[alldata$ChildID %in% Recs4$ChildID,] #children measured four times
+
+Th<-aggregate(threevalues, by=list(Category=threevalues$ChildID), FUN=max)
+Fo<-aggregate(fourvalues, by=list(Category=fourvalues$ChildID), FUN=max)
 
 
 multiple<-with(multiple, multiple[order(ChildID),])
@@ -216,43 +218,7 @@ measure2<-as.numeric(measure2)
 multi$measure1<-measure1
 multi$measure2<-measure2
 
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1),paste(weightcat2),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2),paste(weightcat3),measure3)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3),paste(weightcat4),measure3)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),measure3)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4)&is.na(weightcat5),paste(weightcat6),measure3)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2),paste(weightcat3),measure3)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3),paste(weightcat4),measure3)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(!is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),measure3)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&!is.na(weightcat1)&!is.na(weightcat2),paste(weightcat3),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&!is.na(weightcat3),paste(weightcat4),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&!is.na(weightcat1)&is.na(weightcat2)&is.na(weightcat3)&!is.na(weightcat4),paste(weightcat5),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&!is.na(weightcat3),paste(weightcat4),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&!is.na(weightcat3)&is.na(weightcat4),paste(weightcat5),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&!is.na(weightcat3)&is.na(weightcat4)&is.na(weightcat5),paste(weightcat6),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3)&!is.na(weightcat4),paste(weightcat5),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&!is.na(weightcat2)&is.na(weightcat3)&is.na(weightcat4)&!is.na(weightcat5),paste(weightcat6),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&!is.na(weightcat3)&!is.na(weightcat4),paste(weightcat5),NA)
-measure3<-as.numeric(measure3)
-measure3<-ifelse(is.na(weightcatr)&is.na(weightcat1)&is.na(weightcat2)&!is.na(weightcat3)&is.na(weightcat4)&!is.na(weightcat5),paste(weightcat6),NA)
-measure3<-as.numeric(measure3)
-
+measure3<-ifelse()
 multi$measure3<-measure3
 
 table(multi$IsAccountRegistered)
