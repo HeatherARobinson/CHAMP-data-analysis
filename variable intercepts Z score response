@@ -1,4 +1,6 @@
 library(lme4)
+alldata<-alldata[!is.na(SDS_BMI),]
+attach(alldata)
 SchoolCode<-as.factor(SchoolCode)
 ChildID<-as.factor(ChildID)
 #VARIABLE INTERCEPTS MODEL
