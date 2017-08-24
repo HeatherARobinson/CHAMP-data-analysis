@@ -34,3 +34,4 @@ alldata$ageattestyr<-floor(alldata$ageattest/52.149)
 
 alldata$ageattestyr<-as.integer(alldata$ageattestyr)
 alldata<-alldata[!alldata$AcademicYear=="2011/2012"&!alldata$AcademicYear=="2012/2013",]
+alldata$AcademicYear <- droplevels(alldata$AcademicYear)
