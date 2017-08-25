@@ -5,7 +5,6 @@ library(plyr)
 library(ggplot2)
 library(taRifx)
 alldata$ageattestyr<-round((alldata$ageattest/52)/0.5)*0.5
-alldata<0
 attach(alldata)
 #Visualise trajectories by gender
 seq.gender <-aggregate(alldata$BMI, by=list(alldata$Gender,alldata$ageattestyr), FUN=median, na.rm=TRUE)
@@ -16,18 +15,18 @@ UK90<-read.table ("UK90REFBMI.csv",header=TRUE, sep=",")
 curve<-rbind(seq.gender,UK90)
 cbPalette <- c("#FF0000", "#0066FF", "#FF0000", "#0066FF")
 
-ggplot(curve,aes(x=ageyrs,y=BMI,colour=Gender,linetype=Gender,group=Gender))+
+ggplot(curve,aes(x=ageattestyr,y=BMI,colour=Gender,linetype=Gender,group=Gender))+
 scale_linetype_manual(values=c(rep("solid",2),rep("dashed",2)))+
-scale_color_manual(values = c("#FF0000", "#0066FF", "#FF0000", "#0066FF"),name="Gender")+
+scale_color_manual(values = c("#FF0000", "#0066FF", "#0066FF", "#FF0000"),name="Gender")+
 theme_bw() +
+theme(plot.title = element_text(hjust = 0.5))+
+theme(legend.title=element_blank())+
 theme(axis.line = element_line(colour = "black"))+
-scale_y_continuous(minor_breaks = seq(0 , 25, 0.2), breaks = seq(0, 25, 0.2))+
-scale_x_continuous(minor_breaks = seq(4 , 11, 1), breaks = seq(4, 11, 1), expand=c(0,0))+
-xlab("Child age (yrs)")+ylab("Median body mass index by gender")+
+scale_y_continuous(minor_breaks = seq(0 , 25, 0.25), breaks = seq(0, 25, 0.25))+
+scale_x_continuous(minor_breaks = seq(3.5 , 11.5, 1), breaks = seq(3.5, 11.5, 0.5),expand=c(0,0))+
+xlab("Child age (yrs)")+ylab("Median body mass index")+
 theme(legend.key = element_rect(colour = NA))+
-geom_smooth(method="loess")+
-ggtitle("Median body mass index, Manchester 2013-2016")
-
+geom_smooth(method="loess")
 ####################################################################################
 
 #WORK OUT CENTILES
