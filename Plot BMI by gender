@@ -1,15 +1,18 @@
 ###########################################################################################
 
 #PLOT MEDIAN BMI BY AGE AND GENDER
-setwd("c:/Users/mqbpjhr4/Documents")
-alldata<-read.table("LMStableedited.csv",header=TRUE, sep=",")
 library(plyr)
-alldata<-alldata[alldata$ageattest<=11&alldata$ageattest>3,]
+library(ggplot2)
+library(taRifx)
+alldata$ageattestyr<-round((alldata$ageattest/52)/0.5)*0.5
+alldata<0
+attach(alldata)
 #Visualise trajectories by gender
-
-seq.gender <-aggregate(alldata$BMI, by=list(alldata$Gender,alldata$ageattest), FUN=median, na.rm=TRUE)
-seq.gender<-rename(seq.gender,c("Group.1"="Gender","Group.2"="ageyrs","x"="BMI"))
-UK90<-read.table ("UK90REF.csv",header=TRUE, sep=",")
+seq.gender <-aggregate(alldata$BMI, by=list(alldata$Gender,alldata$ageattestyr), FUN=median, na.rm=TRUE)
+seq.gender<-rename(seq.gender,c("Group.1"="Gender","Group.2"="ageattestyr","x"="BMI"))
+levels(seq.gender$Gender)[1]<-"Girls 2013-2016"
+levels(seq.gender$Gender)[2]<-"Boys 2013-2016"
+UK90<-read.table ("UK90REFBMI.csv",header=TRUE, sep=",")
 curve<-rbind(seq.gender,UK90)
 cbPalette <- c("#FF0000", "#0066FF", "#FF0000", "#0066FF")
 
@@ -19,12 +22,11 @@ scale_color_manual(values = c("#FF0000", "#0066FF", "#FF0000", "#0066FF"),name="
 theme_bw() +
 theme(axis.line = element_line(colour = "black"))+
 scale_y_continuous(minor_breaks = seq(0 , 25, 0.2), breaks = seq(0, 25, 0.2))+
-scale_x_continuous(minor_breaks = seq(3.6 , 10.6, 1), breaks = seq(4, 11, 1))+
+scale_x_continuous(minor_breaks = seq(4 , 11, 1), breaks = seq(4, 11, 1), expand=c(0,0))+
 xlab("Child age (yrs)")+ylab("Median body mass index by gender")+
 theme(legend.key = element_rect(colour = NA))+
 geom_smooth(method="loess")+
 ggtitle("Median body mass index, Manchester 2013-2016")
-
 
 ####################################################################################
 
