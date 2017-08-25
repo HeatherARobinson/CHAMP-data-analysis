@@ -22,7 +22,7 @@ theme_bw() +
 theme(plot.title = element_text(hjust = 0.5))+
 theme(legend.title=element_blank())+
 theme(axis.line = element_line(colour = "black"))+
-scale_y_continuous(minor_breaks = seq(0 , 25, 0.25), breaks = seq(0, 25, 0.25))+
+scale_y_continuous(minor_breaks = seq(0 , 25, 0.5), breaks = seq(0, 25, 0.5))+
 scale_x_continuous(minor_breaks = seq(3.5 , 11.5, 1), breaks = seq(3.5, 11.5, 0.5),expand=c(0,0))+
 xlab("Child age (yrs)")+ylab("Median body mass index")+
 theme(legend.key = element_rect(colour = NA))+
