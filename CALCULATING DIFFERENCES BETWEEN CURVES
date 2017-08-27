@@ -4,28 +4,30 @@ library(plyr)
 attach(alldata)
 levels(alldata$Ethnicity)
 levels(alldata$Ethnicity)[1:3]<-"White British/Irish"
+refdata<-read.table("UK90REF.csv",header=TRUE, sep=",")
 
-refdata<-read.table("UK90ref.csv",header=TRUE, sep=",")
-alldata<-rbind(alldata[,c(11,6,17,9)], refdata)
+refdata$Ref<-"UK90"
+alldata$Ref<-"all"
+alldata<-rbind(alldata[,c(6,17,9,18)], refdata)
 
 fem<-alldata[alldata$Gender=="F",]
 mal<-alldata[alldata$Gender=="M",]
 seq.long.sum<-ddply(fem,.(Ethnicity,as.numeric(ageattestyr)),summarize,value=median(as.numeric(BMI)))
 seq.long.sum2<-ddply(mal,.(Ethnicity,as.numeric(ageattestyr)),summarize,value=median(as.numeric(BMI)))
-white<-subset(seq.long.sum,Ethnicity=="White British/Irish")
 UK90<-subset(seq.long.sum,Ethnicity=="UK90")
+seq.long.sum<-
+seq.long.sum2<-
 
-f<-merge(white,UK90,by="as.numeric(ageattestyr)",all=TRUE)
-f <- f[-c(2,4) ]
-f <- f[-c(1) ]
+f<-merge(seq.long.sum,UK90,by="as.numeric(ageattestyr)",all=TRUE)
+f <- f[-c(4:5) ]
+f <- f[-c(2) ]
 diff(f)/f[-nrow(f),] * 100
 f <- f[c(2,1)]
 j<-f/lag(f,1) - 1
 mean(j$value.x)
 
-white2<-subset(seq.long.sum2,Ethnicity=="White British/Irish")
 UK902<-subset(seq.long.sum2,Ethnicity=="UK90")
-f2<-merge(white2,UK902,by="as.numeric(ageyrs)")
+f2<-merge(seq.long.sum2,UK902,by="as.numeric(ageyrs)")
 f2<- f2[ -c(2,4) ]
 f2<- f2[ -c(1) ]
 f2<- f2[c(2,1)]
