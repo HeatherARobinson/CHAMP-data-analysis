@@ -12,26 +12,14 @@ alldata<-rbind(alldata[,c(6,17,9,18)], refdata)
 
 fem<-alldata[alldata$Gender=="F",]
 mal<-alldata[alldata$Gender=="M",]
-seq.long.sum<-ddply(fem,.(Ethnicity,as.numeric(ageattestyr)),summarize,value=median(as.numeric(BMI)))
-seq.long.sum2<-ddply(mal,.(Ethnicity,as.numeric(ageattestyr)),summarize,value=median(as.numeric(BMI)))
-UK90<-subset(seq.long.sum,Ethnicity=="UK90")
+seq.long.sum<-ddply(fem,.(Ref,as.numeric(ageattestyr)),summarize,value=median(as.numeric(BMI)))
+seq.long.sum2<-ddply(mal,.(Ref,as.numeric(ageattestyr)),summarize,value=median(as.numeric(BMI)))
+UK90<-subset(seq.long.sum,Ref=="UK90")
 seq.long.sum<-
 seq.long.sum2<-
 
-f<-merge(seq.long.sum,UK90,by="as.numeric(ageattestyr)",all=TRUE)
-f <- f[-c(4:5) ]
-f <- f[-c(2) ]
-diff(f)/f[-nrow(f),] * 100
-f <- f[c(2,1)]
-j<-f/lag(f,1) - 1
-mean(j$value.x)
-
-UK902<-subset(seq.long.sum2,Ethnicity=="UK90")
-f2<-merge(seq.long.sum2,UK902,by="as.numeric(ageyrs)")
-f2<- f2[ -c(2,4) ]
-f2<- f2[ -c(1) ]
-f2<- f2[c(2,1)]
-j<-f/lag(f,1) - 1
-mean(j$value.x,na.rm=TRUE)
+a<-seq.long.sum[seq.long.sum$Ref=="UK90",]
+b<-seq.long.sum[seq.long.sum$Ref=="all",]
+abs(a$value-b$value)
 
 #################################################
