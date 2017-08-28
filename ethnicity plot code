@@ -2,6 +2,7 @@
 ncmpdata14<-read.table ("ncmp_1415_final_non_disclosive.csv",header=TRUE, sep=",")
 ncmpdata15<-read.table ("ncmp_1516_final_non_disclosive_rand_id_published.csv",header=TRUE, sep=",")
 library(plyr)
+library(ggplot2)
 attach(alldata)
 alldata$ChildID<-as.factor(alldata$ChildID)
 alldata$SchoolCode<-as.factor(alldata$SchoolCode)
@@ -49,7 +50,7 @@ xlab("Girls' age (yrs)")+
 ylab("Median body mass index")+
 theme(legend.key = element_rect(colour = NA))+
 xlim(4.1,11.4)+
-ylim(15,20)+
+ylim(15.5,20)+
 geom_smooth(se=FALSE)+
 theme(legend.position=c(0.2,0.8))+
 ggtitle("Girls, Manchester 2013/14-2015/16")
@@ -63,7 +64,7 @@ xlab("Boys' age (yrs)")+
 ylab("Median body mass index")+
 theme(legend.key = element_rect(colour = NA))+
 xlim(4.1,11.4)+
-ylim(15,20)+
+ylim(15.5,20)+
 geom_smooth(se=FALSE)+
 theme(legend.position='none')+
 ggtitle("Boys, Manchester 2013/14-2016/17")
