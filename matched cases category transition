@@ -114,27 +114,27 @@ names(Recs)[names(Recs)=="Category"] <- "ChildID"
 #Merge to have BMI at different ages on the same line
 
 Recs2<-Recs[Recs$NoRecs==2,]
-multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
-multiple<-with(multiple, multiple[order(ChildID),])
-attach(multiple)
-as.numeric(c(centr,cent1,cent2,cent3,cent4,cent5,cent6))
-multiple$ChildID<-as.factor(multiple$ChildID)
-multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
-multiplebase<-multiple[,c(1,12)]
-multiplefirst<-multiple[!is.na(multiple$centr),c(1, 45)]
-multiple1<-multiple[!is.na(multiple$cent1),c(1, 46)]
-multiple2<-multiple[!is.na(multiple$cent2),c(1, 47)]
-multiple3<-multiple[!is.na(multiple$cent3),c(1, 48)]
-multiple4<-multiple[!is.na(multiple$cent4),c(1, 49)]
-multiple5<-multiple[!is.na(multiple$cent5),c(1, 50)]
-multiple6<-multiple[!is.na(multiple$cent6),c(1, 51)]
-multiple$ageattestyr<-as.numeric(multiple$ageattestyr)
-multiple7<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
+multipleb<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
+multipleb<-with(multipleb, multipleb[order(ChildID),])
+attach(multipleb)
+as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
+multipleb$ChildID<-as.factor(multipleb$ChildID)
+multipleb$IsAccountRegistered<-as.numeric(multipleb$IsAccountRegistered)-1
+multiplebase<-multipleb[,c(1,12)]
+multiplefirst<-multipleb[!is.na(multipleb$weightcatr),c(1, 38)]
+multiple1<-multipleb[!is.na(multipleb$weightcat1),c(1, 39)]
+multiple2<-multipleb[!is.na(multipleb$weightcat2),c(1, 40)]
+multiple3<-multipleb[!is.na(multipleb$weightcat3),c(1, 41)]
+multiple4<-multipleb[!is.na(multipleb$weightcat4),c(1, 42)]
+multiple5<-multipleb[!is.na(multipleb$weightcat5),c(1, 43)]
+multiple6<-multipleb[!is.na(multipleb$weightcat6),c(1, 44)]
+multipleb$ageattestyr<-as.numeric(multipleb$ageattestyr)
+multiple7<-aggregate(multipleb$ageattestyr,by=list(multipleb$ChildID),FUN=min)
 colnames(multiple7)<- c("ChildID","AgeF")
-multiple8<-aggregate(as.numeric(multiple$Gender),by=list(ChildID),FUN=min)
+multiple8<-aggregate(as.numeric(multipleb$Gender),by=list(ChildID),FUN=min)
 colnames(multiple8)<- c("ChildID","Gender")
 
-Ethnicity2<-multiple$Ethnicity
+Ethnicity2<-multipleb$Ethnicity
 levels(Ethnicity2)[1:3]<-"White"
 levels(Ethnicity2)[11:12]<-"Black African and other"
 levels(Ethnicity2)[2:3]<-"Mixed black and white"
@@ -151,11 +151,11 @@ levels(Ethnicity2)[6]<-"NA"
 levels(Ethnicity2)[4]<-"other"
 levels(Ethnicity2)[2]<-"other"
 
-multiple$Ethnicity2<-Ethnicity2
-attach(multiple)
-multiple9<-aggregate(as.numeric(multiple$Ethnicity2),by=list(multiple$ChildID),FUN=min)
+multipleb$Ethnicity2<-Ethnicity2
+attach(multipleb)
+multiple9<-aggregate(as.numeric(multipleb$Ethnicity2),by=list(multipleb$ChildID),FUN=min)
 colnames(multiple9)<- c("ChildID","Eth2")
-multiplereg<-multiple[c(1, 10)]
+multiplereg<-multipleb[c(1, 10)]
 library(plyr)
 
 
@@ -170,13 +170,13 @@ multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple7,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple8,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
-multiple10<-multiple[!is.na(multiple$dr),c(1, 52)]
-multiple11<-multiple[!is.na(multiple$d1),c(1, 53)]
-multiple12<-multiple[!is.na(multiple$d2),c(1, 54)]
-multiple13<-multiple[!is.na(multiple$d3),c(1, 55)]
-multiple14<-multiple[!is.na(multiple$d4),c(1, 56)]
-multiple15<-multiple[!is.na(multiple$d5),c(1, 57)]
-multiple16<-multiple[!is.na(multiple$d6),c(1, 58)]
+multiple10<-multiple[!is.na(multipleb$dr),c(1, 52)]
+multiple11<-multiple[!is.na(multipleb$d1),c(1, 53)]
+multiple12<-multiple[!is.na(multipleb$d2),c(1, 54)]
+multiple13<-multiple[!is.na(multipleb$d3),c(1, 55)]
+multiple14<-multiple[!is.na(multipleb$d4),c(1, 56)]
+multiple15<-multiple[!is.na(multipleb$d5),c(1, 57)]
+multiple16<-multiple[!is.na(multipleb$d6),c(1, 58)]
 
 multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
@@ -203,131 +203,4 @@ attach(multi)
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
-
-
-###############################################
-
-#CALCULATE DIFF BETWEEN MEASUREMENTS
-length(multi$ChildID)#25024
-attach(multi)
-measure1<-centr
-measure1<-as.numeric(measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(cent1),paste(cent1),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(cent2),paste(cent2),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(cent3),paste(cent3),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(cent4),paste(cent4),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(cent5),paste(cent5),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(cent6),paste(cent6),measure1)
-
-measure2<-as.numeric(cent6)
-measure2<-ifelse(is.na(measure2)&(!is.na(cent5)),paste(cent5),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(cent4)),paste(cent4),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(cent3)),paste(cent3),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(cent2)),paste(cent2),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(cent1)),paste(cent1),measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(centr)),paste(centr),measure2)
-multi$measure1<-as.numeric(measure1)
-multi$measure2<-as.numeric(measure2)
-multi$cendiff<-multi$measure2-multi$measure1
-attach(multi)
-multi$dir<-ifelse(multi$cendiff>0,1,0)
-table(multi$IsAccountRegistered)
-table(multi$measure1)
-table(multi$measure2)
-attach(multi)
-
-#MARK THE DATES OF 1ST AND SECOND MEASUREMENTS
-d<-dr
-d<-as.numeric(d)
-d<-ifelse(is.na(d),paste(d1),d)
-d<-as.numeric(d)
-d<-ifelse(is.na(d),paste(d2),d)
-d<-as.numeric(d)
-d<-ifelse(is.na(d),paste(d3),d)
-d<-as.numeric(d)
-d<-ifelse(is.na(d),paste(d4),d)
-d<-as.numeric(d)
-d<-ifelse(is.na(d),paste(d5),d)
-d<-as.numeric(d)
-d<-ifelse(is.na(d),paste(d6),d)
-multi$d<-as.numeric(d)
-db<-d6
-db<-as.numeric(db)
-db<-ifelse(is.na(db),paste(d5),db)
-db<-as.numeric(db)
-db<-ifelse(is.na(db),paste(d4),db)
-db<-as.numeric(db)
-db<-ifelse(is.na(db),paste(d3),db)
-db<-as.numeric(db)
-db<-ifelse(is.na(db),paste(d2),db)
-db<-as.numeric(db)
-db<-ifelse(is.na(db),paste(d1),db)
-multi$db<-as.numeric(db)
-multi<-multi[!is.na(multi$db)&!is.na(multi$Eth2)&!is.na(multi$PostcodeDecile),]
-multi<-multi[!multi$db==multi$d,]
-
-save(multi, file ="multi.Rda")
-
-###############################################
-#BREAKPOINT
-################################################
-load(multi, file ="multi.Rda")
-
-#Find difference over couse of 1 year
-multi$days<-as.numeric(multi$db)-as.numeric(multi$d)
-multi$cendiffs<-multi$cendiff/multi$days*365.25
-multi$bmidecile<-findInterval(multi$measure1,c(10,20,30,40,50,60,70,80,90))
-multi$cat1<-findInterval(multi$measure1,c(10,20,30,40,50,60,70,80,90))
-multi$cat2<-findInterval(multi$measure1,c(10,20,30,40,50,60,70,80,90))
-multi$imdquintile<-findInterval(multi$PostcodeDecile,c(0,2,4,6,8,10))
-attach(multi)
-
-#CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
-
-over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
-normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
-obese<-multi[multi$measure1>97.725,]
-
-
-#MATCH CASES AND CONTROLS
-##############################################
-
-multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
-
-library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
-set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=over[,c(2,11:13,21,29:31)], method="exact", ratio=2)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,11:13,21,29:31)], method="exact", ratio=2)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,11:13,21,29:31)], method="exact", ratio=2)
-
-matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
-matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weights", subclass="subclass")
-matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
-
-normno<-matchd.no[matchd.no$IsAccountRegistered==0,]
-normyes<-matchd.no[matchd.no$IsAccountRegistered==1,]
-
-obyes<-matchd.ob[matchd.ob$IsAccountRegistered==1,]
-obno<-matchd.ob[matchd.ob$IsAccountRegistered==0,]
-
-ovyes<-matchd.ov[matchd.ov$IsAccountRegistered==1,]
-ovno<-matchd.ov[matchd.ov$IsAccountRegistered==0,]
-
-
-mean(ovyes$cendiffs)
-mean(ovno$cendiffs)
-mean(obno$cendiffs)
-mean(obyes$cendiffs)
-mean(normyes$cendiffs)
-mean(normno$cendiffs)
-
-median(ovyes$cendiffs)
-median(ovno$cendiffs)
-median(obno$cendiffs)
-median(obyes$cendiffs)
-median(normyes$cendiffs)
-median(normno$cendiffs)
+which(multi$)
