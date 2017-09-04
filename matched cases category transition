@@ -203,4 +203,37 @@ attach(multi)
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
-which(multi$)
+
+#CALCULATE DIFF BETWEEN MEASUREMENTS
+length(multi$ChildID)#25024
+attach(multi)
+measure1<-weightcatr
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(weightcat1),paste(weightcat1),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(weightcat2),paste(weightcat2),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(weightcat3),paste(weightcat3),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(weightcat4),paste(weightcat4),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(weightcat5),paste(weightcat5),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(weightcat6),paste(weightcat6),measure1)
+
+measure2<-as.numeric(weightcat6)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcat5)),paste(weightcat5),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcat4)),paste(weightcat4),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcat3)),paste(weightcat3),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcat2)),paste(weightcat2),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcat1)),paste(weightcat1),measure2)
+measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)),paste(weightcatr),measure2)
+multi$measure1<-as.numeric(measure1)
+multi$measure2<-as.numeric(measure2)
+multi$cendiff<-multi$measure2-multi$measure1
+attach(multi)
+multi$dir<-ifelse(multi$cendiff>0,1,0)
+table(multi$IsAccountRegistered)
+table(multi$measure1)
+table(multi$measure2)
+attach(multi)
+
