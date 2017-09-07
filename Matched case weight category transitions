@@ -187,37 +187,8 @@ multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
 attach(multi)
 
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
-
 multi2$ChildID<-multi2$Group.1
-measurea<-as.numeric(weightcatr)
-measurea<-as.numeric(measurea)
-measurea<-ifelse(is.na(measurea)&!is.na(weightcat1),paste(weightcat1),measurea)
-measurea<-as.numeric(measurea)
-measurea<-ifelse(is.na(measurea)&!is.na(weightcat2),paste(weightcat2),measurea)
-measurea<-as.numeric(measurea)
-measurea<-ifelse(is.na(measurea)&!is.na(weightcat3),paste(weightcat3),measurea)
-measurea<-as.numeric(measurea)
-measurea<-ifelse(is.na(measurea)&!is.na(weightcat4),paste(weightcat4),measurea)
-measurea<-as.numeric(measurea)
-measurea<-ifelse(is.na(measurea)&!is.na(weightcat5),paste(weightcat5),measurea)
-measurea<-as.numeric(measurea)
-measurea<-ifelse(is.na(measurea)&!is.na(weightcat6),paste(weightcat6),measurea)
-
-measureb<-as.numeric(weightcat6)
-measureb<-ifelse(is.na(measureb)&(!is.na(weightcat5)),paste(weightcat5),measureb)
-measureb<-as.numeric(measureb)
-measureb<-ifelse(is.na(measureb)&(!is.na(weightcat4)),paste(weightcat4),measureb)
-measureb<-as.numeric(measureb)
-measureb<-ifelse(is.na(measureb)&(!is.na(weightcat3)),paste(weightcat3),measureb)
-measureb<-as.numeric(measureb)
-measureb<-ifelse(is.na(measureb)&(!is.na(weightcat2)),paste(weightcat2),measureb)
-measureb<-as.numeric(measureb)
-measureb<-ifelse(is.na(measureb)& (!is.na(weightcat1)),paste(weightcat1),measureb)
-measureb<-ifelse(is.na(measureb)& (!is.na(weightcatr)),paste(weightcatr),measureb)
-multi2$measurea<-as.numeric(measurea)
-alldata$measureb<-as.numeric(measureb)
-attach(alldata)
-multi<-multi2
+multi1<-multi2
 
 #CALCULATE DIFF BETWEEN MEASUREMENTS
 length(multi$ChildID)#25024
@@ -278,7 +249,9 @@ measureb<-ifelse(is.na(measureb)& (!is.na(weightcatr)),paste(weightcatr),measure
 multi$measurea<-as.numeric(measurea)
 multi$measureb<-as.numeric(measureb)
 attach(multi)
-
+multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
+multi2$ChildID<-multi2$Group.1
+multi1<-multi2
 table(multi$IsAccountRegistered)
 table(multi$measurea,multi$measureb)
 
