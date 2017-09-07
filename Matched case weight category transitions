@@ -113,7 +113,7 @@ names(Recs)[names(Recs)=="Category"] <- "ChildID"
 
 #Merge to have BMI at different ages on the same line
 
-Recs2<-Recs[Recs$NoRecs==2,]
+Recs2<-Recs[Recs$NoRecs>=1,]
 multipleb<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
 multipleb<-with(multipleb, multipleb[order(ChildID),])
 attach(multipleb)
@@ -187,7 +187,36 @@ multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
 attach(multi)
 
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
+
 multi2$ChildID<-multi2$Group.1
+measurea<-as.numeric(weightcatr)
+measurea<-as.numeric(measurea)
+measurea<-ifelse(is.na(measurea)&!is.na(weightcat1),paste(weightcat1),measurea)
+measurea<-as.numeric(measurea)
+measurea<-ifelse(is.na(measurea)&!is.na(weightcat2),paste(weightcat2),measurea)
+measurea<-as.numeric(measurea)
+measurea<-ifelse(is.na(measurea)&!is.na(weightcat3),paste(weightcat3),measurea)
+measurea<-as.numeric(measurea)
+measurea<-ifelse(is.na(measurea)&!is.na(weightcat4),paste(weightcat4),measurea)
+measurea<-as.numeric(measurea)
+measurea<-ifelse(is.na(measurea)&!is.na(weightcat5),paste(weightcat5),measurea)
+measurea<-as.numeric(measurea)
+measurea<-ifelse(is.na(measurea)&!is.na(weightcat6),paste(weightcat6),measurea)
+
+measureb<-as.numeric(weightcat6)
+measureb<-ifelse(is.na(measureb)&(!is.na(weightcat5)),paste(weightcat5),measureb)
+measureb<-as.numeric(measureb)
+measureb<-ifelse(is.na(measureb)&(!is.na(weightcat4)),paste(weightcat4),measureb)
+measureb<-as.numeric(measureb)
+measureb<-ifelse(is.na(measureb)&(!is.na(weightcat3)),paste(weightcat3),measureb)
+measureb<-as.numeric(measureb)
+measureb<-ifelse(is.na(measureb)&(!is.na(weightcat2)),paste(weightcat2),measureb)
+measureb<-as.numeric(measureb)
+measureb<-ifelse(is.na(measureb)& (!is.na(weightcat1)),paste(weightcat1),measureb)
+measureb<-ifelse(is.na(measureb)& (!is.na(weightcatr)),paste(weightcatr),measureb)
+multi2$measurea<-as.numeric(measurea)
+alldata$measureb<-as.numeric(measureb)
+attach(alldata)
 multi<-multi2
 
 #CALCULATE DIFF BETWEEN MEASUREMENTS
@@ -263,7 +292,7 @@ attach(multi)
 
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
-
+multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile),]
 over<-multi[as.numeric(multi$measure1)>=90.879&as.numeric(multi$measure1)<97.725,]
 over<-over[!is.na(over$ChildID),]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
@@ -278,19 +307,29 @@ obese<-obese[!is.na(obese$ChildID),]
 
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=over[,c(2,11:13,21:22,24:26,29)], method="exact", ratio=2)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,11:13,21:22,24:26,29)], method="exact", ratio=2)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,11:13,21:22,24:26,29)], method="exact", ratio=2)
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=over[,c(2,11:13,21:22,24:27)], method="exact", ratio=2)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,11:13,21:22,24:27)], method="exact", ratio=2)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,11:13,21:22,24:27)], method="exact", ratio=2)
 
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 
+#Normal weight matched children
 normno<-matchd.no[matchd.no$IsAccountRegistered==0,]
 normyes<-matchd.no[matchd.no$IsAccountRegistered==1,]
 
+#Obese matched children
 obyes<-matchd.ob[matchd.ob$IsAccountRegistered==1,]
 obno<-matchd.ob[matchd.ob$IsAccountRegistered==0,]
 
+#Overweight matched children
 ovyes<-matchd.ov[matchd.ov$IsAccountRegistered==1,]
 ovno<-matchd.ov[matchd.ov$IsAccountRegistered==0,]
+
+
+normalyes<-alldata[alldata$ChildID %in% normyes$ChildID, ]
+
+
+
+
