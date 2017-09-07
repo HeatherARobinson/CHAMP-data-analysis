@@ -332,6 +332,3 @@ median(obno$cendiffs)
 median(obyes$cendiffs)
 median(normyes$cendiffs)
 median(normno$cendiffs)
-
-#CALCULATE WEIGHT CATEGORY CHANGE IN MATCHED CHILDREN
-
