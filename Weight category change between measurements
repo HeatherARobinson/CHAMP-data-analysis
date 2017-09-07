@@ -92,6 +92,10 @@ names(Recs)[names(Recs)=="Category"] <- "ChildID"
 
 ##############################################################################
 #SELECT CHILDREN WITH MULTIPLE MEASUREMENTS
+Recs2<-Recs[Recs$NoRecs>1,]
+length(Recs2$ChildID) #33127 children were measured twice
+
+multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] 
 multiple<-with(multiple, multiple[order(ChildID),])
 attach(multiple)
 as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
@@ -108,43 +112,8 @@ multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 44)]
 multiplereg<-multiple[c(1, 10)]
 library(plyr)
 
-multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple5,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
-
-multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
-multi<-multi2
-multi$ChildID<-multi$Group.1
-
-###########################################
-
-Recs2<-Recs[Recs$NoRecs>1,]
-length(Recs2$ChildID) #33127 children were measured twice
-
-multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] 
-multiple<-with(multiple, multiple[order(ChildID),])
-attach(multiple)
-as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
-multiple$ChildID<-as.factor(multiple$ChildID)
-multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
-multiplebase<-multiple[,c(1,2)]
-multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 37)]
-multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 38)]
-multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 39)]
-multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 40)]
-multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 41)]
-multiple5<-multiple[!is.na(multiple$weightcat5),c(1, 42)]
-multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 43)]
-multiplereg<-multiple[c(1, 10)]
-library(plyr)
-
-multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
+multi<-merge(multiplebase,multiplefirst,by="ChildID",all=TRUE)
+multi<-merge(multi,multiple1,by="ChildID",all=TRUE)
 multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
@@ -187,65 +156,3 @@ no<-multi[multi$IsAccountRegistered=="0",]
 table(yes$measure1,yes$measure2) 
 table(no$measure1,no$measure2) 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#WHAT IS THE CHANGE AFTER THE SECOND MEASUREMENT?
-
-which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#which registered children increaed weight category from rec to their next measurement #727
-which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="1"))#how many registered children had 2 or more measurements #8521
-
-which((multi$measure1<multi$measure2&multi$IsAccountRegistered=="0"))#which unregistered children increaed weight category from rec to their next measurement #2254
-which((multi$IsAccountRegistered=="0"))#how many unregistered children had 2 or more measurements #23118
-
-no<-multi[multi$IsAccountRegistered=="0",]
-yes<-multi[multi$IsAccountRegistered=="1",]
-which(yes$measure1<multi$measure2)#how many registered children had 2 or more measurements #8521
-
-
-
-which((fourten$SDfour)>2)#which children were obese at 4 and also measured at 10
-
-
-which((multiple$weightcatr>0)&(multiple$weightcat3>0))#which children remained obese from 4 to 10
-
-
-
-which((fiveleven$SDfive)>2)#which children were obese at 5 and also measured at eleven
-which((fiveeleven$SDeleven)>2&as.numeric(fiveeleven$SDfive)>2)#which children remained obese from 5 to 11
-which((fiveeleven$SDeleven)<1.33&as.numeric(fiveeleven$SDfive)>2)#which children obese at 5 are normal weight at 11
-which((fourten$SDten)<1.33&as.numeric(fourten$SDfour)>2)#which children obese at 4 are normal weight at 10
-
-#See how champ registered children compare
-which (fourten$IsAccountRegistered>0.5)
-which (fiveeleven$IsAccountRegistered>0.5)
-which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
-
-#Check for unregistered children
-which (fourten$IsAccountRegistered<0.5)
-which (fiveeleven$IsAccountRegistered<0.5)
-which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
-which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
-which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
-#Percentages calculated in excel show little apparent difference at this stage, but there are too few samples to draw conclusions
