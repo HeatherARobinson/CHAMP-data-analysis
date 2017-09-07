@@ -90,7 +90,7 @@ alldata$cent3<-as.numeric(ifelse(class==3,Centile_BMI,NA))
 alldata$cent4<-as.numeric(ifelse(class==4,Centile_BMI,NA))
 alldata$cent5<-as.numeric(ifelse(class==5,Centile_BMI,NA))
 alldata$cent6<-as.numeric(ifelse(class==6,Centile_BMI,NA))
-attach(alldata)
+norattach(alldata)
 
 #Print date at each age
 alldata$dr<-as.numeric(ifelse(class==0,AssessmentDate,NA))
@@ -197,7 +197,7 @@ multi$measure1<-multi$centr
 multi$measure1<-as.numeric(multi$measure1)
 multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent1>=1,paste(multi$cent1),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
-multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent2>=1,paste(multi$cent2),measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent2>=1,paste(multi$cent2),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
 multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent3>=1,paste(multi$cent3),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
@@ -265,13 +265,13 @@ attach(multi)
 
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
-multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile),]
+multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile)&!is.na(multi$measure1) ,]
 over<-multi[as.numeric(multi$measure1)>=90.879&as.numeric(multi$measure1)<97.725,]
 over<-over[!is.na(over$ChildID),]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
 normal<-normal[!is.na(normal$ChildID),]
 obese<-multi[multi$measure1>97.725,]
-obese<-obese[!is.na(obese$ChildID),]
+
 
 
 #MATCH CASES AND CONTROLS
@@ -280,9 +280,9 @@ obese<-obese[!is.na(obese$ChildID),]
 
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=over[,c(2,11:13,21:22,24:27)], method="exact", ratio=2)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,11:13,21:22,24:27)], method="exact", ratio=2)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,11:13,21:22,24:27)], method="exact", ratio=2)
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=over[,c(2,10:12,20,23:26)], method="exact", ratio=2)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,10:12,20,23:26)], method="exact", ratio=2)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,10:12,20,23:26)], method="exact", ratio=2)
 
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weights", subclass="subclass")
@@ -300,7 +300,7 @@ obno<-matchd.ob[matchd.ob$IsAccountRegistered==0,]
 ovyes<-matchd.ov[matchd.ov$IsAccountRegistered==1,]
 ovno<-matchd.ov[matchd.ov$IsAccountRegistered==0,]
 
-yes<-multi[multi$ChildID %in% normyes$ChildID|multi$ChildID %in% obyes$ChilDID|multi$ChildID %in% Ovyes$ChildID, ]
+yes<-multi[multi$ChildID %in% normyes$ChildID|multi$ChildID %in% obyes$ChildID|multi$ChildID %in% ovyes$ChildID, ]
 
 
 
