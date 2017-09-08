@@ -194,15 +194,15 @@ length(multi$ChildID)#25024
 attach(multi)
 multi$measure1<-ifelse(!is.na(centr),paste(centr),NA)
 multi$measure1<-as.numeric(multi$measure1)
-multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent1>0,paste(multi$cent1),multi$measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent1>=0,paste(multi$cent1),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
-multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent2>0,paste(multi$cent2),multi$measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent2>=0,paste(multi$cent2),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
-multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent3>0,paste(multi$cent3),multi$measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent3>=0,paste(multi$cent3),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
-multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent4>0,paste(multi$cent4),multi$measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent4>=0,paste(multi$cent4),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
-multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent5>0,paste(multi$cent5),multi$measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&multi$cent5>=0,paste(multi$cent5),multi$measure1)
 multi$measure1<-as.numeric(multi$measure1)
 
 measure2<-ifelse(!is.na(centr),paste(cent1),NA)
@@ -263,10 +263,11 @@ multi$imdquintile<-findInterval(multi$PostcodeDecile,c(0,2,4,6,8,10))
 attach(multi)
 
 multi<-multi[multi$measure1>=2.275,]
-attach(multi)
+
 multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
-multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile)&!is.na(multi$measure1),]
+multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile)&!is.na(multi$measure1)&!is.na(multi$bmidecile)&!is.na(multi$IsAccountRegistered)&!is.na(multi$measureb),]
+multi<-multi[,c(1,3:28)]
 attach(multi)
 over<-multi[as.numeric(multi$measure1)>=90.879&as.numeric(multi$measure1)<97.725,]
 over<-over[!is.na(over$ChildID),]
