@@ -121,13 +121,13 @@ as.numeric(c(centr,cent1,cent2,cent3,cent4,cent5,cent6))
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
 multiplebase<-multiple[,c(1,12)]
-multiplefirst<-multiple[!is.na(multiple$weightcatr),c(1, 38)]
-multiple1<-multiple[!is.na(multiple$weightcat1),c(1, 39)]
-multiple2<-multiple[!is.na(multiple$weightcat2),c(1, 40)]
-multiple3<-multiple[!is.na(multiple$weightcat3),c(1, 41)]
-multiple4<-multiple[!is.na(multiple$weightcat4),c(1, 42)]
-multiple5<-multiple[!is.na(multiple$weightcat5),c(1, 43)]
-multiple6<-multiple[!is.na(multiple$weightcat6),c(1, 44)]
+multiplefirst<-multiple[!is.na(multiple$centr),c(1, 45)]
+multiple1<-multiple[!is.na(multiple$cent1),c(1, 46)]
+multiple2<-multiple[!is.na(multiple$cent2),c(1, 47)]
+multiple3<-multiple[!is.na(multiple$cent3),c(1, 48)]
+multiple4<-multiple[!is.na(multiple$cent4),c(1, 49)]
+multiple5<-multiple[!is.na(multiple$cent5),c(1, 50)]
+multiple6<-multiple[!is.na(multiple$cent6),c(1, 51)]
 multiple$ageattestyr<-as.numeric(multiple$ageattestyr)
 multiple7<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
 colnames(multiple7)<- c("ChildID","AgeF")
@@ -157,7 +157,6 @@ multiple9<-aggregate(as.numeric(multiple$Ethnicity2),by=list(multiple$ChildID),F
 colnames(multiple9)<- c("ChildID","Eth2")
 multiplereg<-multiple[c(1, 10)]
 library(plyr)
-
 
 
 multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
@@ -210,14 +209,18 @@ multi<-multi2
 #CALCULATE DIFF BETWEEN MEASUREMENTS
 length(multi$ChildID)#25024
 attach(multi)
-measure1<-weightcatr
+measure1<-as.numeric(centr)
+measure1<-ifelse(is.na(measure1)&!is.na(cent1),paste(cent1),measure1)
 measure1<-as.numeric(measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat1),paste(weightcat1),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat2),paste(weightcat2),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat3),paste(weightcat3),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat4),paste(weightcat4),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat5),paste(weightcat5),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat6),paste(weightcat6),measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent2),paste(cent2),measure1)
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent3),paste(cent3),measure1)
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent4),paste(cent4),measure1)
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent5),paste(cent5),measure1)
+measure1<-as.numeric(measure1)
+measure1<-ifelse(is.na(measure1)&!is.na(cent6),paste(cent6),measure1)
 
 measure2<-as.numeric(weightcat6)
 measure2<-ifelse(is.na(measure2)&(!is.na(weightcat5)),paste(weightcat5),measure2)
