@@ -293,22 +293,28 @@ attach(multi)
 save(multi, file ="multi.Rda")
 
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
+multi<-multi[,c(2:33)]
+multi$IsAccountRegistered<-as.factor((as.numeric(multi$IsAccountRegistered)+1))
+multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile)&!is.na(multi$measure1)&!is.na(multi$bmidecile)&!is.na(multi$IsAccountRegistered)&!is.na(multi$dir),]
 
+attach(multi)
 over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
 obese<-multi[multi$measure1>97.725,]
-over<-over[!is.na(over$Eth2)&!is.na(over$imdquintile)&,]
+
 
 #MATCH CASES AND CONTROLS
 ##############################################
 
-multi$IsAccountRegistered<-as.factor(multi$IsAccountRegistered)
 
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=over[,c(2,11:13,21:22,25,29:30,33)], method="exact", ratio=2)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(2,11:13,21:22,25,29:30,33)], method="exact", ratio=2)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=obese[,c(2,11:13,21:22,25,29:30,33)], method="exact", ratio=2)
+
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=over[,c(1,10:12,20:21,23,24,28:29,32)], method="exact", ratio=2)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=obese[,c(1,10:12,20:21,23,24,28:29,32)], method="exact", ratio=2)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=normal[,c(1,10:12,20:21,23,24,28:29,32)], method="exact", ratio=2)
+
+
 
 matchd.no<- match.data(match.no,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weights", subclass="subclass")
