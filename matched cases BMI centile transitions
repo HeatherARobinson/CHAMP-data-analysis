@@ -295,9 +295,9 @@ attach(multi)
 save(multi, file ="multi.Rda")
 
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
-multi<-multi[,c(2:33)]
-multi$IsAccountRegistered<-as.factor((as.numeric(multi$IsAccountRegistered)+1))
-multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile)&!is.na(multi$measure1)&!is.na(multi$cendiffs)&!is.na(multi$bmidecile)&!is.na(multi$IsAccountRegistered)&!is.na(multi$diffnorms)&!is.na(multi$Gender),]
+multi<-multi[,c(2:34)]
+multi$IsAccountRegistered<-as.factor((as.numeric(multi$IsAccountRegistered)))
+multi<-multi[!is.na(multi$Eth2)&!is.na(multi$AgeF)&!is.na(multi$imdquintile)&!is.na(multi$diffnorms)&!is.na(multi$cendiffs)&!is.na(multi$bmidecile)&!is.na(multi$IsAccountRegistered)&!is.na(multi$bmidecile)&!is.na(multi$Gender),]
 
 attach(multi)
 over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
@@ -312,9 +312,9 @@ obese<-multi[multi$measure1>97.725,]
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
 set.seed(1234)
 
-match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=over[,c(1,10:12,20:21,28:29,32:33)], method="exact", ratio=2)
-match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=obese[,c(1,10:12,20:21,28:29,32:33)], method="exact", ratio=2)
-match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=normal[,c(1,10:12,20:21,28:29,32:33)], method="exact", ratio=2)
+match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=over[,c(1,10:12,20,28:29,30,33)], method="exact", ratio=2)
+match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=obese[,c(1,10:12,20,28:29,30,33)], method="exact", ratio=2)
+match.no<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+bmidecile+imdquintile,data=normal[,c(1,10:12,20,28:29,30,33)], method="exact", ratio=2)
 
 
 
@@ -339,6 +339,31 @@ mean(obno$cendiffs)
 mean(obyes$cendiffs)
 mean(normyes$cendiffs)
 mean(normno$cendiffs)
+
+length(obno$ChildID[obno$diffnorms>0])
+length(obno$ChildID[obno$diffnorms==0])
+length(obno$ChildID[obno$diffnorms<0])
+
+length(ovno$ChildID[ovno$diffnorms>0])
+length(ovno$ChildID[ovno$diffnorms==0])
+length(ovno$ChildID[ovno$diffnorms<0])
+
+length(normno$ChildID[normno$diffnorms>0])
+length(normno$ChildID[normno$diffnorms==0])
+length(normno$ChildID[normno$diffnorms<0])
+
+
+length(obyes$ChildID[obyes$diffnorms>0])
+length(obyes$ChildID[obyes$diffnorms==0])
+length(obyes$ChildID[obyes$diffnorms<0])
+
+length(ovno$ChildID[ovyes$diffnorms>0])
+length(ovyes$ChildID[ovyes$diffnorms==0])
+length(ovyes$ChildID[ovyes$diffnorms<0])
+
+length(normyes$ChildID[normyes$diffnorms>0])
+length(normyes$ChildID[normyes$diffnorms==0])
+length(normyes$ChildID[normyes$diffnorms<0])
 
 median(ovyes$cendiffs)
 median(ovno$cendiffs)
