@@ -302,7 +302,7 @@ multi<-multi[!is.na(multi$Eth2)&!is.na(multi$AgeF)&!is.na(multi$imdquintile)&!is
 attach(multi)
 over<-multi[multi$measure1>=90.879&multi$measure1<97.725,]
 normal<-multi[multi$measure1>=2.275&multi$measure1<90.879,]
-obese<-multi[multi$measure1>97.725,]
+obese<-multi[multi$measure1>=97.725,]
 
 
 #MATCH CASES AND CONTROLS
