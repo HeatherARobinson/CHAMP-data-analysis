@@ -26,9 +26,6 @@ alldata$DateOfBirth<-(as.Date(paste(alldata$DateOfBirth,"-01",sep="")))
 alldata$AssessmentDate<-as.Date(paste(alldata$AssessmentDate,"-01",sep=""))
 alldata$assyr<-year(as.POSIXlt(alldata$AssessmentDate, format="%Y-%m-%d"))
 
-
-alldata$ageattestyr<-floor(alldata$ageattest/52.149) #Round year down to give age
-
 attach(alldata)
 alldata$ChildID<-as.factor(alldata$ChildID)
 alldata$SchoolCode<-as.factor(alldata$SchoolCode)
@@ -40,17 +37,17 @@ alldata<-alldata[!alldata$AcademicYear=="2011/2012"&!alldata$AcademicYear=="2012
 alldata$AcademicYear <- droplevels(alldata$AcademicYear)
 
 girls<- subset(alldata, alldata$Gender == "F")[,c(9,13)]
-girls$ageattest<-floor((girls$ageattest/52)/0.1)*0.1
+girls$ageattest<-floor(girls$ageattest/4.34524) #Age in months
 row.names(girls) <- NULL
 
 m1 <- lms(BMI,ageattest,data=girls, cent=c(3,10,25,50,75,90,97))
-centiles.pred(m1, xname="ageattest", xvalues=seq(4,12,.1), cent=c(3,10,25,50,75,90,97))
+centiles.pred(m1, xname="ageattest", xvalues=seq(49,138,.1), cent=c(3,10,25,50,75,90,97))
 write.csv(girlscentiles,file="girlslms.csv")
 
 boys<- subset(alldata, alldata$Gender == "M")[,c(9,13)]
-boys$ageattest<-floor((boys$ageattest/52)/0.1)*0.1
+boys$ageattest<-floor(boys$ageattest/4.34524)
 row.names(boys) <- NULL
 
 m2 <- lms(BMI,ageattest,data=boys, cent=c(3,10,25,50,75,90,97))
-centiles.pred(m2, xname="ageattest", xvalues=seq(4,12,.1), cent=c(3,10,25,50,75,90,97))
+centiles.pred(m2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
 write.csv(boyscentiles,file="boyslms.csv")
