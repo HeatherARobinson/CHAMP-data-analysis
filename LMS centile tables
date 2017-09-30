@@ -41,7 +41,7 @@ girls$ageattest<-floor(girls$ageattest/4.34524) #Age in months
 row.names(girls) <- NULL
 
 m1 <- lms(BMI,ageattest,data=girls, cent=c(3,10,25,50,75,90,97))
-centiles.pred(m1, xname="ageattest", xvalues=seq(49,138,.1), cent=c(3,10,25,50,75,90,97))
+centiles.pred(m1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
 write.csv(girlscentiles,file="girlslms.csv")
 
 boys<- subset(alldata, alldata$Gender == "M")[,c(9,13)]
