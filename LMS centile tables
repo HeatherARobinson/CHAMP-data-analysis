@@ -51,3 +51,4 @@ row.names(boys) <- NULL
 m2 <- lms(BMI,ageattest,data=boys, cent=c(3,10,25,50,75,90,97))
 boyscentiles<-centiles.pred(m2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
 write.csv(boyscentiles,file="boyslms.csv")
+
