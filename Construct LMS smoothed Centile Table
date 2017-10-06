@@ -1,3 +1,0 @@
-library(gamlss)
-girls<-lms(BMI, ageattest, data = na.omit(girls), k = 2,cent =c(1:100))
-boys<-lms(BMI, ageattest, data = na.omit(boys), k = 2,cent =c(1:100))
