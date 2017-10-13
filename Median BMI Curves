@@ -1,0 +1,89 @@
+setwd("c:/Users/mqbpjhr4/Documents")
+data<-read.table("MedBMIlitreview2.csv",header=T,sep=",")
+boys<-data[data$gender=="m",]
+girls<-data[data$gender=="f",]
+library(ggplot2)
+
+#FOR MEDIANS
+
+scaleFUN <- function(x) sprintf("%.0f", x)
+
+g<-ggplot(girls, aes(x=age, y=bmi, colour=study, shape=study)) + geom_line()+geom_point()+
+  labs(x="Age (yrs)",y="Median BMI")+theme_bw()+scale_x_continuous(breaks = seq(1, 24, 0.5))+
+scale_x_continuous(breaks = seq(1, 24, 0.5))+
+  scale_y_continuous(breaks = seq(13, 26, 0.25),limits = c(14.25, 24))+
+ theme(legend.title=element_blank())+
+scale_x_continuous(labels=scaleFUN)+
+theme(legend.text = element_text(size=8),axis.text=element_text(size=10),
+axis.title=element_text(size=10))
+
+
+b<-ggplot(boys, aes(x=age, y=bmi, colour=study, shape=study)) + geom_line()+geom_point()+
+  labs(x="Age (yrs)",y="Median BMI")+theme_bw()+
+scale_x_continuous(breaks = seq(1, 24, 0.5))+
+  scale_y_continuous(breaks = seq(13, 26, 0.25),limits = c(14.25, 24))+
+ theme(legend.title=element_blank())+
+scale_x_continuous(labels=scaleFUN)+
+theme(legend.text = element_text(size=8),axis.text=element_text(size=10),
+axis.title=element_text(size=10))
+
+c<-g+scale_shape_manual(values = c(0, 1,2,3,4,5, 6, 8,15,17,19,21,10,2,8,0,0,0))+scale_colour_manual(values=c("red","navy","darkred","darkorange","darkmagenta","darkmagenta","green", 
+                "gray42","red","royalblue1","forestgreen","black","red","red",
+                "darkorange3", 
+                "darkcyan","black","black"))+
+ggtitle("Girls population median BMI values")
+
+d<-b+scale_shape_manual(values = c(0, 1,2,3,4,5, 6, 8,15,17,19,21,10,2,8,0,0,0))+scale_colour_manual(values=c("red","navy","darkred","darkorange","darkmagenta","darkmagenta","green", 
+                "gray42","red","royalblue1","forestgreen","black","red","red",
+                "darkorange3", 
+                "darkcyan","black","black"))+
+ggtitle("Boys population median BMI values")
+
+library(gridExtra)
+grid.arrange(c,d, ncol=2)
+
+
+#######################################################
+#FOR MEANS:
+
+setwd("c:/Users/mqbpjhr4/Documents")
+data<-read.table("MeanBMIlitreview.csv",header=T,sep=",")
+boys<-data[data$gender=="m",]
+girls<-data[data$gender=="f",]
+library(ggplot2)
+
+e<-ggplot(girls, aes(x=age, y=bmi, colour=study, shape=study)) + geom_line()+geom_point()+
+  labs(x="Age (yrs)",y="Mean BMI")+theme_bw()+scale_x_continuous(breaks = seq(1, 22, 0.5))+
+  scale_y_continuous(breaks = seq(14, 40, 0.5))+ theme(legend.title=element_blank())+
+ggtitle("Girls population mean BMI values")
+
+
+f<-ggplot(boys, aes(x=age, y=bmi, colour=study, shape=study)) + geom_line()+geom_point()+
+  labs(x="Age (yrs)",y="Mean BMI")+theme_bw()+scale_x_continuous(breaks = seq(1, 20, 0.5))+
+  scale_y_continuous(breaks = seq(14, 40, 0.5))+ theme(legend.title=element_blank())+
+ggtitle("Boys population mean BMI values")
+
+
+
+l<-e+scale_shape_manual(values = c(0,1,1,2,3,4,5, 0, 8,15,17,19,21,10,2, 0,0,0))+scale_colour_manual(values=c("black","red","red","darkmagenta", "brown","green","black",
+                "blueviolet",
+                "navy","royalblue1","royalblue1","darkorange",
+                "black", 
+                "darkgreen","darkred","black","red"))
+m<-f+scale_shape_manual(values = c(0,1,1,2,3,4,5, 0, 8,15,17,19,21,10,2, 0,0,0))+scale_colour_manual(values=c("black","red","red","darkmagenta", "brown","green","black",
+                "blueviolet",
+                "navy","royalblue1","royalblue1","darkorange",
+                "black", 
+                "darkgreen","darkred","black","red"))
+
+library(gridExtra)
+grid.arrange(l,m, ncol=2)
+
+
+
+
+
+
+
+
+
