@@ -112,7 +112,7 @@ names(Recs)[names(Recs)=="Category"] <- "ChildID"
 
 #Merge to have BMI at different ages on the same line
 
-Recs2<-Recs[Recs$NoRecs>=1,]
+Recs2<-Recs[Recs$NoRecs>1,]
 multipleb<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
 multipleb<-with(multipleb, multipleb[order(ChildID),])
 attach(multipleb)
@@ -185,7 +185,7 @@ multi<-merge(multi,multiple13,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
 attach(multi)
 
-multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
+multi2<-aggregate(multi,by=list(multi$ChildID),FUN=min)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
 
@@ -252,6 +252,8 @@ multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
 table(multi$IsAccountRegistered)
+multi$measurea<-floor(multi$measurea)
+multi$measureb<-floor(multi$measureb)
 table(multi$measurea,multi$measureb)
 
 attach(multi)
