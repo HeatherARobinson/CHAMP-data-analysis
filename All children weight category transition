@@ -116,10 +116,13 @@ names(Recs)[names(Recs)=="Category"] <- "ChildID"
 
 #Merge to have BMI at different ages on the same line
 
-Recs2<-Recs[Recs$NoRecs==2,]
+Recs2<-Recs[Recs$NoRecs>=2,]
 multipleb<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
 multipleb<-with(multipleb, multipleb[order(ChildID),])
 attach(multipleb)
+
+
+
 as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
 multipleb$ChildID<-as.factor(multipleb$ChildID)
 multipleb$IsAccountRegistered<-as.numeric(multipleb$IsAccountRegistered)-1
