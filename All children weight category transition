@@ -6,31 +6,31 @@ thisyear$class<-0
 thisyear$class<-ifelse(thisyear$ageattestyr==4,0,NA) #All 4 year olds are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==5,1,thisyear$class) #most 5 year olds are in year one
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==5 &thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==5 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==5,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==6,2,thisyear$class) # most 6 year olds are in year 2
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==6&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==6&thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==6,1,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==7,3,thisyear$class) # most 7 year olds are in year 3
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==7 &thisyear$assmonth>8,2,thisyear$class) #7 year olds that have a birthday from September onwards that are measured in the autumn term are in yr2
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==7 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,2,thisyear$class) #7 year olds that have a birthday from September onwards that are measured in the autumn term are in yr2
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==7,2,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==8,4,thisyear$class) # most 8 year olds are in year 4
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==8 &thisyear$assmonth>8,3,thisyear$class) #8 year olds that have a birthday from September onwards that are measured in the autumn term are in yr3
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==8 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,3,thisyear$class) #8 year olds that have a birthday from September onwards that are measured in the autumn term are in yr3
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==8,3,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==9,5,thisyear$class) # most 9 year olds are in year 5
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==9 &thisyear$assmonth>8,4,thisyear$class) #9 year olds that have a birthday from September onwards that are measured in the autumn term are in yr4
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==9 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,4,thisyear$class) #9 year olds that have a birthday from September onwards that are measured in the autumn term are in yr4
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==9,4,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==10,6,thisyear$class) # most 10 year olds are in year 6
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==10 &thisyear$assmonth>8,5,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==10 &thisyear$assmonth>8thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,5,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==10,6,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==11,7,thisyear$class)
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==11 &thisyear$assmonth>8,6,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==11 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,6,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==11,6,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 champ2<-thisyear
@@ -198,6 +198,8 @@ attach(multi)
 
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
+multi2[!apply((is.na(multi2) |multi2 == "", 1, all),]
+data <- data[!apply(is.na(data) | data == "", 1, all),]
 multi<-multi2
 
 #CALCULATE DIFF BETWEEN MEASUREMENTS
@@ -212,17 +214,18 @@ measure1<-ifelse(is.na(measure1)&!is.na(weightcat4),paste(weightcat4),measure1)
 measure1<-ifelse(is.na(measure1)&!is.na(weightcat5),paste(weightcat5),measure1)
 measure1<-ifelse(is.na(measure1)&!is.na(weightcat6),paste(weightcat6),measure1)
 
-measure2<-as.numeric(weightcat6)
-measure2<-ifelse(is.na(measure2)&(!is.na(weightcat5)),paste(weightcat5),measure2)
+measure2<-weightcat6
 measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(weightcat4)),paste(weightcat4),measure2)
+measure2<-ifelse(!is.na(weightcat5)&(!is.na(weightcat4)|!is.na(weightcat3)|!is.na(weightcat2)|!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat5),measure2)
 measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(weightcat3)),paste(weightcat3),measure2)
+measure2<-ifelse(!is.na(weightcat4)&(!is.na(weightcat3)|!is.na(weightcat2)|!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat4),measure2)
 measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(weightcat2)),paste(weightcat2),measure2)
+measure2<-ifelse(!is.na(weightcat3)&(!is.na(weightcat2)|!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat3),measure2)
 measure2<-as.numeric(measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(weightcat1)),paste(weightcat1),measure2)
-measure2<-ifelse(is.na(measure2)& (!is.na(weightcatr)),paste(weightcatr),measure2)
+measure2<-ifelse(!is.na(weightcat2)&(!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat2),measure2)
+measure2<-as.numeric(measure2)
+measure2<-ifelse(!is.na(weightcat1)&(!is.na(weightcatr)),paste(weightcat1),measure2)
+measure2<-as.numeric(measure2)
 multi$measure1<-as.numeric(measure1)
 multi$measure2<-as.numeric(measure2)
 multi$cendiff<-multi$measure2-multi$measure1
