@@ -6,31 +6,32 @@ thisyear$class<-0
 thisyear$class<-ifelse(thisyear$ageattestyr==4,0,NA) #All 4 year olds are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==5,1,thisyear$class) #most 5 year olds are in year one
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==5 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==5 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
+thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==5,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==5,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==6,2,thisyear$class) # most 6 year olds are in year 2
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==6&thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==6&thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==6,1,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==7,3,thisyear$class) # most 7 year olds are in year 3
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==7 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,2,thisyear$class) #7 year olds that have a birthday from September onwards that are measured in the autumn term are in yr2
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==7 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,2,thisyear$class) #7 year olds that have a birthday from September onwards that are measured in the autumn term are in yr2
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==7,2,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==8,4,thisyear$class) # most 8 year olds are in year 4
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==8 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,3,thisyear$class) #8 year olds that have a birthday from September onwards that are measured in the autumn term are in yr3
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==8 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,3,thisyear$class) #8 year olds that have a birthday from September onwards that are measured in the autumn term are in yr3
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==8,3,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==9,5,thisyear$class) # most 9 year olds are in year 5
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==9 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,4,thisyear$class) #9 year olds that have a birthday from September onwards that are measured in the autumn term are in yr4
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==9 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,4,thisyear$class) #9 year olds that have a birthday from September onwards that are measured in the autumn term are in yr4
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==9,4,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==10,6,thisyear$class) # most 10 year olds are in year 6
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==10 &thisyear$assmonth>8thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,5,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==10 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,5,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==10,6,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==11,7,thisyear$class)
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==11 &thisyear$assmonth<=thisyear$birthmonth&thisyear$assmonth>8,6,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
+thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==11 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,6,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==11,6,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 champ2<-thisyear
