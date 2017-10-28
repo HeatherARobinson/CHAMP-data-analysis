@@ -38,12 +38,12 @@ attach(champ2)
 champ2$class<-as.numeric(champ2$class)
 
 #CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
-
 d<-duplicated(champ2[,c(1,3)],fromLast=FALSE)
 table(d)
-#40 children have multiple measurements within a year
+lengths(unique(champ2$ChildID[d]))
+#176 children have multiple measurements within an academic year
 head(champ2[d,],n=10)
-champ2<-champ2[!d,]
+champ2<-champ2[!d,] #retain first measurement per academic year
 
 #DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
 champ2$weightcat<-1#normal
@@ -166,23 +166,13 @@ library(plyr)
 
 
 
-multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple5,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple7,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple8,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
-multiple10<-multiple[!is.na(multipleb$dr),c(1, 52)]
-multiple11<-multiple[!is.na(multipleb$d1),c(1, 53)]
-multiple12<-multiple[!is.na(multipleb$d2),c(1, 54)]
-multiple13<-multiple[!is.na(multipleb$d3),c(1, 55)]
-multiple14<-multiple[!is.na(multipleb$d4),c(1, 56)]
-multiple15<-multiple[!is.na(multipleb$d5),c(1, 57)]
-multiple16<-multiple[!is.na(multipleb$d6),c(1, 58)]
+multiple10<-multipleb[!is.na(multipleb$dr),c(1, 52)]
+multiple11<-multipleb[!is.na(multipleb$d1),c(1, 53)]
+multiple12<-multipleb[!is.na(multipleb$d2),c(1, 54)]
+multiple13<-multipleb[!is.na(multipleb$d3),c(1, 55)]
+multiple14<-multipleb[!is.na(multipleb$d4),c(1, 56)]
+multiple15<-multipleb[!is.na(multipleb$d5),c(1, 57)]
+multiple16<-multipleb[!is.na(multipleb$d6),c(1, 58)]
 
 multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
