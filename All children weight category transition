@@ -1,69 +1,37 @@
-thisyear<-alldata
-thisyear$sumage<-round(thisyear$ageattestyr,digits=0)
-thisyear$birthmonth<-month(as.POSIXlt(thisyear$DateOfBirth, format="%Y-%m-%d"))
-thisyear$assmonth<-month(as.POSIXlt(thisyear$AssessmentDate, format="%Y-%m"))
-thisyear$class<-0
+alldata<-read.table("LMStableedited.csv",header=TRUE, sep=",")
+length(alldata$ChildID)
+alldata<-subset(alldata,!is.na(alldata$BMI),)
+length(alldata$ChildID) #44 records removed
+alldata$ChildID<-as.factor(alldata$ChildID)
+levels(alldata$ChildID) #63339 children
+alldata$PostcodeDecile<-ceiling(alldata$PostcodeDecile)
+alldata<-alldata[floor(alldata$ageattest/52.12)<12&floor(alldata$ageattest/52.12)>3,]
 
-thisyear$class<-ifelse(thisyear$ageattestyr==4,0,NA) #Most 4 year olds are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==4 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,-1,thisyear$class) #4 year olds that have a birthday from September onwards that are measured in the autumn term are in nursery
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==4,-1,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in nursery
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==4,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==4,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
+alldata2<-alldata[order(alldata$ChildID,alldata$AssessmentDate),]
+names(alldata2)
+d<-duplicated(alldata2[,c(1,4)])
+head(alldata2[d,],n=10)
+head(alldata2,n=20)
+alldata2<-alldata2[!d,]
+length(alldata$ChildID)-length(alldata2$ChildID) #134 duplicate entries removed
+alldata<-alldata2
 
-thisyear$class<-ifelse(thisyear$ageattestyr==5,1,thisyear$class) #most 5 year olds are in year one
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==5 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==5,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==5,1,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==5,1,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
+library(lubridate)
+alldata$DateOfBirth<-(as.Date(paste(alldata$DateOfBirth,"-01",sep="")))
+alldata$AssessmentDate<-as.Date(paste(alldata$AssessmentDate,"-01",sep=""))
+alldata$assyr<-year(as.POSIXlt(alldata$AssessmentDate, format="%Y-%m-%d"))
 
-thisyear$class<-ifelse(thisyear$ageattestyr==6,2,thisyear$class) # most 6 year olds are in year 2
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==6&thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==6,1,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==6,2,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==6,2,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
+attach(alldata)
+alldata$ChildID<-as.factor(alldata$ChildID)
+alldata$SchoolCode<-as.factor(alldata$SchoolCode)
+alldata$IsAccountRegistered<-as.factor(alldata$IsAccountRegistered)
 
-thisyear$class<-ifelse(thisyear$ageattestyr==7,3,thisyear$class) # most 7 year olds are in year 3
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==7 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,2,thisyear$class) #7 year olds that have a birthday from September onwards that are measured in the autumn term are in yr2
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==7,2,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==7,3,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==7,3,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
+alldata$ageattestyr<-difftime(alldata$AssessmentDate,alldata$DateOfBirth,unit="weeks")/52.12
 
-thisyear$class<-ifelse(thisyear$ageattestyr==8,4,thisyear$class) # most 8 year olds are in year 4
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==8 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,3,thisyear$class) #8 year olds that have a birthday from September onwards that are measured in the autumn term are in yr3
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==8,3,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==8,4,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==8,4,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-
-thisyear$class<-ifelse(thisyear$ageattestyr==9,5,thisyear$class) # most 9 year olds are in year 5
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==9 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,4,thisyear$class) #9 year olds that have a birthday from September onwards that are measured in the autumn term are in yr4
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==9,4,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==9,5,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==9,5,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-
-
-thisyear$class<-ifelse(thisyear$ageattestyr==10,6,thisyear$class) # most 10 year olds are in year 6
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==10 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,5,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==10,5,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==10,6,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==10,6,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-
-thisyear$class<-ifelse(thisyear$ageattestyr==11,7,thisyear$class)
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==11 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,6,thisyear$class) #10 year olds that have a birthday from September onwards that are measured in the autumn term are in yr5
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==11,6,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth<8 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==11,7,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$assmonth>=9 & thisyear$birthmonth>thisyear$assmonth& thisyear$ageattestyr==11,7,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-
-champ2<-thisyear
-attach(champ2)
-champ2$class<-as.numeric(champ2$class)
-
-#CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
-d<-duplicated(champ2[,c(1,3)],fromLast=FALSE)
-table(d)
-lengths(unique(champ2$ChildID[d]))
-#176 children have multiple measurements within an academic year
-head(champ2[d,],n=10)
-champ2<-champ2[!d,] #retain first measurement per academic year
+alldata$ageattestyr<-as.integer(floor(alldata$ageattestyr))
+alldata<-alldata[!alldata$AcademicYear=="2011/2012"&!alldata$AcademicYear=="2012/2013",]
+alldata$AcademicYear <- droplevels(alldata$AcademicYear)
+champ2<-alldata
 
 #DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
 champ2$weightcat<-1#normal
@@ -77,57 +45,42 @@ champ2$NoRecords<-1
 alldata<-champ2
 attach(alldata)
 
-#Assign class at test vector
-alldata$Recordr<-as.numeric(ifelse(class==0,1,0))
-alldata$Record1<-as.numeric(ifelse(class==1,1,0))
-alldata$Record2<-as.numeric(ifelse(class==2,1,0))
-alldata$Record3<-as.numeric(ifelse(class==3,1,0))
-alldata$Record4<-as.numeric(ifelse(class==4,1,0))
-alldata$Record5<-as.numeric(ifelse(class==5,1,0))
-alldata$Record6<-as.numeric(ifelse(class==6,1,0))
+#Assign academic year
+alldata$Record1<-as.numeric(ifelse(champ2$AcademicYear=="2013/2014",1,0))
+alldata$Record2<-as.numeric(ifelse(champ2$AcademicYear=="2014/2015",1,0))
+alldata$Record3<-as.numeric(ifelse(champ2$AcademicYear=="2015/2016",1,0))
+alldata$Record4<-as.numeric(ifelse(champ2$AcademicYear=="2016/2017",1,0))
 
 #Print BMI at each test
-alldata$BMIr<-as.numeric(ifelse(class==0,BMI,NA))
-alldata$BMI1<-as.numeric(ifelse(class==1,BMI,NA))
-alldata$BMI2<-as.numeric(ifelse(class==2,BMI,NA))
-alldata$BMI3<-as.numeric(ifelse(class==3,BMI,NA))
-alldata$BMI4<-as.numeric(ifelse(class==4,BMI,NA))
-alldata$BMI5<-as.numeric(ifelse(class==5,BMI,NA))
-alldata$BMI6<-as.numeric(ifelse(class==6,BMI,NA))
+alldata$BMI1<-as.numeric(ifelse(champ2$AcademicYear=="2013/2014",BMI,NA))
+alldata$BMI2<-as.numeric(ifelse(champ2$AcademicYear=="2014/2015",BMI,NA))
+alldata$BMI3<-as.numeric(ifelse(champ2$AcademicYear=="2015/2016",BMI,NA))
+alldata$BMI4<-as.numeric(ifelse(champ2$AcademicYear=="2016/2017",BMI,NA))
 
 #Print weightcat at each age
-alldata$weightcatr<-as.numeric(ifelse(class==0,weightcat,NA))
-alldata$weightcat1<-as.numeric(ifelse(class==1,weightcat,NA))
-alldata$weightcat2<-as.numeric(ifelse(class==2,weightcat,NA))
-alldata$weightcat3<-as.numeric(ifelse(class==3,weightcat,NA))
-alldata$weightcat4<-as.numeric(ifelse(class==4,weightcat,NA))
-alldata$weightcat5<-as.numeric(ifelse(class==5,weightcat,NA))
-alldata$weightcat6<-as.numeric(ifelse(class==6,weightcat,NA))
+alldata$weightcat1<-as.numeric(ifelse(champ2$AcademicYear=="2013/2014",weightcat,NA))
+alldata$weightcat2<-as.numeric(ifelse(champ2$AcademicYear=="2014/2015",weightcat,NA))
+alldata$weightcat3<-as.numeric(ifelse(champ2$AcademicYear=="2015/2016",weightcat,NA))
+alldata$weightcat4<-as.numeric(ifelse(champ2$AcademicYear=="2016/2017",weightcat,NA))
 attach(alldata)
 
 #Print centile at each age
-alldata$centr<-as.numeric(ifelse(class==0,Centile_BMI,NA))
-alldata$cent1<-as.numeric(ifelse(class==1,Centile_BMI,NA))
-alldata$cent2<-as.numeric(ifelse(class==2,Centile_BMI,NA))
-alldata$cent3<-as.numeric(ifelse(class==3,Centile_BMI,NA))
-alldata$cent4<-as.numeric(ifelse(class==4,Centile_BMI,NA))
-alldata$cent5<-as.numeric(ifelse(class==5,Centile_BMI,NA))
-alldata$cent6<-as.numeric(ifelse(class==6,Centile_BMI,NA))
+alldata$cent1<-as.numeric(ifelse(champ2$AcademicYear=="2013/2014",Centile_BMI,NA))
+alldata$cent2<-as.numeric(ifelse(champ2$AcademicYear=="2014/2015",Centile_BMI,NA))
+alldata$cent3<-as.numeric(ifelse(champ2$AcademicYear=="2015/2016",Centile_BMI,NA))
+alldata$cent4<-as.numeric(ifelse(champ2$AcademicYear=="2016/2017",Centile_BMI,NA))
 attach(alldata)
 
 #Print date at each age
-alldata$dr<-as.numeric(ifelse(class==0,AssessmentDate,NA))
-alldata$d1<-as.numeric(ifelse(class==1,AssessmentDate,NA))
-alldata$d2<-as.numeric(ifelse(class==2,AssessmentDate,NA))
-alldata$d3<-as.numeric(ifelse(class==3,AssessmentDate,NA))
-alldata$d4<-as.numeric(ifelse(class==4,AssessmentDate,NA))
-alldata$d5<-as.numeric(ifelse(class==5,AssessmentDate,NA))
-alldata$d6<-as.numeric(ifelse(class==6,AssessmentDate,NA))
+alldata$d1<-as.numeric(ifelse(champ2$AcademicYear=="2013/2014",AssessmentDate,NA))
+alldata$d2<-as.numeric(ifelse(champ2$AcademicYear=="2014/2015",AssessmentDate,NA))
+alldata$d3<-as.numeric(ifelse(champ2$AcademicYear=="2015/2016",AssessmentDate,NA))
+alldata$d4<-as.numeric(ifelse(champ2$AcademicYear=="2016/2017",AssessmentDate,NA))
 attach(alldata)
 
 #Determine how many measurements taken per child
 
-alldata$NoRecords<-(Recordr+Record1+Record2+Record3+Record4+Record5+Record6)
+alldata$NoRecords<-(Record1+Record2+Record3+Record4)
 Recs<-aggregate(alldata$NoRecords, by=list(Category=ChildID), FUN=sum)
 names(Recs)[names(Recs)=="x"] <- "NoRecs"
 names(Recs)[names(Recs)=="Category"] <- "ChildID"
@@ -141,111 +94,56 @@ multipleb<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more 
 multipleb<-with(multipleb, multipleb[order(ChildID),])
 attach(multipleb)
 
-
-
-as.numeric(c(weightcatr,weightcat1,weightcat2,weightcat3,weightcat4,weightcat5,weightcat6))
+as.numeric(c(weightcat1,weightcat2,weightcat3,weightcat4))
 multipleb$ChildID<-as.factor(multipleb$ChildID)
 multipleb$IsAccountRegistered<-as.numeric(multipleb$IsAccountRegistered)-1
-multiplebase<-multipleb[,c(1,12)]
-multiplefirst<-multipleb[!is.na(multipleb$weightcatr),c(1, 38)]
-multiple1<-multipleb[!is.na(multipleb$weightcat1),c(1, 39)]
-multiple2<-multipleb[!is.na(multipleb$weightcat2),c(1, 40)]
-multiple3<-multipleb[!is.na(multipleb$weightcat3),c(1, 41)]
-multiple4<-multipleb[!is.na(multipleb$weightcat4),c(1, 42)]
-multiple5<-multipleb[!is.na(multipleb$weightcat5),c(1, 43)]
-multiple6<-multipleb[!is.na(multipleb$weightcat6),c(1, 44)]
+multiplebase<-multipleb[,c(1,10)]
+multiple1<-multipleb[!is.na(multipleb$weightcat1),c(1, 27)]
+multiple2<-multipleb[!is.na(multipleb$weightcat2),c(1, 28)]
+multiple3<-multipleb[!is.na(multipleb$weightcat3),c(1, 29)]
+multiple4<-multipleb[!is.na(multipleb$weightcat4),c(1, 30)]
 multipleb$ageattestyr<-as.numeric(multipleb$ageattestyr)
 multiple7<-aggregate(multipleb$ageattestyr,by=list(multipleb$ChildID),FUN=min)
-colnames(multiple7)<- c("ChildID","AgeF")
+colnames(multiple7)<- c("ChildID","Age")
 multiple8<-aggregate(as.numeric(multipleb$Gender),by=list(ChildID),FUN=min)
 colnames(multiple8)<- c("ChildID","Gender")
 
-Ethnicity2<-multipleb$Ethnicity
-levels(Ethnicity2)[1:3]<-"White"
-levels(Ethnicity2)[11:12]<-"Black African and other"
-levels(Ethnicity2)[2:3]<-"Mixed black and white"
-levels(Ethnicity2)[9:10]<-"Black"
-levels(Ethnicity2)[5:6]<-"Indian/Pakistani"
-levels(Ethnicity2)[3]<-"Asian"
-levels(Ethnicity2)[5:7]<-"Asian"
-levels(Ethnicity2)[4]<-"other"
-levels(Ethnicity2)[7]<-"other"
-levels(Ethnicity2)[6]<-"Asian"
-levels(Ethnicity2)[7]<-"NA"
-levels(Ethnicity2)[4]<-"NA"
-levels(Ethnicity2)[6]<-"NA"
-levels(Ethnicity2)[4]<-"other"
-levels(Ethnicity2)[2]<-"other"
-
-multipleb$Ethnicity2<-Ethnicity2
-attach(multipleb)
-multiple9<-aggregate(as.numeric(multipleb$Ethnicity2),by=list(multipleb$ChildID),FUN=min)
-colnames(multiple9)<- c("ChildID","Eth2")
 multiplereg<-multipleb[c(1, 10)]
 library(plyr)
 
+multiple10<-multipleb[!is.na(multipleb$d1),c(1, 35)]
+multiple11<-multipleb[!is.na(multipleb$d2),c(1, 36)]
+multiple12<-multipleb[!is.na(multipleb$d3),c(1, 37)]
+multiple13<-multipleb[!is.na(multipleb$d4),c(1, 38)]
 
-
-multiple10<-multipleb[!is.na(multipleb$dr),c(1, 52)]
-multiple11<-multipleb[!is.na(multipleb$d1),c(1, 53)]
-multiple12<-multipleb[!is.na(multipleb$d2),c(1, 54)]
-multiple13<-multipleb[!is.na(multipleb$d3),c(1, 55)]
-multiple14<-multipleb[!is.na(multipleb$d4),c(1, 56)]
-multiple15<-multipleb[!is.na(multipleb$d5),c(1, 57)]
-multiple16<-multipleb[!is.na(multipleb$d6),c(1, 58)]
-
-multi<-merge(multiplebase,multiplefirst,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
+multi<-merge(multiplebase,multiple1,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple5,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple6,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple7,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple8,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple9,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple10,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple11,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple12,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple13,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple15,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiple16,by="ChildID",all.x=TRUE)
-multi<-merge(multi,multiplereg,by="ChildID",all.x=TRUE)
-
-attach(multi)
-
 
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
-multi2[!apply((is.na(multi2) |multi2 == "", 1, all),]
-data <- data[!apply(is.na(data) | data == "", 1, all),]
 multi<-multi2
 
 #CALCULATE DIFF BETWEEN MEASUREMENTS
 length(multi$ChildID)#25024
 attach(multi)
-measure1<-weightcatr
-measure1<-as.numeric(measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat1),paste(weightcat1),measure1)
+measure1<-as.numeric(weightcat1)
 measure1<-ifelse(is.na(measure1)&!is.na(weightcat2),paste(weightcat2),measure1)
 measure1<-ifelse(is.na(measure1)&!is.na(weightcat3),paste(weightcat3),measure1)
 measure1<-ifelse(is.na(measure1)&!is.na(weightcat4),paste(weightcat4),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat5),paste(weightcat5),measure1)
-measure1<-ifelse(is.na(measure1)&!is.na(weightcat6),paste(weightcat6),measure1)
 
-measure2<-weightcat6
-measure2<-as.numeric(measure2)
-measure2<-ifelse(!is.na(weightcat5)&(!is.na(weightcat4)|!is.na(weightcat3)|!is.na(weightcat2)|!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat5),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(!is.na(weightcat4)&(!is.na(weightcat3)|!is.na(weightcat2)|!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat4),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(!is.na(weightcat3)&(!is.na(weightcat2)|!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat3),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(!is.na(weightcat2)&(!is.na(weightcat1)|!is.na(weightcatr)),paste(weightcat2),measure2)
-measure2<-as.numeric(measure2)
-measure2<-ifelse(!is.na(weightcat1)&(!is.na(weightcatr)),paste(weightcat1),measure2)
-measure2<-as.numeric(measure2)
+measure2<-as.numeric(weightcat1)
+measure2<-ifelse(!is.na(weightcat1)&!is.na(weightcat2),(weightcat2),measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcat1)|!is.na(weightcat2))&(!is.na(weightcat3)),paste(weightcat3),measure2)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3))&(!is.na(weightcat4)),paste(weightcat4),measure2)
+
 multi$measure1<-as.numeric(measure1)
 multi$measure2<-as.numeric(measure2)
 multi$cendiff<-multi$measure2-multi$measure1
