@@ -8,7 +8,6 @@ thisyear$class<-ifelse(thisyear$ageattestyr==4,0,NA) #All 4 year olds are in Rec
 thisyear$class<-ifelse(thisyear$ageattestyr==5,1,thisyear$class) #most 5 year olds are in year one
 thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==5 &thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,0,thisyear$class) #5 year olds that have a birthday from September onwards that are measured in the autumn term are in Reception
 thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==5,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
-thisyear$class<-ifelse(thisyear$birthmonth<8 & thisyear$assmonth<9 & thisyear$birthmonth<thisyear$assmonth& thisyear$ageattestyr==5,0,thisyear$class) #5 year olds with a birthday before September that are measured in the spring term are in Reception
 
 thisyear$class<-ifelse(thisyear$ageattestyr==6,2,thisyear$class) # most 6 year olds are in year 2
 thisyear$class<-ifelse(thisyear$birthmonth>=8 & thisyear$ageattestyr==6&thisyear$assmonth>=thisyear$birthmonth&thisyear$assmonth>8,1,thisyear$class) #6 year olds that have a birthday from September onwards that are measured in the autumn term are in yr1
