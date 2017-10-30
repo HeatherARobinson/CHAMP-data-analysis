@@ -12,14 +12,23 @@ alldata2<-alldata[order(alldata$ChildID,alldata$AssessmentDate),]
 names(alldata2)
 d<-duplicated(alldata2[,c(1,4)])
 head(alldata2[d,],n=10)
-length(unique(alldata2$ChildID[d])) #133 children have multiple measures on the same date 
 #d4<-alldata2[alldata2$ChildID %in% alldata2$ChildID[d],]
 #write.csv(d4,file="d4.csv")
 #Manually review for ID reuse, save subset of reused IDs.
 d4<-read.csv("d4.csv")
-length(unique(d4$ChildID))
-alldata2<-alldata2[!alldata2$ChildID %in% d4$ChildID,]
+
 alldata2<-alldata2[!d,]
+length(alldata$ChildID)-length(alldata2$ChildID) #134 second entries from the same date removed
+alldata2<-alldata2[!alldata2$ChildID %in% d4$ChildID,]
+length(alldata$ChildID)-length(alldata2$ChildID) #197 second entries from reused child  or those with edits to erroneous values
+
+d2<-duplicated(alldata2[,c(1,3)])
+head(alldata2[d2,],n=10)
+head(alldata2,n=20)
+alldata2<-alldata2[!d2,]
+length(alldata$ChildID)-length(alldata2$ChildID) #178 second and later entries removed from the same assessment year
+alldata<-alldata2
+
 library(lubridate)
 alldata$DateOfBirth<-(as.Date(paste(alldata$DateOfBirth,"-01",sep="")))
 alldata$AssessmentDate<-as.Date(paste(alldata$AssessmentDate,"-01",sep=""))
@@ -34,6 +43,7 @@ alldata<-alldata[!alldata$AcademicYear=="2011/2012"&!alldata$AcademicYear=="2012
 alldata$AcademicYear <- droplevels(alldata$AcademicYear)
 champ2<-alldata
 
+#DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
 champ2$weightcat<-1#normal
 champ2$weightcat<-ifelse(champ2$Centile_BMI>=90.879,2,champ2$weightcat)#overweight
 champ2$weightcat<-ifelse(champ2$Centile_BMI>=97.725,3,champ2$weightcat)#obese
@@ -43,62 +53,62 @@ champ2$weightcat<-ifelse(champ2$Centile_BMI<0.383,6,champ2$weightcat)#very under
 table(champ2$weightcat)
 champ2$NoRecords<-1
 alldata<-champ2
-
-
-alldata$ageattestyr<-difftime(alldata$AssessmentDate,alldata$DateOfBirth,unit="weeks")/52.12
-
-alldata$ageattestyr<-as.integer(floor(alldata$ageattestyr))
 attach(alldata)
 
-###################################################################################
-#COMPARE FIRST AND LAST MEASUREMENTS
-
-#DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
-
-#Assign class at test vector
-alldata <- alldata[order(alldata$ChildID,alldata$AssessmentDate),] #Order by child and measurement date
-first<-alldata[!duplicated(alldata$ChildID),]
-first$Record<-1
-alldata <- alldata[order(alldata$ChildID,alldata$AssessmentDate),] #Order by child and measurement date
-last<-alldata[!duplicated(alldata$ChildID,fromLast=TRUE),]
-last$Record<-2
-alldata<-rbind (first,last)
-d5<-duplicated(alldata[,c(1,4)])
-alldata<-alldata[!d5,]
-attach(alldata)
+#Assign academic year
+alldata$Record1<-as.numeric(ifelse(alldata$AcademicYear=="2013/2014",1,0))
+alldata$Record2<-as.numeric(ifelse(alldata$AcademicYear=="2014/2015",1,0))
+alldata$Record3<-as.numeric(ifelse(alldata$AcademicYear=="2015/2016",1,0))
+alldata$Record4<-as.numeric(ifelse(alldata$AcademicYear=="2016/2017",1,0))
 
 #Print BMI at each test
-alldata$Record1<-as.numeric(ifelse(alldata$Record==1,1,0))
-alldata$Record2<-as.numeric(ifelse(alldata$Record==2,1,0))
+alldata$BMI1<-as.numeric(ifelse(alldata$AcademicYear=="2013/2014",BMI,NA))
+alldata$BMI2<-as.numeric(ifelse(alldata$AcademicYear=="2014/2015",BMI,NA))
+alldata$BMI3<-as.numeric(ifelse(alldata$AcademicYear=="2015/2016",BMI,NA))
+alldata$BMI4<-as.numeric(ifelse(alldata$AcademicYear=="2016/2017",BMI,NA))
 
-alldata$BMI1<-as.numeric(ifelse(alldata$Record==1,BMI,NA))
-alldata$BMI2<-as.numeric(ifelse(alldata$Record==2,BMI,NA))
-
-#Print weightcat at each test
-alldata$weightcat1<-as.numeric(ifelse(alldata$Record==1,weightcat,NA))
-alldata$weightcat2<-as.numeric(ifelse(alldata$Record==2,weightcat,NA))
-
-#Print centiles
-alldata$cent1<-as.numeric(ifelse(alldata$Record==1,Centile_BMI,NA))
-alldata$cent2<-as.numeric(ifelse(alldata$Record==2,Centile_BMI,NA))
-
-#Print date at each age
-alldata$d1<-as.numeric(ifelse(alldata$Record==1,AssessmentDate,NA))
-alldata$d2<-as.numeric(ifelse(alldata$Record==2,AssessmentDate,NA))
-
-#Print Z scores
-alldata$z1<-as.numeric(ifelse(alldata$Record==1,SDS_BMI,NA))
-alldata$z2<-as.numeric(ifelse(alldata$Record==2,SDS_BMI,NA))
+#Print weightcat at each age
+alldata$weightcat1<-as.numeric(ifelse(alldata$AcademicYear=="2013/2014",weightcat,NA))
+alldata$weightcat2<-as.numeric(ifelse(alldata$AcademicYear=="2014/2015",weightcat,NA))
+alldata$weightcat3<-as.numeric(ifelse(alldata$AcademicYear=="2015/2016",weightcat,NA))
+alldata$weightcat4<-as.numeric(ifelse(alldata$AcademicYear=="2016/2017",weightcat,NA))
 attach(alldata)
 
+#Print centile at each age
+alldata$cent1<-as.numeric(ifelse(alldata$AcademicYear=="2013/2014",Centile_BMI,NA))
+alldata$cent2<-as.numeric(ifelse(alldata$AcademicYear=="2014/2015",Centile_BMI,NA))
+alldata$cent3<-as.numeric(ifelse(alldata$AcademicYear=="2015/2016",Centile_BMI,NA))
+alldata$cent4<-as.numeric(ifelse(alldata$AcademicYear=="2016/2017",Centile_BMI,NA))
+attach(alldata)
+
+#Print date at each age
+alldata$d1<-as.numeric(ifelse(alldata$AcademicYear=="2013/2014",AssessmentDate,NA))
+alldata$d2<-as.numeric(ifelse(alldata$AcademicYear=="2014/2015",AssessmentDate,NA))
+alldata$d3<-as.numeric(ifelse(alldata$AcademicYear=="2015/2016",AssessmentDate,NA))
+alldata$d4<-as.numeric(ifelse(alldata$AcademicYear=="2016/2017",AssessmentDate,NA))
+attach(alldata)
+
+#Print z at each age
+alldata$z1<-as.numeric(ifelse(alldata$AcademicYear=="2013/2014",SDS_BMI,NA))
+alldata$z2<-as.numeric(ifelse(AcademicYear=="2014/2015",SDS_BMI,NA))
+alldata$z3<-as.numeric(ifelse(alldata$AcademicYear=="2015/2016",SDS_BMI,NA))
+alldata$z4<-as.numeric(ifelse(alldata$AcademicYear=="2016/2017",SDS_BMI,NA))
+
+#Determine how many measurements taken per child
+
+alldata$NoRecords<-(Record1+Record2+Record3+Record4)
+Recs<-aggregate(alldata$NoRecords, by=list(Category=ChildID), FUN=sum)
+names(Recs)[names(Recs)=="x"] <- "NoRecs"
+names(Recs)[names(Recs)=="Category"] <- "ChildID"
 
 ##############################################################################
 
 #Merge to have BMI at different ages on the same line
 #Determine how many measurements taken per child
 
-Recs2<-alldata[duplicated(alldata$ChildID),]
+Recs2<-Recs[Recs$NoRecs>1,]
 multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
+length(unique(multiple$ChildID)) #34768 children
 
 Ethnicity2<-multiple$Ethnicity
 levels(Ethnicity2)[1:3]<-"1" #white
@@ -112,7 +122,7 @@ levels(Ethnicity2)[6]<-"5"
 levels(Ethnicity2)[6:7]<-NA
 multiple$Eth2<-as.numeric(Ethnicity2)
 attach(multiple)
-multiple10<-multiple[!is.na(multiple$Eth2),c(1, 33)]
+multiple10<-multiple[!is.na(multiple$Eth2),c(1, 43)]
 
 multiple<-with(multiple, multiple[order(ChildID),])
 attach(multiple)
@@ -120,24 +130,34 @@ as.numeric(c(cent1,cent2))
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
 multiplebase<-multiple[,c(1,12)]
-multiple1<-multiple[!is.na(multiple$cent1),c(1, 27)]
-multiple2<-multiple[!is.na(multiple$cent2),c(1, 28)]
-multiple3<-multiple[c(1, 10)]
+multiple1<-multiple[!is.na(multiple$cent1),c(1, 31)]
+multiple2<-multiple[!is.na(multiple$cent2),c(1, 32)]
+multiple3<-multiple[!is.na(multiple$cent3),c(1, 33)]
+multiple4<-multiple[!is.na(multiple$cent4),c(1, 34)]
+multiple5<-multiple[c(1, 10)]
 library(plyr)
 
-multiple4<-multiple[!is.na(multiple$d1),c(1, 29)]
-multiple5<-multiple[!is.na(multiple$d2),c(1, 30)]
-multiple6<-multiple[!is.na(multiple$weightcat1),c(1, 25)]
-multiple7<-multiple[!is.na(multiple$weightcat2),c(1, 26)]
-multiple8<-multiple[!is.na(multiple$z1),c(1, 31)]
-multiple9<-multiple[!is.na(multiple$z2),c(1, 32)]
-
-multiple11<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
-colnames(multiple11)<- c("ChildID","AgeF")
-multiple12<-aggregate(as.numeric(multiple$Gender),by=list(ChildID),FUN=min)
-colnames(multiple12)<- c("ChildID","Gender")
+multiple6<-multiple[!is.na(multiple$d1),c(1, 35)]
+multiple7<-multiple[!is.na(multiple$d2),c(1, 36)]
+multiple8<-multiple[!is.na(multiple$d3),c(1, 37)]
+multiple9<-multiple[!is.na(multiple$d4),c(1, 38)]
+multiple10<-multiple[!is.na(multiple$weightcat1),c(1, 27)]
+multiple11<-multiple[!is.na(multiple$weightcat2),c(1, 28)]
+multiple12<-multiple[!is.na(multiple$weightcat3),c(1, 29)]
+multiple13<-multiple[!is.na(multiple$weightcat4),c(1, 30)]
+multiple14<-multiple[!is.na(multiple$z1),c(1, 39)]
+multiple15<-multiple[!is.na(multiple$z2),c(1, 40)]
+multiple16<-multiple[!is.na(multiple$z3),c(1, 41)]
+multiple17<-multiple[!is.na(multiple$z4),c(1, 42)]
+multiple$ageattestyr<-difftime(multiple$AssessmentDate,multiple$DateOfBirth,unit="weeks")/52.12
+multiple$ageattestyr<-as.integer(floor(multiple$ageattestyr))
 attach(multiple)
-multiple13<-multiple[!is.na(multiple$ageattestyr),c(1, 19)]
+multiple18<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
+colnames(multiple18)<- c("ChildID","AgeF")
+multiple19<-aggregate(as.numeric(multiple$Gender),by=list(ChildID),FUN=min)
+colnames(multiple19)<- c("ChildID","Gender")
+attach(multiple)
+
 multi<-merge(multiplebase,multiple1,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
@@ -151,20 +171,38 @@ multi<-merge(multi,multiple10,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple11,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple12,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple13,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple15,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple16,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple17,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple18,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple19,by="ChildID",all.x=TRUE)
 attach(multi)
 
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean,na.rm=TRUE)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
 
-
 ###############################################
 
 #CALCULATE CEN DIFF BETWEEN FIRST AND LAST MEASUREMENTS
+
 length(multi$ChildID)#34743
 attach(multi)
-measure1<-as.numeric(cent1)
-measure2<-as.numeric(cent2)
+
+multi$measure1<-as.numeric(multi$weightcat1)
+multi$measure1<-ifelse(is.na(multi$measure1)&!is.na(multi$weightcat2),as.numeric(multi$weightcat2),multi$measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&!is.na(multi$weightcat3),as.numeric(multi$weightcat3),multi$measure1)
+multi$measure1<-ifelse(is.na(multi$measure1)&!is.na(multi$weightcat4),paste(multi$weightcat4),multi$measure1)
+
+multi$measure2<-NA
+multi$measure2<-ifelse(!is.na(multi$weightcat1)&!is.na(multi$weightcat2),as.numeric(multi$weightcat2),multi$measure2)
+multi$measure2<-ifelse(is.na(multi$measure2)&(!is.na(multi$weightcat1)|!is.na(multi$weightcat2))&(!is.na(multi$weightcat3)),as.numeric(multi$weightcat3),multi$measure2)
+multi$measure2<-ifelse(is.na(multi$measure2)&(!is.na(multi$weightcat1)|!is.na(multi$weightcat2)|!is.na(multi$weightcat3))&(!is.na(multi$weightcat4)),as.numeric(multi$weightcat4),multi$measure2)
+
+multi$measure1<-as.numeric(measure1)
+multi$measure2<-as.numeric(measure2)
+
 multi$cendiff<-measure2-measure1
 multi$diffnorm<-(abs(50-measure1)-abs(50-measure2)) #if positive, marks a move towards the normal
 attach(multi)
@@ -245,7 +283,7 @@ length(obyes$ChildID[obyes$diffnorms>0])
 length(obyes$ChildID[obyes$diffnorms==0])
 length(obyes$ChildID[obyes$diffnorms<0])
 
-length(ovno$ChildID[ovyes$diffnorms>0])
+length(ovyes$ChildID[ovyes$diffnorms>0])
 length(ovyes$ChildID[ovyes$diffnorms==0])
 length(ovyes$ChildID[ovyes$diffnorms<0])
 
