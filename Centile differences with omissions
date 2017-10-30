@@ -252,9 +252,7 @@ multi$cat2<-findInterval(multi$cen1,c(10,20,30,40,50,60,70,80,90))
 multi$imdquintile<-findInterval(multi$PostcodeDecile,c(0,2,4,6,8,10))
 attach(multi)
 
-
-
-multi<-multi[,c(2:4,9,22:34)]
+multi<-multi[,c(2:4,9,22:42)]
 attach(multi)
 
 #BREAKPOINT
@@ -267,7 +265,7 @@ attach(multi)
 multi$IsAccountRegistered<-as.factor((as.numeric(multi$IsAccountRegistered)))
 multi<-multi[!is.na(multi$Eth2)&!is.na(multi$AgeF)&!is.na(multi$imdquintile)&!is.na(multi$diffnorm)&
 !is.na(multi$diffznorm)&!is.na(multi$cendiffs)&!is.na(multi$IsAccountRegistered)&
-!is.na(multi$bmidecile)&!is.na(multi$Gender),c(2:4,9,22:20)]
+!is.na(multi$bmidecile)&!is.na(multi$Gender),]
 
 attach(multi)
 length(multi$ChildID)
@@ -281,7 +279,7 @@ obese<-multi[multi$cen1>=97.725,]
 #MATCH CASES AND CONTROLS
 ##############################################
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
-set.seed(1234)
+set.seed(4321)
 
 match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=over, method="exact", ratio=2)
 match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=obese, method="exact", ratio=2)
