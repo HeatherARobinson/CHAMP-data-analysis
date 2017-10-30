@@ -6,7 +6,6 @@ length(alldata$ChildID) #44 records removed
 alldata$ChildID<-as.factor(alldata$ChildID)
 levels(alldata$ChildID) #63339 children
 alldata$PostcodeDecile<-ceiling(alldata$PostcodeDecile)
-alldata<-alldata[floor(alldata$ageattest/52.12)<12&floor(alldata$ageattest/52.12)>3,]
 
 alldata2<-alldata[order(alldata$ChildID,alldata$AssessmentDate),]
 names(alldata2)
@@ -30,5 +29,7 @@ alldata$IsAccountRegistered<-as.factor(alldata$IsAccountRegistered)
 alldata$ageattestyr<-difftime(alldata$AssessmentDate,alldata$DateOfBirth,unit="weeks")/52.12
 
 alldata$ageattestyr<-as.integer(floor(alldata$ageattestyr))
+alldata<-alldata[alldata$ageattestyr<12&alldata$ageattestyr>3,]
+
 alldata<-alldata[!alldata$AcademicYear=="2011/2012"&!alldata$AcademicYear=="2012/2013",]
 alldata$AcademicYear <- droplevels(alldata$AcademicYear)
