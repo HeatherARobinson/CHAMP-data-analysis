@@ -122,10 +122,8 @@ levels(Ethnicity2)[6]<-"5"
 levels(Ethnicity2)[6:7]<-NA
 multiple$Eth2<-as.numeric(Ethnicity2)
 attach(multiple)
-multiple10<-multiple[!is.na(multiple$Eth2),c(1, 43)]
-
+multiplea<-multiple[!is.na(multiple$Eth2),c(1, 43)]
 multiple<-with(multiple, multiple[order(ChildID),])
-attach(multiple)
 as.numeric(c(cent1,cent2))
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
@@ -158,7 +156,8 @@ multiple19<-aggregate(as.numeric(multiple$Gender),by=list(ChildID),FUN=min)
 colnames(multiple19)<- c("ChildID","Gender")
 attach(multiple)
 
-multi<-merge(multiplebase,multiple1,by="ChildID",all.x=TRUE)
+multi<-merge(multiplebase,multiplea,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple1,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple4,by="ChildID",all.x=TRUE)
@@ -182,13 +181,14 @@ attach(multi)
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean,na.rm=TRUE)
 multi2$ChildID<-multi2$Group.1
 multi<-multi2
-
+save(multi,file="multi.rda")
 ###############################################
 
 #CALCULATE CEN DIFF BETWEEN FIRST AND LAST MEASUREMENTS
 
 length(multi$ChildID)#34743
 attach(multi)
+
 
 multi$measure1<-as.numeric(multi$weightcat1)
 multi$measure1<-ifelse(is.na(multi$measure1)&!is.na(multi$weightcat2),as.numeric(multi$weightcat2),multi$measure1)
@@ -202,9 +202,34 @@ multi$measure2<-ifelse(is.na(multi$measure2)&(!is.na(multi$weightcat1)|!is.na(mu
 
 multi$measure1<-as.numeric(measure1)
 multi$measure2<-as.numeric(measure2)
+table(multi$measure1,multi$measure2)
 
-multi$cendiff<-measure2-measure1
-multi$diffnorm<-(abs(50-measure1)-abs(50-measure2)) #if positive, marks a move towards the normal
+multi$cen1<-as.numeric(multi$cent1)
+multi$cen1<-ifelse(is.na(multi$cent1)&!is.na(multi$cent2),as.numeric(multi$cent2),multi$cen1)
+multi$cen1<-ifelse(is.na(multi$cent1)&!is.na(multi$cent3),as.numeric(multi$cent3),multi$cen1)
+multi$cen1<-ifelse(is.na(multi$cent1)&!is.na(multi$cent4),as.numeric(multi$cent4),multi$cen1)
+
+multi$cen2<-NA
+multi$cen2<-ifelse(!is.na(multi$cent1)&!is.na(multi$cent2),as.numeric(multi$cent2),as.numeric(multi$cen2))
+multi$cen2<-ifelse(is.na(multi$cen2)&(!is.na(multi$cent1)|!is.na(multi$cent2))&!is.na(multi$cent3),as.numeric(multi$cent3),multi$cen2)
+multi$cen2<-ifelse(is.na(multi$cen2)&(!is.na(multi$cent1)|!is.na(multi$cent2)|!is.na(multi$cent3))&(!is.na(multi$cent4)),as.numeric(multi$cent4),multi$cen2)
+
+multi$zs1<-as.numeric(multi$z1)
+multi$zs1<-ifelse(is.na(multi$z1)&!is.na(multi$z2),as.numeric(multi$z2),multi$zs1)
+multi$zs1<-ifelse(is.na(multi$z1)&!is.na(multi$z3),as.numeric(multi$z3),multi$zs1)
+multi$zs1<-ifelse(is.na(multi$z1)&!is.na(multi$z4),as.numeric(multi$z4),multi$zs1)
+
+multi$zs2<-NA
+multi$zs2<-ifelse(!is.na(multi$z1)&!is.na(multi$z2),as.numeric(multi$z2),as.numeric(multi$zs2))
+multi$zs2<-ifelse(is.na(multi$zs2)&(!is.na(multi$z1)|!is.na(multi$z2))&!is.na(multi$z3),as.numeric(multi$z3),multi$zs2)
+multi$zs2<-ifelse(is.na(multi$zs2)&(!is.na(multi$z1)|!is.na(multi$z2)|!is.na(multi$z3))&(!is.na(multi$z4)),as.numeric(multi$z4),multi$zs2)
+
+table(multi$measure1,multi$measure2)
+
+multi$cendiff<-multi$cen2-multi$cen1
+multi$zdiff<-multi$zs2-multi$zs1
+multi$diffnorm<-(abs(50-multi$cen1)-abs(50-multi$cen2)) #if positive, marks a move towards the normal
+multi$diffznorm<-(abs(0-multi$zs1)-abs(0-multi$zs2)) #if positive, marks a move towards the normal
 attach(multi)
 multi$dir<-ifelse(multi$cendiff>0,1,0)
 table(multi$IsAccountRegistered)
@@ -227,7 +252,7 @@ attach(multi)
 
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
 multi$IsAccountRegistered<-as.factor((as.numeric(multi$IsAccountRegistered)))
-multi<-multi[!is.na(multi$Eth2)&!is.na(multi$AgeF)&!is.na(multi$imdquintile)&!is.na(multi$diffnorms)&!is.na(multi$cendiffs)&!is.na(multi$bmidecile)&!is.na(multi$IsAccountRegistered)&!is.na(multi$bmidecile)&!is.na(multi$Gender),]
+multi<-multi[!is.na(multi$Eth2)&!is.na(multi$AgeF)&!is.na(multi$imdquintile)&!is.na(multi$diffnorms)&!is.na(multi$cendiffs)&!is.na(multi$bmidecile)&!is.na(multi$IsAccountRegistered)&!is.na(multi$bmidecile)&!is.na(multi$Gender),c(2,8,21:40))]
 
 attach(multi)
 length(multi$ChildID)
