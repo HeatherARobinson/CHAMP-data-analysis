@@ -1,3 +1,5 @@
+#Gross weight category transition between first measurements of first and second recorded measurement year per child
+
 alldata<-read.table("LMStableedited.csv",header=TRUE, sep=",")
 length(alldata$ChildID)
 alldata<-subset(alldata,!is.na(alldata$BMI),)
