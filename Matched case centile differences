@@ -111,32 +111,32 @@ levels(Ethnicity2)[6]<-"4"
 levels(Ethnicity2)[6]<-"5"
 levels(Ethnicity2)[6:7]<-NA
 multiple$Eth2<-as.numeric(Ethnicity2)
-multiplea<-multiple[!is.na(multiple$Eth2),c(1, 43)]
+multiplea<-multiple[!is.na(multiple$Eth2),c(1, 44)]
 attach(multiple)
 multiple<-with(multiple, multiple[order(ChildID),])
 
 multiple$ChildID<-as.factor(multiple$ChildID)
 multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
 multiplebase<-multiple[,c(1,12)]
-multiple1<-multiple[!is.na(multiple$cent1),c(1, 31)]
-multiple2<-multiple[!is.na(multiple$cent2),c(1, 32)]
-multiple3<-multiple[!is.na(multiple$cent3),c(1, 33)]
-multiple4<-multiple[!is.na(multiple$cent4),c(1, 34)]
+multiple1<-multiple[!is.na(multiple$cent1),c(1, 32)]
+multiple2<-multiple[!is.na(multiple$cent2),c(1, 33)]
+multiple3<-multiple[!is.na(multiple$cent3),c(1, 34)]
+multiple4<-multiple[!is.na(multiple$cent4),c(1, 35)]
 multiple5<-multiple[c(1, 10)]
 library(plyr)
 
-multiple6<-multiple[!is.na(multiple$d1),c(1, 35)]
-multiple7<-multiple[!is.na(multiple$d2),c(1, 36)]
-multiple8<-multiple[!is.na(multiple$d3),c(1, 37)]
-multiple9<-multiple[!is.na(multiple$d4),c(1, 38)]
-multiple10<-multiple[!is.na(multiple$weightcat1),c(1, 27)]
-multiple11<-multiple[!is.na(multiple$weightcat2),c(1, 28)]
-multiple12<-multiple[!is.na(multiple$weightcat3),c(1, 29)]
-multiple13<-multiple[!is.na(multiple$weightcat4),c(1, 30)]
-multiple14<-multiple[!is.na(multiple$z1),c(1, 39)]
-multiple15<-multiple[!is.na(multiple$z2),c(1, 40)]
-multiple16<-multiple[!is.na(multiple$z3),c(1, 41)]
-multiple17<-multiple[!is.na(multiple$z4),c(1, 42)]
+multiple6<-multiple[!is.na(multiple$d1),c(1, 36)]
+multiple7<-multiple[!is.na(multiple$d2),c(1, 37)]
+multiple8<-multiple[!is.na(multiple$d3),c(1, 38)]
+multiple9<-multiple[!is.na(multiple$d4),c(1, 39)]
+multiple10<-multiple[!is.na(multiple$weightcat1),c(1, 28)]
+multiple11<-multiple[!is.na(multiple$weightcat2),c(1, 29)]
+multiple12<-multiple[!is.na(multiple$weightcat3),c(1, 30)]
+multiple13<-multiple[!is.na(multiple$weightcat4),c(1, 31)]
+multiple14<-multiple[!is.na(multiple$z1),c(1, 40)]
+multiple15<-multiple[!is.na(multiple$z2),c(1, 41)]
+multiple16<-multiple[!is.na(multiple$z3),c(1, 42)]
+multiple17<-multiple[!is.na(multiple$z4),c(1, 43)]
 multiple$ageattestyr<-difftime(multiple$AssessmentDate,multiple$DateOfBirth,unit="weeks")/52.12
 multiple$ageattestyr<-as.integer(floor(multiple$ageattestyr))
 attach(multiple)
@@ -269,7 +269,7 @@ obese<-multi[multi$cen1>=97.725,]
 #MATCH CASES AND CONTROLS
 ##############################################
 library(MatchIt)#missing data cause failure even if they are in fields not included in the matching terms
-set.seed(4321)
+set.seed(1234)
 
 match.ov<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=over, method="exact", ratio=2)
 match.ob<- matchit(IsAccountRegistered~AgeF+Gender+Eth2+imdquintile,data=obese, method="exact", ratio=2)
@@ -341,3 +341,10 @@ median(obno$diffnorms)
 median(obyes$diffnorms)
 median(normyes$diffnorms)
 median(normno$diffnorms)
+
+median(ovyes$zdiffs)
+median(ovno$zdiffs)
+median(obno$zdiffs)
+median(obyes$zdiffs)
+median(normyes$zdiffs)
+median(normno$zdiffs)
