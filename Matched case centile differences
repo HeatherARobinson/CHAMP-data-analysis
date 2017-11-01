@@ -111,24 +111,21 @@ names(Recs)[names(Recs)=="Category"] <- "ChildID"
 Recs2<-Recs[Recs$NoRecs>1,]
 multiple<-alldata[alldata$ChildID %in% Recs2$ChildID,] #children measured more than once
 length(unique(multiple$ChildID)) #34768 children
-
 Ethnicity2<-multiple$Ethnicity
 levels(Ethnicity2)[1:3]<-"1" #white
 levels(Ethnicity2)[10:12]<-"2" #black
 levels(Ethnicity2)[2:3]<-"3" #mixed black and white ethnicities
-levels(Ethnicity2)[3]<-"4" #asian
-levels(Ethnicity2)[4]<-"5" #other
-levels(Ethnicity2)[5:8]<-"4"
-levels(Ethnicity2)[6]<-"4"
-levels(Ethnicity2)[6]<-"5"
-levels(Ethnicity2)[6:7]<-NA
-multiple$Eth2<-as.numeric(Ethnicity2)
+levels(Ethnicity2)[c(5:8,10)]<-"4" #asian
+levels(Ethnicity2)[c(3:4,7)]<-"5" #other
+levels(Ethnicity2)
+multiple$Eth2<-Ethnicity2
+
 multiplea<-multiple[!is.na(multiple$Eth2),c(1, 44)]
 attach(multiple)
 multiple<-with(multiple, multiple[order(ChildID),])
 
 multiple$ChildID<-as.factor(multiple$ChildID)
-multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
+multiple$IsAccountRegistered<-as.factor(as.numeric(multiple$IsAccountRegistered)+1)
 multiplebase<-multiple[,c(1,12)]
 multiple1<-multiple[!is.na(multiple$cent1),c(1, 32)]
 multiple2<-multiple[!is.na(multiple$cent2),c(1, 33)]
