@@ -125,7 +125,8 @@ attach(multiple)
 multiple<-with(multiple, multiple[order(ChildID),])
 
 multiple$ChildID<-as.factor(multiple$ChildID)
-multiple$IsAccountRegistered<-as.factor(as.numeric(multiple$IsAccountRegistered)+1)
+multiple$IsAccountRegistered<-as.numeric(multiple$IsAccountRegistered)-1
+names(multiple)
 multiplebase<-multiple[,c(1,12)]
 multiple1<-multiple[!is.na(multiple$cent1),c(1, 32)]
 multiple2<-multiple[!is.na(multiple$cent2),c(1, 33)]
@@ -146,8 +147,6 @@ multiple14<-multiple[!is.na(multiple$z1),c(1, 40)]
 multiple15<-multiple[!is.na(multiple$z2),c(1, 41)]
 multiple16<-multiple[!is.na(multiple$z3),c(1, 42)]
 multiple17<-multiple[!is.na(multiple$z4),c(1, 43)]
-multiple$ageattestyr<-difftime(multiple$AssessmentDate,multiple$DateOfBirth,unit="weeks")/52.12
-multiple$ageattestyr<-as.integer(floor(multiple$ageattestyr))
 attach(multiple)
 multiple18<-aggregate(multiple$ageattestyr,by=list(multiple$ChildID),FUN=min)
 colnames(multiple18)<- c("ChildID","AgeF")
@@ -183,24 +182,26 @@ multi<-multi2
 save(multi,file="multi.rda")
 ###############################################
 
-#CALCULATE CEN DIFF BETWEEN FIRST AND LAST MEASUREMENTS
+#CALCULATE WEIGHT CATEGORY TRANSITIONS BETWEEN FIRST AND LAST MEASUREMENTS
 
-length(multi$ChildID)#34783
+length(multi$ChildID)#34713
 attach(multi)
 
 multi$measure1<-as.numeric(multi$weightcat1)
 multi$measure1<-ifelse(is.na(multi$measure1)&!is.na(multi$weightcat2),as.numeric(multi$weightcat2),multi$measure1)
 multi$measure1<-ifelse(is.na(multi$measure1)&!is.na(multi$weightcat3),as.numeric(multi$weightcat3),multi$measure1)
 multi$measure1<-ifelse(is.na(multi$measure1)&!is.na(multi$weightcat4),paste(multi$weightcat4),multi$measure1)
+table(multi$measure1)
 
 multi$measure2<-NA
 multi$measure2<-ifelse(!is.na(multi$weightcat1)&!is.na(multi$weightcat2),as.numeric(multi$weightcat2),multi$measure2)
 multi$measure2<-ifelse(is.na(multi$measure2)&(!is.na(multi$weightcat1)|!is.na(multi$weightcat2))&(!is.na(multi$weightcat3)),as.numeric(multi$weightcat3),multi$measure2)
 multi$measure2<-ifelse(is.na(multi$measure2)&(!is.na(multi$weightcat1)|!is.na(multi$weightcat2)|!is.na(multi$weightcat3))&(!is.na(multi$weightcat4)),as.numeric(multi$weightcat4),multi$measure2)
+table(multi$measure2)
 
-multi$measure1<-as.numeric(measure1)
-multi$measure2<-as.numeric(measure2)
 table(multi$measure1,multi$measure2)
+
+#CALCULATE CENTILE DIFFERENCES BETWEEN FIRST AND LAST MEASUREMENTS
 
 multi$cen1<-as.numeric(multi$cent1)
 multi$cen1<-ifelse(is.na(multi$cent1)&!is.na(multi$cent2),as.numeric(multi$cent2),multi$cen1)
