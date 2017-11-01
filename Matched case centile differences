@@ -213,6 +213,8 @@ multi$cen2<-ifelse(!is.na(multi$cent1)&!is.na(multi$cent2),as.numeric(multi$cent
 multi$cen2<-ifelse(is.na(multi$cen2)&(!is.na(multi$cent1)|!is.na(multi$cent2))&!is.na(multi$cent3),as.numeric(multi$cent3),multi$cen2)
 multi$cen2<-ifelse(is.na(multi$cen2)&(!is.na(multi$cent1)|!is.na(multi$cent2)|!is.na(multi$cent3))&(!is.na(multi$cent4)),as.numeric(multi$cent4),multi$cen2)
 
+#CALCULATE Z SCORE DIFFERENCES BETWEEN MEASUREMENTS
+
 multi$zs1<-as.numeric(multi$z1)
 multi$zs1<-ifelse(is.na(multi$z1)&!is.na(multi$z2),as.numeric(multi$z2),multi$zs1)
 multi$zs1<-ifelse(is.na(multi$z1)&!is.na(multi$z3),as.numeric(multi$z3),multi$zs1)
@@ -229,7 +231,7 @@ multi$ds1<-ifelse(is.na(multi$d1)&!is.na(multi$d3),as.numeric(multi$d3),multi$ds
 multi$ds1<-ifelse(is.na(multi$d1)&!is.na(multi$d4),as.numeric(multi$d4),multi$ds1)
 
 multi$ds2<-NA
-multi$ds2<-ifelse(!is.na(multi$d1)&!is.na(multi$d2),as.numeric(multi$dz2),as.numeric(multi$ds2))
+multi$ds2<-ifelse(!is.na(multi$d1)&!is.na(multi$d2),as.numeric(multi$d2),as.numeric(multi$ds2))
 multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2))&!is.na(multi$d3),as.numeric(multi$d3),multi$ds2)
 multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2)|!is.na(multi$d3))&(!is.na(multi$d4)),as.numeric(multi$d4),multi$ds2)
 
