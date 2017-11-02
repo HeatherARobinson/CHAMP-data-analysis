@@ -119,7 +119,7 @@ levels(Ethnicity2)[c(5:8,10)]<-"4" #asian
 levels(Ethnicity2)[c(3:4,7)]<-"5" #other
 levels(Ethnicity2)[c(6:7)]<-NA
 levels(Ethnicity2)
-multiple$Eth2<-Ethnicity2
+multiple$Eth2<-as.numeric(as.character(Ethnicity2))
 
 multiplea<-multiple[!is.na(multiple$Eth2),c(1, 44)]
 attach(multiple)
@@ -205,9 +205,9 @@ table(multi$measure1,multi$measure2)
 #CALCULATE CENTILE DIFFERENCES BETWEEN FIRST AND LAST MEASUREMENTS
 
 multi$cen1<-as.numeric(multi$cent1)
-multi$cen1<-ifelse(is.na(multi$cent1)&!is.na(multi$cent2),as.numeric(multi$cent2),multi$cen1)
-multi$cen1<-ifelse(is.na(multi$cent1)&!is.na(multi$cent3),as.numeric(multi$cent3),multi$cen1)
-multi$cen1<-ifelse(is.na(multi$cent1)&!is.na(multi$cent4),as.numeric(multi$cent4),multi$cen1)
+multi$cen1<-ifelse(is.na(multi$cen1)&!is.na(multi$cent2),as.numeric(multi$cent2),multi$cen1)
+multi$cen1<-ifelse(is.na(multi$cen1)&!is.na(multi$cent3),as.numeric(multi$cent3),multi$cen1)
+multi$cen1<-ifelse(is.na(multi$cen1)&!is.na(multi$cent4),as.numeric(multi$cent4),multi$cen1)
 
 multi$cen2<-NA
 multi$cen2<-ifelse(!is.na(multi$cent1)&!is.na(multi$cent2),as.numeric(multi$cent2),as.numeric(multi$cen2))
@@ -235,27 +235,34 @@ multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d4),as.numeric(multi$d4),as.nume
 
 multi$ds2<-NA
 multi$ds2<-ifelse(!is.na(multi$d1)&!is.na(multi$d2),as.numeric(multi$d2),as.numeric(multi$ds2))
-multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2))&!is.na(multi$d3),as.numeric(multi$d3),as.numeric9multi$ds2))
+multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2))&!is.na(multi$d3),as.numeric(multi$d3),as.numeric(multi$ds2))
 multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2)|!is.na(multi$d3))&(!is.na(multi$d4)),as.numeric(multi$d4),as.numeric(multi$ds2))
 
 multi$cendiff<-multi$cen2-multi$cen1
-multi$zdiff<-multi$zs2-multi$zs1
-multi$diffznorm<-(abs(0-multi$zs1)-abs(0-multi$zs2)) #if positive, marks a move towards the normal
-attach(multi)
-multi$dir<-ifelse(multi$cendiff>0,1,0)
-table(multi$IsAccountRegistered)
 days<-as.numeric(multi$ds2)-as.numeric(multi$ds1)
 multi$cendiffs<-multi$cendiff/days*365.25
+
+multi$zdiff<-multi$zs2-multi$zs1
 multi$zdiffs<-multi$zdiff/days*365.25
-multi$diffnorms<-abs(as.numeric(multi$cen1)-50)-abs(as.numeric(multi$cen2)-50) #if positive, marks a move towards the normal
+
+multi$diffnorm<-abs(as.numeric(multi$cen1)-50)-abs(as.numeric(multi$cen2)-50) #if positive, marks a move towards the normal
+multi$diffznorm<-(abs(0-multi$zs1)-abs(0-multi$zs2)) #if positive, marks a move towards the normal
+attach(multi)
+
+multi$dir<-ifelse(multi$cendiff>0,1,0)
+multi$dirz<-ifelse(multi$zdiff>0,1,0)
+
+table(multi$IsAccountRegistered)
+
 multi<-multi[multi$cen1>=2.275,]
 multi$bmidecile<-findInterval(multi$cen1,c(10,20,30,40,50,60,70,80,90))
 multi$cat1<-findInterval(multi$cen1,c(10,20,30,40,50,60,70,80,90))
 multi$cat2<-findInterval(multi$cen1,c(10,20,30,40,50,60,70,80,90))
 multi$imdquintile<-findInterval(multi$PostcodeDecile,c(0,2,4,6,8,10))
+multi$AgeF<-floor(multi$AgeF)
 attach(multi)
 
-multi<-multi[,c(2:4,9,22:42)]
+multi<-multi[,c(2,4,9,22:43)]
 attach(multi)
 
 #BREAKPOINT
@@ -266,15 +273,13 @@ attach(multi)
 
 #CREATE SUBSETS BY BMI CATEGORY USING CLINICAL THRESHOLDS
 multi$IsAccountRegistered<-as.factor((as.numeric(multi$IsAccountRegistered)))
-multi<-multi[!is.na(multi$Eth2)&!is.na(multi$AgeF)&!is.na(multi$imdquintile)&!is.na(multi$diffnorm)&
-!is.na(multi$diffznorm)&!is.na(multi$cendiffs)&!is.na(multi$IsAccountRegistered)&
-!is.na(multi$bmidecile)&!is.na(multi$Gender),]
+multi<-multi[!is.na(multi$Eth2)&!is.na(multi$imdquintile),]
 
 attach(multi)
 length(multi$ChildID)
 
 save(multi,file="multiformatching.rda")
-
+summary(multi$ds2-multi$ds1)
 over<-multi[multi$cen1>=90.879&multi$cen1<97.725,]
 normal<-multi[multi$cen1>=2.275&multi$cen1<90.879,]
 obese<-multi[multi$cen1>=97.725,]
