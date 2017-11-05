@@ -246,6 +246,7 @@ multi$zdiff<-multi$zs2-multi$zs1
 multi$zdiffs<-multi$zdiff/days*365.25
 
 multi$diffnorm<-abs(as.numeric(multi$cen1)-50)-abs(as.numeric(multi$cen2)-50) #if positive, marks a move towards the normal
+multi$diffnorms<-multi$diffnorm/days*365.25
 multi$diffznorm<-(abs(0-multi$zs1)-abs(0-multi$zs2)) #if positive, marks a move towards the normal
 attach(multi)
 
@@ -262,7 +263,7 @@ multi$imdquintile<-findInterval(multi$PostcodeDecile,c(0,2,4,6,8,10))
 multi$AgeF<-floor(multi$AgeF)
 attach(multi)
 
-multi<-multi[,c(2,4,9,22:43)]
+multi<-multi[,c(2,4,9,22:44)]
 attach(multi)
 
 #BREAKPOINT
