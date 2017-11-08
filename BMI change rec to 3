@@ -101,10 +101,12 @@ recand3<-which(alldata$ChildID %in% fourdata$ChildID & alldata$ChildID %in% thrd
 thrand6<-which(alldata$ChildID %in% thrdata$ChildID & alldata$ChildID %in% sixdata$ChildID)
 
 firstpair<-alldata[recand3,]
-firstpair<- firstpair[ c(1, 36, 39) ]
-firstpair<-aggregate(firstpair, by=list(Category=firstpair$ChildID), FUN=max,na.rm=TRUE)
+firstpair<- firstpair[ c("ChildID", "weightcatr", "weightcat3") ]
+firstpair<-aggregate(firstpair, by=list(firstpair$ChildID), FUN=mean,na.rm=TRUE)
 
 secpair<-alldata[thrand6,]
+secpair<- secpair[ c("ChildID", "weightcat3", "weightcat6") ]
+secpair<-aggregate(secpair, by=list(secpair$ChildID), FUN=mean,na.rm=TRUE)
 
 
 
