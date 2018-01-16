@@ -1,12 +1,12 @@
 #RUN FILE "Initial data setup"
 
 #CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
-alldata <- alldata[order(AssessmentDate),] 
-d<-duplicated(alldata[,c("ChildID","AcademicYear")],fromLast=FALSE)
-table(d)
+#alldata <- alldata[order(AssessmentDate),] 
+#d<-duplicated(alldata[,c("ChildID","AcademicYear")],fromLast=FALSE)
+#table(d)
 # (~3% of children) have multiple measurements within a year
-head(alldata[d,],n=10)
-alldata<-alldata[!d,]
+#head(alldata[d,],n=10)
+#alldata<-alldata[!d,]
 
 #DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
 alldata$weightcat<-1#normal
@@ -18,11 +18,11 @@ alldata$weightcat<-ifelse(alldata$Centile_BMI>=99.617,5,alldata$weightcat)#sever
 table(alldata$weightcat)
 alldata$NoRecords<-1
 attach(alldata)
-champ2<-alldata[duplicated(alldata$ChildID),] #SELECT CHILDREN WITH MULTIPLE MEASUREMENTS
+
 ###################################################################################################
 
 #FOR COMPARING FIRST AND LAST MEASUREMENTS
-
+champ2<-alldata
 #Print end BMI (not selecting for first measurement of each year)
 #Print end weightcat (not selecting for first measurement of each year)
 library(dplyr)
@@ -47,5 +47,10 @@ champ2<-champ2[,c(1,10,20:27)]
 champ2<-unique(champ2)
 champ2$span<-difftime(champ2$endDate,champ2$startDate,units="days")
 champ2$span<-as.numeric(champ2$span,units="days")
+champ2<-champ2[champ2$span>0,]
+champ2<-unique(champ2)
+length(unique(champ2$ChildID))
 
 #####################################################################################################
+
+
