@@ -52,5 +52,7 @@ champ2<-unique(champ2)
 length(unique(champ2$ChildID))
 
 #####################################################################################################
+champ2$centdiff<-champ2$endCentile-champ2$startCentile
+champ2$anncent<-champ2$centdiff/champ2$span*365.25
 
 
