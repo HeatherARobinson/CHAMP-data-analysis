@@ -1,0 +1,86 @@
+#RUN FILE "Initial data setup"
+
+#RECODE ETHNICITY TO ONS SUGGESTED SIMPLIFIED CATEGORIES
+Ethnicity2<-Ethnicity
+levels(Ethnicity2)
+levels(Ethnicity2)[1:3]<-"White"
+levels(Ethnicity2)
+levels(Ethnicity2)[2:3]<-"Mixed black"
+levels(Ethnicity2)
+levels(Ethnicity2)[10:11]<-"Black"
+levels(Ethnicity2)
+levels(Ethnicity2)[3]<-"Asian"
+levels(Ethnicity2)
+levels(Ethnicity2)[5:8]<-"Asian"
+levels(Ethnicity2)
+levels(Ethnicity2)[7]<-"Asian"
+levels(Ethnicity2)
+levels(Ethnicity2)[5]<-"Black"
+levels(Ethnicity2)
+levels(Ethnicity2)[4]<-"other"
+levels(Ethnicity2)[6]<-"other"
+
+#CLASSIFY CHILDREN BY WEIGHT STATUS
+
+#CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
+alldata <- alldata[order(AssessmentDate),] 
+d<-duplicated(alldata[,c("ChildID","AcademicYear")],fromLast=FALSE)
+table(d)
+# (~3% of children) have multiple measurements within a year
+head(alldata[d,],n=10)
+alldata<-alldata[!d,]
+
+#DRAW IN BMI THRESHOLD TO WORK OUT CENTILES FOR OVERWEIGHT, OBESE, SEVERELY OBESE
+alldata$weightcat<-1#normal
+alldata$weightcat<-ifelse(alldata$Centile_BMI>=90.879,2,alldata$weightcat)#overweight
+alldata$weightcat<-ifelse(alldata$Centile_BMI>=97.725,3,alldata$weightcat)#obese
+alldata$weightcat<-ifelse(alldata$Centile_BMI<2.275,4,alldata$weightcat)#underweight
+alldata$weightcat<-ifelse(alldata$Centile_BMI>=99.617,5,alldata$weightcat)#severe
+
+table(alldata$weightcat)
+alldata$NoRecords<-1
+attach(alldata)
+champ2<-alldata[duplicated(alldata$ChildID),] #SELECT CHILDREN WITH MULTIPLE MEASUREMENTS
+###################################################################################################
+
+#FOR COMPARING FIRST AND LAST MEASUREMENTS
+
+#Print end BMI (not selecting for first measurement of each year)
+#Print end weightcat (not selecting for first measurement of each year)
+library(dplyr)
+d<-champ2[,c("ChildID","BMI","Centile_BMI","weightcat","AssessmentDate")] 
+b<-d%>%
+group_by(ChildID) %>%
+summarise(enddate=max(AssessmentDate)) %>%
+data.frame()
+b<-b[b$AssessmentDate==b$enddate,]
+
+b<-merge(b,d,all.x=TRUE,all.y=FALSE)
+head(b)
+b<-b[b$enddate==b$AssessmentDate,]
+b<-unique(b)
+library(plyr)
+b<-rename(b, c("ChildID"="ChildID","enddate"="enddate","AssessmentDate"="AssessmentDate","BMI"="endBMI", "Centile_BMI"="endCentile", "weightcat"="endweightcat"))
+b<-b[,c(1:5)]
+champ2<-merge(champ2,b)
+
+#Print start BMI (not selecting for first measurement of each year)
+#Print start weightcat (not selecting for first measurement of each year)
+library(dplyr)
+b<-d%>%
+group_by(ChildID) %>%
+summarise(startdate=min(AssessmentDate)) %>%
+data.frame()
+b<-b[b$AssessmentDate==b$startdate,]
+
+b<-merge(b,d,all.x=TRUE,all.y=FALSE)
+head(b)
+b<-b[b$startdate==b$AssessmentDate,]
+b<-unique(b)
+library(plyr)
+b<-rename(b, c("ChildID"="ChildID","startdate"="startdate","AssessmentDate"="AssessmentDate","BMI"="startBMI", "Centile_BMI"="startCentile", "weightcat"="startweightcat"))
+b<-b[,c(1:5)]
+b<-b[unique(b$ChildID),]
+champ2<-merge(champ2,b)
+
+#####################################################################################################
