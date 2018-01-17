@@ -1,0 +1,3 @@
+alldata$Obese<-ifelse(alldata$weightcat==3|alldata$weightcat==5,1,0)
+regtable<-table(alldata$IsAccountRegistered, alldata$Obese)
+chisq.test(regtable)
