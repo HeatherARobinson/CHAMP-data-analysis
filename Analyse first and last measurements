@@ -1,4 +1,4 @@
-#RUN FILE "Initial data setup"
+#RUN FILE "Initial data cleaning"
 
 #CHOOSE FIRST WEIGHT CATEGORY RECORDED PER YEAR WHERE THERE ARE MULTIPLE MEASUREMENTS WITHIN A YEAR
 #alldata <- alldata[order(AssessmentDate),] 
@@ -29,9 +29,9 @@ library(dplyr)
 d<-champ2[,c("ChildID","BMI","Centile_BMI","weightcat","AssessmentDate")] 
 b<-d%>%
 group_by(ChildID) %>%
-slice(which.max(AssessmentDate)) %>%
+slice(which.min(AssessmentDate)) %>%
 data.frame()
-b<-rename(b, c("ChildID"="ChildID","AssessmentDate"="endDate","BMI"="endBMI", "Centile_BMI"="endCentile", "weightcat"="endweightcat"))
+colnames(b) <- c("ChildID","startBMI","startCentile","startcat","startDate")
 champ2<-merge(champ2,b)
 
 #Print start BMI (not selecting for first measurement of each year)
@@ -39,11 +39,12 @@ champ2<-merge(champ2,b)
 
 b2<-d%>%
 group_by(ChildID) %>%
-slice(which.min(AssessmentDate)) %>%
+slice(which.max(AssessmentDate)) %>%
 data.frame()
-b2<-rename(b2, c("ChildID"="ChildID","AssessmentDate"="startDate","BMI"="startBMI", "Centile_BMI"="startCentile", "weightcat"="startweightcat"))
+colnames(b2) <- c("ChildID","endBMI","endCentile","endcat","endDate")
+
 champ2<-merge(champ2,b2)
-champ2<-champ2[,c(1,10,20:27)]
+champ2<-champ2[,c(1,6,10,20:27)]
 champ2<-unique(champ2)
 champ2$span<-difftime(champ2$endDate,champ2$startDate,units="days")
 champ2$span<-as.numeric(champ2$span,units="days")
@@ -52,7 +53,9 @@ champ2<-unique(champ2)
 length(unique(champ2$ChildID))
 
 #####################################################################################################
-champ2$centdiff<-champ2$endCentile-champ2$startCentile
+champ2$centdiff<-champ2$startCentile-champ2$endCentile
 champ2$anncent<-champ2$centdiff/champ2$span*365.25
 
+t.test(champ2$span ~ champ2$IsAccountRegistered, data = champ2)
+t.test(champ2$anncent ~ champ2$IsAccountRegistered, data = champ2)
 
