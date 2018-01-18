@@ -58,4 +58,15 @@ champ2$anncent<-champ2$centdiff/champ2$span*365.25
 
 t.test(champ2$span ~ champ2$IsAccountRegistered, data = champ2)
 t.test(champ2$anncent ~ champ2$IsAccountRegistered, data = champ2)
+library(data.table)
+alldata$VAR1<-1
+setDT(alldata)[VAR1==1, count.2:=1:.N, by=ChildID][]
+c<-alldata%>%
+group_by(ChildID) %>%
+slice(which.max(count.2)) %>%
+data.frame()
+
+t.test(c$count.2 ~ c$IsAccountRegistered, data = c)
+mean(c$count.2[c$IsAccountRegistered==1])
+mean(c$count.2[c$IsAccountRegistered==0])
 
