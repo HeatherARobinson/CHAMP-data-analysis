@@ -182,7 +182,7 @@ c1<-ifelse(is.na(c1)&!is.na(cent3),paste(cent3),c1)
 c1<-ifelse(is.na(c1)&!is.na(cent4),paste(cent4),c1)
 
 c2<-ifelse(!is.na(cent1)&!is.na(cent2),paste(cent2),NA)
-c2<-ifelse(is.na(c2)&!is.na(cent3)) & (!is.na(cent2)|!is.na(cent1)),paste(cent3),c2)
+c2<-ifelse(is.na(c2)&!is.na(cent3) & (!is.na(cent2)|!is.na(cent1)),paste(cent3),c2)
 c2<-ifelse(is.na(c2)&!is.na(cent4),paste(cent4),c2)
 
 multi$ds1<-as.numeric(multi$d1)
