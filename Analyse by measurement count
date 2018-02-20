@@ -121,6 +121,16 @@ multiple11<-multipleb[!is.na(multipleb$d2),c(1, 36)]
 multiple12<-multipleb[!is.na(multipleb$d3),c(1, 37)]
 multiple13<-multipleb[!is.na(multipleb$d4),c(1, 38)]
 
+multiple14<-multipleb[!is.na(multipleb$BMI1),c(1, 23)]
+multiple15<-multipleb[!is.na(multipleb$BMI2),c(1, 24)]
+multiple16<-multipleb[!is.na(multipleb$BMI3),c(1,25)]
+multiple17<-multipleb[!is.na(multipleb$BMI4),c(1, 26)]
+
+multiple18<-multipleb[!is.na(multipleb$cent1),c(1, 31)]
+multiple19<-multipleb[!is.na(multipleb$cent2),c(1, 32)]
+multiple20<-multipleb[!is.na(multipleb$cent3),c(1,33)]
+multiple21<-multipleb[!is.na(multipleb$cent4),c(1, 34)]
+
 multi<-merge(multiplebase,multiple1,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple2,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple3,by="ChildID",all.x=TRUE)
@@ -130,6 +140,16 @@ multi<-merge(multi,multiple10,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple11,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple12,by="ChildID",all.x=TRUE)
 multi<-merge(multi,multiple13,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple14,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple15,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple16,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple17,by="ChildID",all.x=TRUE)
+
+
+multi<-merge(multi,multiple18,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple19,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple20,by="ChildID",all.x=TRUE)
+multi<-merge(multi,multiple21,by="ChildID",all.x=TRUE)
 
 multi2<-aggregate(multi,by=list(multi$ChildID),FUN=mean)
 multi2$ChildID<-multi2$Group.1
@@ -143,23 +163,59 @@ measure1<-ifelse(is.na(measure1)&!is.na(weightcat2),paste(weightcat2),measure1)
 measure1<-ifelse(is.na(measure1)&!is.na(weightcat3),paste(weightcat3),measure1)
 measure1<-ifelse(is.na(measure1)&!is.na(weightcat4),paste(weightcat4),measure1)
 
-measure2<-as.numeric(weightcat1)
-measure2<-ifelse(!is.na(weightcat1)&!is.na(weightcat2),(weightcat2),measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(weightcat1)|!is.na(weightcat2))&(!is.na(weightcat3)),paste(weightcat3),measure2)
-measure2<-ifelse(is.na(measure2)&(!is.na(weightcat1)|!is.na(weightcat2)|!is.na(weightcat3))&(!is.na(weightcat4)),paste(weightcat4),measure2)
+measure2<-ifelse(!is.na(weightcat1)&!is.na(weightcat2),(weightcat2),NA)
+measure2<-ifelse(is.na(measure2)&(!is.na(weightcat3)) & (!is.na(weightcat2)|!is.na(weightcat1)),paste(weightcat3),measure2)
+measure2<-ifelse(is.na(measure2)&!is.na(weightcat4),paste(weightcat4),measure2)
+
+BMIm1<-as.numeric(BMI1)
+BMIm1<-ifelse(is.na(BMIm1)&!is.na(BMI2),paste(BMI2),BMIm1)
+BMIm1<-ifelse(is.na(BMIm1)&!is.na(BMI3),paste(BMI3),BMIm1)
+BMIm1<-ifelse(is.na(BMIm1)&!is.na(BMI4),paste(BMI4),BMIm1)
+
+BMIm2<-ifelse(!is.na(BMI1)&!is.na(BMI2),paste(BMI2),NA)
+BMIm2<-ifelse(is.na(BMIm2)&(!is.na(BMI3)) & (!is.na(BMI2)|!is.na(BMI1)),paste(BMI3),BMIm2)
+BMIm2<-ifelse(is.na(BMIm2)&!is.na(BMI4),paste(BMI4),BMIm2)
+
+c1<-as.numeric(cent1)
+c1<-ifelse(is.na(cent1)&!is.na(cent2),paste(cent2),c1)
+c1<-ifelse(is.na(c1)&!is.na(cent3),paste(cent3),c1)
+c1<-ifelse(is.na(c1)&!is.na(cent4),paste(cent4),c1)
+
+c2<-ifelse(!is.na(cent1)&!is.na(cent2),paste(cent2),NA)
+c2<-ifelse(is.na(c2)&!is.na(cent3)) & (!is.na(cent2)|!is.na(cent1)),paste(cent3),c2)
+c2<-ifelse(is.na(c2)&!is.na(cent4),paste(cent4),c2)
+
+multi$ds1<-as.numeric(multi$d1)
+multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d2),as.numeric(multi$d2),as.numeric(multi$ds1))
+multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d3),as.numeric(multi$d3),as.numeric(multi$ds1))
+multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d4),as.numeric(multi$d4),as.numeric(multi$ds1))
+
+multi$ds2<-NA
+multi$ds2<-ifelse(!is.na(multi$d1)&!is.na(multi$d2),as.numeric(multi$d2),as.numeric(multi$ds2))
+multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2))&!is.na(multi$d3),as.numeric(multi$d3),as.numeric(multi$ds2))
+multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2)|!is.na(multi$d3))&(!is.na(multi$d4)),as.numeric(multi$d4),as.numeric(multi$ds2))
 
 multi$measure1<-as.numeric(measure1)
 multi$measure2<-as.numeric(measure2)
-multi$cendiff<-multi$measure2-multi$measure1
+multi$B1<-as.numeric(BMIm1)
+multi$B2<-as.numeric(BMIm2)
+multi$c1<-as.numeric(c1)
+multi$c2<-as.numeric(c2)
+multi$cendiff<-multi$c2-multi$c1
 attach(multi)
-multi$dir<-ifelse(multi$cendiff>0,1,0)
-table(multi$IsAccountRegistered)
-table(multi$measure1)
-table(multi$measure2)
-attach(multi)
+multi$days<-as.numeric(multi$ds2)-as.numeric(multi$ds1)
+multi$cendiffs<-(multi$cendiff/multi$days)*365.25
+
+summary(multi$cendiffs[multi$IsAccountRegistered==2])
+summary(multi$cendiffs[multi$IsAccountRegistered==1])
 
 yes<-multi[multi$IsAccountRegistered==2,]
 no<-multi[multi$IsAccountRegistered==1,]
 table(yes$measure1,yes$measure2)
 table(no$measure1,no$measure2)
+
+#Select starting data for each child:
+alldata<-alldata[alldata$ChildID %in% multi$ChildID,]
+alldata<-alldata[order(AcademicYear),]
+alldata<-alldata[!duplicated(alldata$ChildID),]
 
