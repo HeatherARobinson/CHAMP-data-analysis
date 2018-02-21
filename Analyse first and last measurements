@@ -70,3 +70,7 @@ t.test(c$count.2 ~ c$IsAccountRegistered, data = c)
 mean(c$count.2[c$IsAccountRegistered==1])
 mean(c$count.2[c$IsAccountRegistered==0])
 
+tbl = table(alldata$IsAccountRegistered, alldata$Gender) 
+chisq.test(tbl) 
+
+wilcox.test(multi$days~multi$IsAccountRegistered,data=multi,paired=FALSE,correct=FALSE ,alternative ="greater")
