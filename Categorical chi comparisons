@@ -1,3 +1,38 @@
-alldata$Obese<-ifelse(alldata$weightcat==3|alldata$weightcat==5,1,0)
-regtable<-table(alldata$IsAccountRegistered, alldata$Obese)
+Ethnicity2<-alldata$Ethnicity
+levels(Ethnicity2)
+levels(Ethnicity2)[1:3]<-"White"
+levels(Ethnicity2)
+levels(Ethnicity2)[2:3]<-"Mixed black"
+levels(Ethnicity2)
+levels(Ethnicity2)[10:11]<-"Black"
+levels(Ethnicity2)
+levels(Ethnicity2)[3]<-"Asian"
+levels(Ethnicity2)
+levels(Ethnicity2)[5:8]<-"Asian"
+levels(Ethnicity2)
+levels(Ethnicity2)[7]<-"Asian"
+levels(Ethnicity2)
+levels(Ethnicity2)[5]<-"Black"
+levels(Ethnicity2)
+levels(Ethnicity2)[4]<-"other"
+levels(Ethnicity2)[6]<-"other"
+alldata$Ethnicity2<-Ethnicity2
+
+regtable<-table(alldata$IsAccountRegistered, alldata$Ethnicity2)
 chisq.test(regtable)
+
+regtable2<-table(alldata$IsAccountRegistered, alldata$PostcodeDecile)
+chisq.test(regtable2)
+
+table(multi$measure1)
+multi$measure1<-ifelse(multi$measure1==4,2,multi$measure1)
+multi$measure1<-as.character(multi$measure1)
+regtable3<-table(multi$IsAccountRegistered, multi$measure1)
+chisq.test(regtable3)
+
+#RUN THROUGH MULTI WITHOUT SELECTING MULTIPLE ENTRIES, THEN:
+table(multi$measure1)
+multi$measure1<-ifelse(multi$measure1==4,2,multi$measure1)
+multi$measure1<-as.character(multi$measure1)
+regtable3<-table(multi$IsAccountRegistered, multi$measure1)
+chisq.test(regtable3)
