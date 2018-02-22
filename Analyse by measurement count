@@ -56,6 +56,9 @@ champ2$weightcat<-ifelse(champ2$Centile_BMI<0.383,6,champ2$weightcat)#very under
 table(champ2$weightcat)
 champ2$NoRecords<-1
 alldata<-champ2
+champ2<-champ2[order(champ2$ageattest),]
+champ3<-champ2[match(unique(champ2$ChildID),champ2$ChildID),]
+summary(champ3$ageattest[champ3$IsAccountRegistered==0])/52.1429
 attach(alldata)
 
 #Assign academic year
