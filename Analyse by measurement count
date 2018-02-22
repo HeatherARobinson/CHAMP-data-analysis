@@ -191,14 +191,13 @@ c2<-ifelse(is.na(c2)&!is.na(cent3) & (!is.na(cent2)|!is.na(cent1)),paste(cent3),
 c2<-ifelse(is.na(c2)&!is.na(cent4),paste(cent4),c2)
 
 multi$ds1<-as.numeric(multi$d1)
-multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d2),as.numeric(multi$d2),as.numeric(multi$ds1))
+multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d2),multi$d2,multi$ds1)
 multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d3),as.numeric(multi$d3),as.numeric(multi$ds1))
 multi$ds1<-ifelse(is.na(multi$ds1)&!is.na(multi$d4),as.numeric(multi$d4),as.numeric(multi$ds1))
 
-multi$ds2<-NA
-multi$ds2<-ifelse(!is.na(multi$d1)&!is.na(multi$d2),as.numeric(multi$d2),as.numeric(multi$ds2))
-multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2))&!is.na(multi$d3),as.numeric(multi$d3),as.numeric(multi$ds2))
-multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2)|!is.na(multi$d3))&(!is.na(multi$d4)),as.numeric(multi$d4),as.numeric(multi$ds2))
+multi$ds2<-ifelse(!is.na(multi$d1)&!is.na(multi$d2),multi$d2,NA)
+multi$ds2<-ifelse(is.na(multi$ds2)&(!is.na(multi$d1)|!is.na(multi$d2)),multi$d3,multi$ds2)
+multi$ds2<-ifelse(is.na(multi$ds2),multi$d4,multi$ds2)
 
 multi$measure1<-as.numeric(measure1)
 multi$measure2<-as.numeric(measure2)
