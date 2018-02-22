@@ -330,6 +330,24 @@ matchd.no<- match.data(match.no,group="all", distance="distance",weights="weight
 matchd.ob<- match.data(match.ob,group="all", distance="distance",weights="weights", subclass="subclass")
 matchd.ov<- match.data(match.ov,group="all", distance="distance",weights="weights", subclass="subclass")
 
+matchd.ov$mov<-ifelse(matchd.ov$diffnorms<0,1,NA)
+matchd.ov$mov<-ifelse(matchd.ov$diffnorms==0,2,matchd.ov$mov)
+matchd.ov$mov<-ifelse(matchd.ov$diffnorms>0,3,matchd.ov$mov)
+ta<-table(matchd.ov$IsAccountRegistered,matchd.ov$mov)
+chisq.test(ta)
+
+matchd.ob$mov<-ifelse(matchd.ob$diffnorms<0,1,NA)
+matchd.ob$mov<-ifelse(matchd.ob$diffnorms==0,2,matchd.ov$mov)
+matchd.ob$mov<-ifelse(matchd.ob$diffnorms>0,3,matchd.ov$mov)
+tb<-table(matchd.ob$IsAccountRegistered,matchd.ob$mov)
+chisq.test(tb)
+
+matchd.no$mov<-ifelse(matchd.nob$diffnorms<0,1,NA)
+matchd.no$mov<-ifelse(matchd.no$diffnorms==0,2,matchd.no$mov)
+matchd.no$mov<-ifelse(matchd.no$diffnorms>0,3,matchd.no$mov)
+tc<-table(matchd.no$IsAccountRegistered,matchd.no$mov)
+chisq.test(tc)
+
 normno<-matchd.no[matchd.no$IsAccountRegistered==0,]
 normyes<-matchd.no[matchd.no$IsAccountRegistered==1,]
 
