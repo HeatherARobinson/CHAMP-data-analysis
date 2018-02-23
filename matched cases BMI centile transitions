@@ -342,11 +342,19 @@ matchd.ob$mov<-ifelse(matchd.ob$diffnorms>0,3,matchd.ov$mov)
 tb<-table(matchd.ob$IsAccountRegistered,matchd.ob$mov)
 chisq.test(tb)
 
-matchd.no$mov<-ifelse(matchd.nob$diffnorms<0,1,NA)
+matchd.no$mov<-ifelse(matchd.no$diffnorms<0,1,NA)
 matchd.no$mov<-ifelse(matchd.no$diffnorms==0,2,matchd.no$mov)
 matchd.no$mov<-ifelse(matchd.no$diffnorms>0,3,matchd.no$mov)
 tc<-table(matchd.no$IsAccountRegistered,matchd.no$mov)
 chisq.test(tc)
+
+matchd.no$stay<-ifelse(matchd.no$measure1==matchd.no$measure2,1,2)
+tc<-table(matchd.no$IsAccountRegistered,matchd.no$stay)
+chisq.test(tc)
+
+t.test(matchd.ov$cendiffs~matchd.ov$IsAccountRegistered)
+t.test(matchd.nov$cendiffs~matchd.no$IsAccountRegistered)
+t.test(matchd.ob$cendiffs~matchd.ob$IsAccountRegistered)
 
 normno<-matchd.no[matchd.no$IsAccountRegistered==0,]
 normyes<-matchd.no[matchd.no$IsAccountRegistered==1,]
