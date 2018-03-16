@@ -1,0 +1,48 @@
+attach(girlsA)
+a<-aggregate(girlsA$sums,list(girlsA$age),sum)
+b<-aggregate(girlsA$n,list(girlsA$age),sum)
+c<-merge(a,b,by="Group.1")
+c$BMI<-c$x.x/c$x.y
+c$gender<-"High tracking"
+dataB<-data[data$group=="B",]
+dataB$wts<-1/dataB$n
+attach(girlsB)
+d<-aggregate(girlsB$sums,list(girlsB$age),sum)
+e<-aggregate(girlsB$n,list(girlsB$age),sum)
+f<-merge(d,e,by="Group.1")
+f$BMI<-f$x.x/f$x.y
+f$gender<-"Low tracking"
+dataC<-data[data$group=="C",]
+dataC$wts<-1/dataC$n
+attach(girlsC)
+g<-aggregate(girlsC$sums,list(girlsC$age),sum)
+h<-aggregate(girlsC$n,list(girlsC$age),sum)
+i<-merge(g,h,by="Group.1")
+i$BMI<-i$x.x/i$x.y
+i$gender<-"Outlying"
+dataD<-data[data$group=="D",]
+dataD$wts<-1/dataD$n
+attach(girlsD)
+j<-aggregate(girlsD$sums,list(girlsD$age),sum)
+k<-aggregate(girlsD$n,list(girlsD$age),sum)
+l<-merge(j,k,by="Group.1")
+l$BMI<-l$x.x/l$x.y
+l$gender<-"WHO"
+dataE<-data[data$group=="E",]
+dataE$wts<-1/dataE$n
+attach(girlsE)
+m<-aggregate(girlsE$sums,list(girlsE$age),sum)
+n<-aggregate(girlsE$n,list(girlsE$age),sum)
+o<-merge(m,n,by="Group.1")
+o$BMI<-o$x.x/o$x.y
+o$gender<-"CDC"
+df<-rbind(c,f,i,l,o)
+df$std<-ifelse(df$gender=="CDC"|df$gender=="WHO",paste("std"),paste("not"))
+df$age<-df$Group.1
+attach(df)
+library(ggplot2)
+PL<-ggplot(df, aes(x=age, y=BMI, xlim(2,11),colour=gender, shape=gender,linetype=std)) +geom_smooth(se=TRUE)+
+  labs(x="Age (yrs)",y="BMI")+theme_bw()+scale_x_continuous(breaks = seq(1, 28, 0.5))+
+  scale_y_continuous(breaks = seq(14, 30, 0.4))+ theme(legend.title=element_blank())
+cbbPalette<-c("Black","Red","Blue","grey84","azure4")
+PL+scale_colour_manual(values=cbbPalette)
