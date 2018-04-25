@@ -1,10 +1,12 @@
+#The following creates GAMLSS fitted centile curves for BMI, height and weight from LMS smoothed data
+
 library(gamlss)
 library(VGAM)
 library(foreign)
+library(lubridate)
 
 setwd("c:/Users/mqbpjhr4/Documents")
 alldata<-read.table("LMStableedited.csv",header=TRUE, sep=",")
-length(alldata$ChildID)
 alldata<-subset(alldata,!is.na(alldata$BMI),)
 length(alldata$ChildID) #44 records removed
 alldata$ChildID<-as.factor(alldata$ChildID)
@@ -13,15 +15,11 @@ alldata$PostcodeDecile<-ceiling(alldata$PostcodeDecile)
 alldata<-alldata[floor(alldata$ageattest/52.12)<12&floor(alldata$ageattest/52.12)>3,]
 
 alldata2<-alldata[order(alldata$ChildID,alldata$AssessmentDate),]
-names(alldata2)
 d<-duplicated(alldata2[,c(1,4)])
-head(alldata2[d,],n=10)
-head(alldata2,n=20)
 alldata2<-alldata2[!d,]
 length(alldata$ChildID)-length(alldata2$ChildID) #134 duplicate entries removed
 alldata<-alldata2
 
-library(lubridate)
 alldata$DateOfBirth<-(as.Date(paste(alldata$DateOfBirth,"-01",sep="")))
 alldata$AssessmentDate<-as.Date(paste(alldata$AssessmentDate,"-01",sep=""))
 alldata$assyr<-year(as.POSIXlt(alldata$AssessmentDate, format="%Y-%m-%d"))
@@ -30,25 +28,54 @@ attach(alldata)
 alldata$ChildID<-as.factor(alldata$ChildID)
 alldata$SchoolCode<-as.factor(alldata$SchoolCode)
 alldata$IsAccountRegistered<-as.factor(alldata$IsAccountRegistered)
-
-
 alldata$ageattest<-as.integer(alldata$ageattest)
-alldata<-alldata[!alldata$AcademicYear=="2011/2012"&!alldata$AcademicYear=="2012/2013",]
+alldata<-alldata[!alldata$AcademicYear=="2011/2012"&!alldata$AcademicYear=="2012/2013",] #Insufficient data from these years
 alldata$AcademicYear <- droplevels(alldata$AcademicYear)
 
+#BMI centiles- girls
 girls<- subset(alldata, alldata$Gender == "F")[,c(9,13)]
 girls$ageattest<-floor(girls$ageattest/4.34524) #Age in months
 row.names(girls) <- NULL
-
 m1 <- lms(BMI,ageattest,data=girls, cent=c(3,10,25,50,75,90,97))
-girlscentiles<-centiles.pred(m1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
-write.csv(girlscentiles,file="girlslms.csv")
+girlsbmicentiles<-centiles.pred(m1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+write.csv(girlsbmicentiles,file="girlslmsbmi.csv")
 
+#Weight centiles
+girls2<- subset(alldata, alldata$Gender == "F")[,c(8,13)]
+girls2$ageattest<-floor(girls2$ageattest/4.34524) #Age in months
+row.names(girls2) <- NULL
+w1 <- lms(WeightKG,ageattest,data=girls2, cent=c(3,10,25,50,75,90,97))
+girlswcentiles<-centiles.pred(w1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+write.csv(girlswcentiles,file="girlslmsweight.csv
+
+#Height centiles
+girls3<- subset(alldata, alldata$Gender == "F")[,c(7,13)]
+girls3$ageattest<-floor(girls3$ageattest/4.34524) #Age in months
+row.names(girls3) <- NULL
+h1 <- lms(HeightCM,ageattest,data=girls3, cent=c(3,10,25,50,75,90,97))
+girlshcentiles<-centiles.pred(h1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+write.csv(girlshcentiles,file="girlslmsheight.csv")
+
+#BMI centiles- boys
 boys<- subset(alldata, alldata$Gender == "M")[,c(9,13)]
 boys$ageattest<-floor(boys$ageattest/4.34524)
 row.names(boys) <- NULL
-
 m2 <- lms(BMI,ageattest,data=boys, cent=c(3,10,25,50,75,90,97))
-boyscentiles<-centiles.pred(m2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
-write.csv(boyscentiles,file="boyslms.csv")
+boysbmicentiles<-centiles.pred(m2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+write.csv(boysbmicentiles,file="boyslmsbmi.csv
 
+#Weight centiles
+boys2<- subset(alldata, alldata$Gender == "M")[,c(8,13)]
+boys2$ageattest<-floor(boys2$ageattest/4.34524)
+row.names(boys2) <- NULL
+w2 <- lms(WeightKG,ageattest,data=boys2, cent=c(3,10,25,50,75,90,97))
+boyswcentiles<-centiles.pred(w2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+write.csv(boyswcentiles,file="boyslmsweight.csv")
+
+#Height centiles
+boys3<- subset(alldata, alldata$Gender == "M")[,c(7,13)]
+boys3$ageattest<-floor(boys3$ageattest/4.34524)
+row.names(boys3) <- NULL
+h2 <- lms(HeightKG,ageattest,data=boys3, cent=c(3,10,25,50,75,90,97))
+boyshcentiles<-centiles.pred(h2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+write.csv(boyshcentiles,file="boyslmsheight.csv")
