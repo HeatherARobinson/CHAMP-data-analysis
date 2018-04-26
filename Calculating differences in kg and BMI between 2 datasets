@@ -1,5 +1,0 @@
-median(alldata$HeightCM[alldata$ageattestyr==4&alldata$Gender=="F"])
-median(alldata$HeightCM[alldata$ageattestyr==4&alldata$Gender=="M"])
-length(alldata$HeightCM[alldata$ageattestyr==4&alldata$Gender=="M"])# confirm sufficient sample sizes
-length(alldata$HeightCM[alldata$ageattestyr==4&alldata$Gender=="F"])
-
