@@ -38,6 +38,8 @@ girls$ageattest<-floor(girls$ageattest/4.34524) #Age in months
 row.names(girls) <- NULL
 m1 <- lms(BMI,ageattest,data=girls, cent=c(3,10,25,50,75,90,97))
 girlsbmicentiles<-centiles.pred(m1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+a<-table(girls$ageattest)
+girlsbmicentiles<-merge(girlsbmicentiles,a,all.xx=TRUE)
 write.csv(girlsbmicentiles,file="girlslmsbmi.csv")
 
 #Weight centiles
@@ -46,6 +48,8 @@ girls2$ageattest<-floor(girls2$ageattest/4.34524) #Age in months
 row.names(girls2) <- NULL
 w1 <- lms(WeightKG,ageattest,data=girls2, cent=c(3,10,25,50,75,90,97))
 girlswcentiles<-centiles.pred(w1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+b<-table(girls2$ageattest)
+girlswcentiles<-merge(girlswcentiles,b,all.xx=TRUE)
 write.csv(girlswcentiles,file="girlslmsweight.csv
 
 #Height centiles
@@ -54,6 +58,8 @@ girls3$ageattest<-floor(girls3$ageattest/4.34524) #Age in months
 row.names(girls3) <- NULL
 h1 <- lms(HeightCM,ageattest,data=girls3, cent=c(3,10,25,50,75,90,97))
 girlshcentiles<-centiles.pred(h1, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+c<-table(girls32$ageattest)
+girlshcentiles<-merge(girlshcentiles,c,all.xx=TRUE)
 write.csv(girlshcentiles,file="girlslmsheight.csv")
 
 #BMI centiles- boys
@@ -62,6 +68,8 @@ boys$ageattest<-floor(boys$ageattest/4.34524)
 row.names(boys) <- NULL
 m2 <- lms(BMI,ageattest,data=boys, cent=c(3,10,25,50,75,90,97))
 boysbmicentiles<-centiles.pred(m2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+d<-table(girls2$ageattest)
+boysbmicentiles<-merge(boysbmicentiles,d,all.xx=TRUE)
 write.csv(boysbmicentiles,file="boyslmsbmi.csv
 
 #Weight centiles
@@ -70,12 +78,16 @@ boys2$ageattest<-floor(boys2$ageattest/4.34524)
 row.names(boys2) <- NULL
 w2 <- lms(WeightKG,ageattest,data=boys2, cent=c(3,10,25,50,75,90,97))
 boyswcentiles<-centiles.pred(w2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+e<-table(boys2$ageattest)
+boyswcentiles<-merge(boyswcentiles,e,all.xx=TRUE)
 write.csv(boyswcentiles,file="boyslmsweight.csv")
 
 #Height centiles
 boys3<- subset(alldata, alldata$Gender == "M")[,c(7,13)]
 boys3$ageattest<-floor(boys3$ageattest/4.34524)
 row.names(boys3) <- NULL
-h2 <- lms(HeightKG,ageattest,data=boys3, cent=c(3,10,25,50,75,90,97))
+h2 <- lms(HeightCM,ageattest,data=boys3, cent=c(3,10,25,50,75,90,97))
 boyshcentiles<-centiles.pred(h2, xname="ageattest", xvalues=seq(49,138,1), cent=c(3,10,25,50,75,90,97))
+f<-table(boys3$ageattest)
+boyshcentiles<-merge(boyshcentiles,f,all.xx=TRUE)
 write.csv(boyshcentiles,file="boyslmsheight.csv")
