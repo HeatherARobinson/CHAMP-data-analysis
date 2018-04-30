@@ -1,0 +1,86 @@
+#Not used in final submissions
+
+setwd("c:/Users/mqbpjhr4/Documents")
+data<-read.table("MixedBMIlitreview.csv",header=T,sep=",")
+library(metafor)
+library(lme4)
+head(data)
+dataA<-data[data$group=="A",]
+dataA$wts<-1/dataA$n
+boysA<-dataA[dataA$gender=="m",]
+girlsA<-dataA[dataA$gender=="f",]
+attach(boysA)
+a<-aggregate(boysA$sums,list(boysA$age),sum)
+b<-aggregate(boysA$n,list(boysA$age),sum)
+c<-merge(a,b,by="Group.1")
+c$BMI<-c$x.x/c$x.y
+c$gender<-"boys class A"
+dataB<-data[data$group=="B",]
+dataB$wts<-1/dataB$n
+boysB<-dataB$gender=="m",]
+boysB<-dataB[dataB$gender=="f",]
+attach(boysB)
+d<-aggregate(boysB$sums,list(boysB$age),sum)
+e<-aggregate(boysB$n,list(boysB$age),sum)
+f<-merge(d,e,by="Group.1")
+f$BMI<-f$x.x/f$x.y
+f$gender<-"boys class B"
+dataC<-data[data$group=="C",]
+dataC$wts<-1/dataC$n
+boysC<-dataC$gender=="m",]
+boysC<-dataC[dataC$gender=="f",]
+attach(boysC)
+g<-aggregate(boysC$sums,list(boysC$age),sum)
+h<-aggregate(boysC$n,list(boysC$age),sum)
+i<-merge(g,h,by="Group.1")
+i$BMI<-i$x.x/i$x.y
+i$gender<-"boys class C"
+
+attach(girlsA)
+d<-aggregate(girls$sums,list(girls$age),sum)
+e<-aggregate(girls$n,list(girls$age),sum)
+f<-merge(d,e,by="Group.1")
+f$BMI<-f$x.x/f$x.y
+f$gender<-"girls"
+
+df<-rbind(c,f,i)
+df$age<-df$Group.1
+attach(df)
+library(ggplot2)
+ggplot(df, aes(x=age, y=BMI, colour=gender, shape=gender)) + geom_line()+geom_point()+
+  labs(x="Age (yrs)",y="BMI")+ggtitle("Estimated median BMI in cohorts 2000-2010")+theme_bw()+scale_x_continuous(breaks = seq(1, 20, 0.5))+
+  scale_y_continuous(breaks = seq(14, 20, 0.5))+ theme(legend.title=element_blank())
+
+
+b+geom_line(f, aes(x=Group.1, y=BMI))
+
+
+#Method 1
+
+boys$age <- boys$age - 8
+girls$age <- girls$age - 7
+library (nlme)
+res1 <- lme(bmi ~ age, random = ~ age|source, data=boys,na.action=na.omit)
+summary(res1)
+bmiboys<-c(14.841825,15.77197,17.012182,18.56243,20.423157,22.59310,25.07351)
+ages<-c(2,3,4,5,6,7,8)
+dfboys<-data.frame(bmiboys,ages)
+plot(dfboys$ages,dfboys$bmiboys)
+
+#Method 2
+boys$age <- boys$age - 8
+girls$age <- girls$age - 7
+bmiboys<-c(14.9222,15.2066,15.4909,15.7753,16.0596,16.3440,16.6284,16.9127,17.1971,17.4814,17.6858)
+ages<-c(2,3,4,5,6,7,8,9,10,11,12)
+dfboys<-data.frame(bmiboys,ages)
+plot(dfboys$ages,dfboys$bmiboys)
+
+res.list <- lmList(bmi ~ age|source, data=boys, weights=wts)
+b <- lapply(res.list, coef)
+V <- lapply(res.list, vcov)
+estm <- rep(c("intercept","slope"), length(b))
+subj <- rep(names(b), each=2)
+b <- unlist(b)
+V <- bldiag(V)
+res2 <- rma.mv(b ~ estm - 1, V, random = ~ estm | subj, struct="UN")
+res2
