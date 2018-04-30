@@ -1,0 +1,255 @@
+#Read in edited data including SDs and BMIs
+setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
+alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
+names(alldata)[names(alldata)=="X"] <- "SDS_BMI"
+alldata$weightcat<-"normal"
+alldata$weightcat[alldata$SDS_BMI>=1.33]<-"overweight"
+alldata$weightcat[alldata$SDS_BMI>=2]<-"obese"
+alldata$weightcat[alldata$SDS_BMI>=2.67]<-"extremely_obese"
+alldata$weightcat[alldata$SDS_BMI>=3.33]<-"morbidly_obese"
+alldata$weightcat[alldata$SDS_BMI<=-2]<-"underweight"
+alldata$weightcat[alldata$SDS_BMI<=-2.67]<-"very_underweight"
+alldata$weightcat[alldata$SDS_BMI<=-3]<-"severely_underweight"
+
+#Assessing CHAMP uptake
+table(alldata$weightcat,alldata$IsAccountRegistered)
+#Champ reg 2013/14 25.74
+#Champ reg 2014/15 33.78
+#Champ reg 2015/16 26.51
+#Champ reg 2016/17 25.89
+
+table(alldata$weightcat,alldata$IsAccountRegistered)
+#ex ob 31.20
+#morb ob 30.94
+#ob 32.58
+#normal 39.66
+#ov 37.52
+#un 36.67
+#v. un 29.81
+#sev un 31.68
+
+
+
+#CREATE DATA SUBSET FOR THIS YEAR'S DATA 
+thisyear<-subset(alldata, alldata$AcademicYear=="2016/2017" & alldata$BMI<50)
+attach(thisyear)
+
+thisyear$Overweight<-as.numeric(ifelse(thisyear$SDS_BMI>=1.33,c("1"),("0")))
+thisyear$Overweight<-as.numeric(Thisyear$Overweight)
+thisyear$Obese<-as.numeric(ifelse(thisyear$SDS_BMI>=2,c("1"),("0")))
+thisyear$Obese<-as.numeric(thisyear$Obese)
+thisyear$mObese<-as.numeric(ifelse(thisyear$SDS_BMI>=3.33,c("1"),("0")))
+thisyear$mObese<-as.numeric(thisyear$mObese)
+thisyear$Underweight<-as.numeric(ifelse(thisyear$SDS_BMI<=-2,c("1"),("0")))
+thisyear$Underweight<-as.numeric(thisyear$Underweight)
+#AGGREGATE VALUES BY AGE AND GENDER
+aggdatamean <-aggregate(thisyear, by=list(Gender,ageattest), FUN=mean, na.rm=TRUE)
+names(aggdatamean)[names(aggdatamean)=="BMI"] <- "MeanBMI"
+aggSD <-aggregate(BMI, by=list(Gender,ageattest), sd, na.rm=TRUE)
+names(aggSD)[names(aggSD)=="x"] <- "BMISD"
+aggdatamedian <-aggregate(BMI, by=list(Gender,ageattest), median, na.rm=TRUE)
+names(aggdatamedian)[names(aggdatamedian)=="x"]<- "MedianBMI"
+aggdataobsums <-aggregate(thisyear$Obese, by=list(Gender,ageattest), FUN=sum, na.rm=TRUE)
+names(aggdataobsums)[names(aggdataobsums)=="x"] <- "TotalObese"
+aggdataovsums <-aggregate(thisyear$Overweight, by=list(Gender,ageattest), FUN=sum, na.rm=TRUE)
+names(aggdataovsums)[names(aggdataovsums)=="x"] <- "TotalOverweight"
+aggdataunsums <-aggregate(thisyear$Underweight, by=list(Gender,ageattest), FUN=sum, na.rm=TRUE)
+names(aggdataunsums)[names(aggdataunsums)=="x"] <- "TotalUnderweight"
+aggdatamosums <-aggregate(thisyear$mObese, by=list(Gender,ageattest), FUN=sum, na.rm=TRUE)
+names(aggdatamosums)[names(aggdatamosums)=="x"] <- "TotalMorbidlyObese"
+thisyear$ChildID<-"1"
+thisyear$ChildID<-as.numeric(thisyear$ChildID)
+aggdatasums <-aggregate(thisyear$ChildID, by=list(Gender,ageattest), FUN=sum, na.rm=TRUE)
+names(aggdatasums)[names(aggdatasums)=="x"] <- "TotalChildren"
+summarydata0<-merge(aggdatamean,aggdatamedian,all=TRUE, by=c('Group.1','Group.2'))
+summarydata1<-merge(summarydata0,aggdataunsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata2<-merge(summarydata1,aggdataovsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata3<-merge(summarydata2,aggdataobsums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata4<-merge(summarydata3,aggdatamosums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata5<-merge(summarydata4,aggdatasums,all=TRUE, by=c('Group.1','Group.2'))
+summarydata6<-merge(summarydata5,aggSD,all=TRUE, by=c('Group.1','Group.2'))
+library(plyr)
+Props<-ddply(summarydata6,.(Group.1,Group.2),transform,prop=TotalUnderweight/sum(summarydata6$TotalChildren))
+names(Props)[names(Props)=="prop"] <- "PropUnderweight"
+Props2<-ddply(Props,.(Group.1,Group.2),transform,prop=TotalOverweight/sum(TotalChildren))
+names(Props2)[names(Props2)=="prop"] <- "PropOverweight"
+Props3<-ddply(Props2,.(Group.1,Group.2),transform,prop=TotalObese/sum(TotalChildren))
+names(Props3)[names(Props3)=="prop"] <- "PropObese"
+Props4<-ddply(Props3,.(Group.1,Group.2),transform,prop=TotalMorbidlyObese/sum(TotalChildren))
+names(Props4)[names(Props4)=="prop"] <- "PropMorbidlyObese"
+n=Props4$TotalChildren
+u=Props4$PropUnderweight
+q=Props4$PropOverweight
+p=Props4$PropObese
+m=Props4$PropMorbidlyObese
+library(Hmisc)
+propCIbinUnder<-binconf(x=Props4$TotalUnderweight, n=Props4$TotalChildren,alpha=.05, method="exact")
+Props4$propCIbinUnderweightLower<-(propCIbinUnder[,2])
+Props4$propCIbinUnderweightUpper<-(propCIbinUnder[,3])
+propCIbinOver<-binconf(x=Props4$TotalOverweight, n=Props4$TotalChildren,alpha=.05, method="exact")
+Props4$propCIbinOverweightLower<-(propCIbinOver[,2])
+Props4$propCIbinOverweightUpper<-(propCIbinOver[,3])
+propCIbinObese<-binconf(x=Props4$TotalObese, n=Props4$TotalChildren,alpha=.05, method="exact")
+Props4$propCIbinObeseLower<-(propCIbinObese[,2])
+Props4$propCIbinObeseUpper<-(propCIbinObese[,3])
+propCIbinMorbid<-binconf(x=Props4$TotalMorbidlyObese, n=Props4$TotalChildren,alpha=.05, method="exact")
+Props4$propCIbinMorbidlyObeseLower<-(propCIbinMorbid[,2])
+Props4$propCIbinMorbidlyObeseUpper<-(propCIbinMorbid[,3])
+Props4$SEMBMI<-as.numeric(Props4$BMISD)/sqrt(n)
+
+
+#WRITE AGE/GENDER SUMMARY DATA TO A CSV FILE (PER AGE AND GENDER GROUP:MEAN BMI, MEAN CI95%, MEDIAN BMI, TOTAL OBESE, TOTAL OVERWEIGHT, PROPORTION OBESE, PROPORTION OVERWEIGHT, PROP UPPER AND LOWER CI95s)
+summaryfigures2016<-file(paste("summaryfigures2016.csv"), open="w")
+cat("Gender", "AgeAtTest","Children2016","NumberUnderweight","NumberOverweight","NumberObese","NumberMorbidlyObese",
+"MeanBMI","BMISD","BMISEM","MedianBMI",
+"PropUnderweight","PropOverweight","PropObese","PropMorbidlyObese",
+"PropUwUpperCI","PropUwLowerCI","PropOwUpperCI","PropOwLowerCI",
+"PropObUpperCI","PropObLowerCI", "PropMObUpperCI","PropMObLowerCI","\n", sep=",",file="summaryfigures2016.csv",append=TRUE)
+for (n in 1:16){p
+cat((paste(Props2$Group.1[n])),(paste(Props4$Group.2[n])),(paste(Props4$TotalChildren[n])),(paste(Props4$TotalUnderweight[n])),(paste(Props4$TotalOverweight[n])),(paste(Props4$TotalObese[n])),(paste(Props4$TotalMorbidlyObese[n])),
+(paste(Props4$MeanBMI[n])),(paste(Props4$BMISD[n])),(paste(Props4$SEMBMI[n])),(paste(Props4$MedianBMI[n])),
+(paste(Props4$PropUnderweight[n])),(paste(Props4$PropOverweight[n])),(paste(Props4$PropObese[n])),(paste(Props4$PropMorbidlyObese[n])),
+(paste(Props4$propCIbinUnderweightUpper[n])),(paste(Props4$propCIbinUnderweightLower[n])),
+(paste(Props4$propCIbinOverweightUpper[n])),(paste(Props4$propCIbinOverweightLower[n])),
+(paste(Props4$propCIbinObeseUpper[n])),(paste(Props4$propCIbinObeseLower[n])),(paste(Props4$propCIbinMorbidlyObeseUpper[n])),(paste(Props4$propCIbinMorbidlyObeseLower[n])),
+"\n", file="summaryfigures2016.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
+
+
+
+#AGGREGATE DATA BY SCHOOL
+alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
+names(alldata)[names(alldata)=="X"] <- "SDS_BMI"
+
+#CREATE DATA SUBSET FOR THIS YEAR'S DATA 
+thisyear<-subset(alldata, alldata$AcademicYear=="2016/2017" & alldata$BMI<50)
+attach(thisyear)
+thisyear$Overweight<-ifelse(thisyear$SDS_BMI>=1.33,c("1"),("0"))
+thisyear$Overweight<-as.numeric(Thisyear$Overweight)
+thisyear$Obese<-ifelse(thisyear$SDS_BMI>=2,c("1"),("0"))
+thisyear$Obese<-as.numeric(thisyear$Obese)
+thisyear$mObese<-ifelse(thisyear$SDS_BMI>=3.33,c("1"),("0"))
+thisyear$mObese<-as.numeric(thisyear$mObese)
+thisyear$Underweight<-ifelse(thisyear$SDS_BMI<=-2,c("1"),("0"))
+thisyear$Underweight<-as.numeric(thisyear$Underweight)
+thisyear$<-as.numeric(thisyear$Underweight)
+thisyear$ChildID<-"1"
+thisyear$ChildID<-as.numeric(thisyear$ChildID)
+schools1<-aggregate(thisyear$ChildID, by=list(thisyear$SchoolCode), FUN=sum)
+names(schools1)[names(schools1)=="x"] <- "Children2016"
+schools2<-aggregate(thisyear$Overweight, by=list(thisyear$SchoolCode), FUN=sum)
+names(schools2)[names(schools2)=="x"] <- "Overweight"
+schools3<-aggregate(thisyear$Obese, by=list(thisyear$SchoolCode), FUN=sum)
+names(schools3)[names(schools3)=="x"] <- "Obese"
+schools4<-aggregate(thisyear$mObese, by=list(thisyear$SchoolCode), FUN=sum)
+names(schools4)[names(schools4)=="x"] <- "MorbidlyObese"
+schools4<-aggregate(thisyear$mObese, by=list(thisyear$SchoolCode), FUN=sum)
+names(schools4)[names(schools4)=="x"] <- "MorbidlyObese"
+schools5<-aggregate(thisyear$Underweight, by=list(thisyear$SchoolCode), FUN=sum)
+names(schools5)[names(schools5)=="x"] <- "Underweight"
+summary1<-merge(schools1,schools2,all=TRUE, by=('Group.1'),)
+summary2<-merge(summary1,schools3,all=TRUE, by=('Group.1'),)
+summary3<-merge(summary2,schools4,all=TRUE, by=('Group.1'),)
+summary4<-merge(summary3,schools5,all=TRUE, by=('Group.1'),)
+library(plyr)
+names(summary4)
+Propssch<-ddply(summary4,.(Group.1),transform,prop=Overweight/sum(Children2016))
+names(Propssch)[names(Propssch)=="prop"] <- "PropOverweight"
+Propssch2<-ddply(Propssch,.(Group.1),transform,prop=Obese/sum(Children2016))
+names(Propssch2)[names(Propssch2)=="prop"] <- "PropObese"
+Propssch3<-ddply(Propssch2,.(Group.1),transform,prop=MorbidlyObese/sum(Children2016))
+names(Propssch3)[names(Propssch3)=="prop"] <- "PropMorbidlyObese"
+Propssch4<-ddply(Propssch3,.(Group.1),transform,prop=Underweight/sum(Children2016))
+names(Propssch4)[names(Propssch4)=="prop"] <- "PropUnderweight"
+n=Propssch4$Children2016
+q=Propssch4$PropOverweight
+p=Propssch4$PropObese
+m=Propssch4$PropMorbidlyObese
+u=Propssch4$PropUnderweight
+
+propCIbinUnderweightsch<-binconf(x=Propssch4$Underweight, n=Propssch4$Children2016,alpha=.05, method="exact")
+Propssch4$propCIbinUnderweightLower<-(propCIbinUnderweightsch[,2])
+Propssch4$propCIbinUnderweightUpper<-(propCIbinUnderweightsch[,3])
+propCIbinOverweight<-binconf(x=Propssch4$Overweight, n=Propssch4$Children2016,alpha=.05, method="exact")
+Propssch4$propCIbinOverweightLower<-(propCIbinOverweight[,2])
+Propssch4$propCIbinOverweightUpper<-(propCIbinOverweight[,3])
+propCIbinObese<-binconf(x=Propssch4$Obese, n=Propssch4$Children2016,alpha=.05, method="exact")
+Propssch4$propCIbinObeseLower<-(propCIbinObese[,2])
+Propssch4$propCIbinObeseUpper<-(propCIbinObese[,3])
+propCIbinMorbidlyObese<-binconf(x=Propssch4$MorbidlyObese, n=Propssch4$Children2016,alpha=.05, method="exact")
+Propssch4$propCIbinMorbidlyObeseLower<-(propCIbinMorbidlyObese[,2])
+Propssch4$propCIbinMorbidlyObeseUpper<-(propCIbinMorbidlyObese[,3])
+
+
+#WRITE SCHOOL DATA TO A CSV FILE (PER SCHOOL:PUPILS MEASURED 2016, NO.UNDERWEIGHT, NO.OVERWEIGHT, NO.OBESE, NO.MORBIDLY OBESE, PROPORTION UNDERWEIGHT, PROPORTION OVERWEIGHT, PROPORTION OBESE, PROPORTION MORBIDLY OBESE, PROP UPPER AND LOWER CI95s)
+schoolfigures2016<-file(paste("schoolfigures2016.csv"), open="w")
+cat("School","Children2016","NumberUnderweight","NumberOverweight","NumberObese","NumberMorbidlyObese",
+"PropUnderweight","PropOverweight","PropObese","PropMorbidlyObese",
+"PropUnderwLowerCI","PropUnderwUpperCI","PropOverwLowerCI","PropOverwUpperCI","PropObLowerCI","PropObUpperCI","PropMorbidOwLowerCI","PropMorbidOwUpperCI","\n", sep=",",file="schoolfigures2016.csv",append=TRUE)
+for (n in 1:27){p
+cat((paste(Propssch4$Group.1[n])),(paste(Propssch4$Children2016[n])), (paste(Propssch4$Underweight[n])),(paste(Propssch4$Overweight[n])),(paste(Propssch4$Obese[n])),(paste(Propssch4$MorbidlyObese[n])),
+(paste(Propssch4$PropUnderweight[n])),(paste(Propssch4$PropOverweight[n])),(paste(Propssch4$PropObese[n])),(paste(Propssch4$PropMorbidlyObese[n])),
+(paste(Propssch4$propCIbinUnderweightUpper[n])),(paste(Propssch4$propCIbinUnderweightLower[n])),(paste(Propssch4$propCIbinOverweightUpper[n])),(paste(Propssch4$propCIbinOverweightLower[n])),(paste(Propssch4$propCIbinObeseUpper[n])),(paste(Propssch4$propCIbinObeseLower[n])),(paste(Propssch4$propCIbinMorbidlyObeseUpper[n])),(paste(Propssch4$propCIbinMorbidlyObeseUpper[n])),"\n", file="schoolfigures2016.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
+
+
+
+#AGGREGATE DATA BY SOCIAL DECILE (TEMPORARILY USING POSTCODE)
+thisyear$ChildID<-as.numeric(thisyear$ChildID)
+thisyear$Overweight<-as.numeric(thisyear$Overweight)
+thisyear$Obese<-as.numeric(thisyear$Obese)
+thisyear$mObese<-as.numeric(thisyear$mObese)
+post1<-aggregate(thisyear$ChildID, by=list(thisyear$PostcodeDecile), FUN=sum)
+names(post1)[names(post1)=="x"] <- "Children2016"
+post2<-aggregate(thisyear$Overweight, by=list(thisyear$PostcodeDecile), FUN=sum)
+names(post2)[names(post2)=="x"] <- "Overweight"
+post3<-aggregate(thisyear$Obese, by=list(thisyear$PostcodeDecile), FUN=sum)
+names(post3)[names(post3)=="x"] <- "Obese"
+post4<-aggregate(thisyear$mObese, by=list(thisyear$PostcodeDecile), FUN=sum)
+names(post4)[names(post4)=="x"] <- "MorbidlyObese"
+post4<-aggregate(thisyear$mObese, by=list(thisyear$PostcodeDecile), FUN=sum)
+names(post4)[names(post4)=="x"] <- "MorbidlyObese"
+post5<-aggregate(thisyear$Underweight, by=list(thisyear$PostcodeDecile), FUN=sum)
+names(post5)[names(post5)=="x"] <- "Underweight"
+psummary1<-merge(post1,post2,all=TRUE, by=('Group.1'),)
+psummary2<-merge(psummary1,post3,all=TRUE, by=('Group.1'),)
+psummary3<-merge(psummary2,post4,all=TRUE, by=('Group.1'),)
+psummary4<-merge(psummary3,post5,all=TRUE, by=('Group.1'),)
+library(plyr)
+names(psummary4)
+Propsp<-ddply(psummary4,.(Group.1),transform,prop=Overweight/sum(Children2016))
+names(Propsp)[names(Propsp)=="prop"] <- "PropOverweight"
+Propsp2<-ddply(Propsp,.(Group.1),transform,prop=Obese/sum(Children2016))
+names(Propsp2)[names(Propsp2)=="prop"] <- "PropObese"
+Propsp3<-ddply(Propsp2,.(Group.1),transform,prop=MorbidlyObese/sum(Children2016))
+names(Propsp3)[names(Propsp3)=="prop"] <- "PropMorbidlyObese"
+Propsp4<-ddply(Propsp3,.(Group.1),transform,prop=Underweight/sum(Children2016))
+names(Propsp4)[names(Propsp4)=="prop"] <- "PropUnderweight"
+n=Propsp4$Children2016
+q=Propsp4$PropOverweight
+p=Propsp4$PropObese
+m=Propsp4$PropMorbidlyObese
+u=Propsp4$PropUnderweight
+propCIbinUnderweightp<-binconf(x=Propsp4$Underweight, n=Propsp4$Children2016,alpha=.05, method="exact")
+Propsp4$propCIbinUnderweightLower<-(propCIbinUnderweightp[,2])
+Propsp4$propCIbinUnderweightUpper<-(propCIbinUnderweightp[,3])
+propCIbinOverweightp<-binconf(x=Propsp4$Overweight, n=Propsp4$Children2016,alpha=.05, method="exact")
+Propsp4$propCIbinOverweightLower<-(propCIbinOverweightp[,2])
+Propsp4$propCIbinOverweightUpper<-(propCIbinOverweightp[,3])
+propCIbinObese<-binconf(x=Propsp4$Obese, n=Propsp4$Children2016,alpha=.05, method="exact")
+Propsp4$propCIbinObeseLower<-(propCIbinObese[,2])
+Propsp4$propCIbinObeseUpper<-(propCIbinObese[,3])
+propCIbinMorbidlyObese<-binconf(x=Propsp4$MorbidlyObese, n=Propsp4$Children2016,alpha=.05, method="exact")
+Propsp4$propCIbinMorbidlyObeseLower<-(propCIbinMorbidlyObese[,2])
+Propsp4$propCIbinMorbidlyObeseUpper<-(propCIbinMorbidlyObese[,3])
+
+#WRITE SOCIAL DATA TO A CSV FILE (PER POSTCODE DECILE:PUPILS MEASURED 2016, NO.UNDERWEIGHT, NO.OVERWEIGHT, NO.OBESE, NO.MORBIDLY OBESE, PROPORTION UNDERWEIGHT, PROPORTION OVERWEIGHT, PROPORTION OBESE, PROPORTION MORBIDLY OBESE, PROP UPPER AND LOWER CI95s)
+Socialfigures2016<-file(paste("socialfigures2016.csv"), open="w")
+cat("PostcodeDecile","Children2016","NumberUnderweight","NumberOverweight","NumberObese","NumberMorbidlyObese",
+"PropUnderweight","PropOverweight","PropObese","PropMorbidlyObese",
+"PropUnderwLowerCI","PropUnderwUpperCI","PropOverwLowerCI","PropOverwUpperCI","PropObLowerCI","PropObUpperCI","PropMorbidOwLowerCI","PropMorbidOwUpperCI","\n", sep=",",file="socialfigures2016.csv",append=TRUE)
+for (n in 1:11){p
+cat((paste(Propsp4$Group.1[n])),(paste(Propsp4$Children2016[n])), (paste(Propsp4$Underweight[n])),(paste(Propsp4$Overweight[n])),(paste(Propsp4$Obese[n])),(paste(Propsp4$MorbidlyObese[n])),
+(paste(Propsp4$PropUnderweight[n])),(paste(Propsp4$PropOverweight[n])),(paste(Propsp4$PropObese[n])),(paste(Propsp4$PropMorbidlyObese[n])),
+(paste(Propsp4$propCIbinUnderweightUpper[n])),(paste(Propsp4$propCIbinUnderweightLower[n])),(paste(Propsp4$propCIbinOverweightUpper[n])),(paste(Propsp4$propCIbinOverweightLower[n])),(paste(Propsp4$propCIbinObeseUpper[n])),(paste(Propsp4$propCIbinObeseLower[n])),(paste(Propsp4$propCIbinMorbidlyObeseUpper[n])),(paste(Propsp4$propCIbinMorbidlyObeseLower[n])),"\n", file="socialfigures2016.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
