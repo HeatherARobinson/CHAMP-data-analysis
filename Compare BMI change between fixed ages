@@ -1,0 +1,104 @@
+setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
+alldata<-read.table("LMStable.csv", header=T,sep=",")
+attach(alldata)
+
+#Assign age at test vector
+alldata$Record4<-as.numeric(ifelse(ageattest=="4",c ("1"),("0")))
+alldata$Record5<-as.numeric(ifelse(ageattest=="5",c ("1"),("0")))
+alldata$Record6<-as.numeric(ifelse(ageattest=="6",c ("1"),("0")))
+alldata$Record7<-as.numeric(ifelse(ageattest=="7",c ("1"),("0")))
+alldata$Record8<-as.numeric(ifelse(ageattest=="8",c ("1"),("0")))
+alldata$Record9<-as.numeric(ifelse(ageattest=="9",c ("1"),("0")))
+alldata$Record10<-as.numeric(ifelse(ageattest=="10",c ("1"),("0")))
+alldata$Record11<-as.numeric(ifelse(ageattest=="11",c ("1"),("0")))
+
+#Print BMI at each age
+alldata$BMIfour<-as.numeric(ifelse(ageattest=="4",c (BMI),("NA")))
+alldata$BMIfive<-as.numeric(ifelse(ageattest=="5",c (BMI),("NA")))
+alldata$BMIsix<-as.numeric(ifelse(ageattest=="6",c (BMI),("NA")))
+alldata$BMIseven<-as.numeric(ifelse(ageattest=="7",c (BMI),("NA")))
+alldata$BMIeight<-as.numeric(ifelse(ageattest=="8",c (BMI),("NA")))
+alldata$BMInine<-as.numeric(ifelse(ageattest=="9",c (BMI),("NA")))
+alldata$BMIten<-as.numeric(ifelse(ageattest=="10",c (BMI),("NA")))
+alldata$BMIeleven<-as.numeric(ifelse(ageattest=="11",c (BMI),("NA")))
+
+#Print SDS at each age
+alldata$SDfour<-as.numeric(ifelse(ageattest=="4",c (SDS_BMI),("NA")))
+alldata$SDfive<-as.numeric(ifelse(ageattest=="5",c (SDS_BMI),("NA")))
+alldata$SDsix<-as.numeric(ifelse(ageattest=="6",c (SDS_BMI),("NA")))
+alldata$SDseven<-as.numeric(ifelse(ageattest=="7",c (SDS_BMI),("NA")))
+alldata$SDeight<-as.numeric(ifelse(ageattest=="8",c (SDS_BMI),("NA")))
+alldata$SDnine<-as.numeric(ifelse(ageattest=="9",c (SDS_BMI),("NA")))
+alldata$SDten<-as.numeric(ifelse(ageattest=="10",c (SDS_BMI),("NA")))
+alldata$SDeleven<-as.numeric(ifelse(ageattest=="11",c (SDS_BMI),("NA")))
+attach(alldata)
+
+#Determine how many measurements taken per child
+NoRecords<-(Record4+Record5+Record6+Record7+Record8+Record9+Record10+Record11)
+Recs<-aggregate(NoRecords, by=list(Category=ChildID), FUN=sum)
+Recs$ChildID<-Recs$Category
+
+#Merge to have BMI at different ages on the same line
+Tablerecs<-merge(alldata,Recs,all=TRUE, by=c('ChildID'),na.rm=TRUE)
+names(Tablerecs)[names(Tablerecs)=="x"] <- "Records"
+table(Tablerecs$Records)
+
+#create subset of children with multiple measurements
+multiple<-Tablerecs[Tablerecs$Records>1,] #children measured more than once
+attach(multiple)
+detach(alldata)
+Childkey<-aggregate(multiple, by=list(Category=ChildID), FUN=mean,na.rm=TRUE)
+detach(alldata)
+names(Childkey)
+attach(Childkey)
+as.numeric(c(BMIfour,BMIfive,BMIsix,BMIseven,BMIeight,BMInine,BMIten, BMIeleven))
+
+#select children measured at four and ten, or five and eleven
+fourten<-Childkey[!is.na(Childkey$BMIfour)&!is.na(Childkey$BMIten),]
+fiveeleven<-Childkey[!is.na(Childkey$BMIfive)&!is.na(Childkey$BMIeleven),]
+
+which((fourten$BMIten)>1)#How many children were measured at ten and four
+which((fiveeleven$BMIeleven)>1)#How many children were measured at eleven and five
+which((fourten$SDten)-as.numeric(fourten$SDfour)==0)	#Which children stayed at the same SD between 4 and 10
+which((fiveeleven$SDeleven)-(fiveeleven$SDfive)==0)	#Which children stayed at the same SD between 5 and 11
+which((fourten$SDten)-as.numeric(fourten$SDfour)<0) #which children LOST SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0) #which children LOST SDs from UK90 between 5 and 11
+which((Childkey$SDten)-as.numeric(Childkey$SDfour)>0)#which children gained SDs from UK90 between 4 and 10
+which((Childkey$SDeleven)-as.numeric(Childkey$SDfive)>0)#which children gained SDs from UK90 between 5 and 11
+
+which(((Childkey$SDten)-as.numeric(Childkey$SDfour)>0)&Childkey$IsAccountRegistered>=1)#which children gained SDs from UK90 between 4 and 10 and are registered
+which(((Childkey$SDeleven)-as.numeric(Childkey$SDfive)>0)&Childkey$IsAccountRegistered>=1)#which children gained SDs from UK90 between 5 and 11 and are registered
+
+
+which((fourten$SDfour)>2)#which children were obese at 4 and also measured at 10
+which((fourten$SDten)>2&as.numeric(fourten$SDfour)>2)#which children remained obese from 4 to 10
+which((fiveleven$SDfive)>2)#which children were obese at 5 and also measured at eleven
+which((fiveeleven$SDeleven)>2&as.numeric(fiveeleven$SDfive)>2)#which children remained obese from 5 to 11
+which((fiveeleven$SDeleven)<1.33&as.numeric(fiveeleven$SDfive)>2)#which children obese at 5 are normal weight at 11
+which((fourten$SDten)<1.33&as.numeric(fourten$SDfour)>2)#which children obese at 4 are normal weight at 10
+
+#See how champ registered children compare
+which (fourten$IsAccountRegistered>0.5)
+which (fiveeleven$IsAccountRegistered>0.5)
+which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered>0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered>0.5))#which registered children lose SDs from UK90 between 4 and 10
+
+#Check for unregistered children
+which (fourten$IsAccountRegistered<0.5)
+which (fiveeleven$IsAccountRegistered<0.5)
+which((fourten$SDten)-as.numeric(fourten$SDfour)>0&(fourten$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)>0&(fiveeleven$IsAccountRegistered<0.5))#which registered children gained SDs from UK90 between 4 and 10
+which((fourten$SDten)-as.numeric(fourten$SDfour)<0&(fourten$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
+which((fiveeleven$SDeleven)-as.numeric(fiveeleven$SDfive)<0&(fiveeleven$IsAccountRegistered<0.5))#which registered children lose SDs from UK90 between 4 and 10
+#Percentages calculated in excel show little apparent difference at this stage, but there are too few samples to draw conclusions
+
+#Differences in the likelihood of male and female obesity/overweight by age
+fisher.test (matrix(c(44,52,258,226),nrow=2)) #2016 obesity:f,m 10-11
+fisher.test (matrix(c(101,96,201,182),nrow=2)) #2016 overweight:f,m 10-11
+fisher.test (matrix(c(593,693,2838,2661),nrow=2)) #2015 obesity:f,m 10-11
+fisher.test (matrix(c(545,519,2886,2835),nrow=2)) #2015 overweight:f,m 10-11
+
+fisher.test (matrix(c(252,268,1806,1810),nrow=2)) #2016 obesity:f,m 4-5
+fisher.test (matrix(c(120,100,471,498),nrow=2)) #2016 overweight:f,m 4-5
