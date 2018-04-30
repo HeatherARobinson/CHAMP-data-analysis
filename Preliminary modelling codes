@@ -1,0 +1,171 @@
+#This code includes ethnicity groupings that differ from those used in the final submission
+
+setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
+alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
+names(alldata)[names(alldata)=="X"] <- "SDS_BMI"
+
+#FIXED EFFECTS SPECIFICATION- SELECTING EFFECTS TO INCLUDE IN MIXED EFFECTS MODEL VIA GLM
+library(lme4)
+library(arm)
+GLM1 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender, data = alldata)
+GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + as.factor(alldata$PostcodeDecile), data = alldata)
+GLM2b <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + as.factor(alldata$SchoolCode), data = alldata)
+GLa <- update(GLM1, subset = !is.na(alldata$PostcodeDecile))
+anova(GLa, GLM2, test = "F")
+
+#Postcode decile is important to include. However, this is a derivative of school code, so the two can't be used together. 	
+
+GLb <- update(GLM1, subset = !is.na(alldata$SchoolCode))
+anova(GLb, GLM2b, test = "F")
+
+#Postcode produces a simpler (see df), but equally well fitting model than school code, explaining more of the deviance.
+
+GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + alldata$PostcodeDecile, data = alldata)
+GLM3 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + alldata$PostcodeDecile + alldata$Ethnicity, data = alldata)
+GLc <- update(GLM2, subset = !is.na(alldata$Ethnicity))
+anova(GLc, GLM3, test = "F")
+
+#Ethnicity is also important and needs to be in the final model (include interaction with social decile)
+
+GLM4 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender + alldata$PostcodeDecile + alldata$Ethnicity +alldata$AcademicYear, data = alldata)
+GLc <- update(GLM3, subset = !is.na(alldata$AcademicYear))
+anova(GLc, GLM4, test = "F")
+
+#Academic year is not significant, as evident from the summary figures.
+
+
+#VARIABLE INTERCEPTS MODEL
+
+subsad<-subset(alldata, (!is.na(alldata[,11])) & (!is.na(alldata[,12])))
+#Remove records with missing ethnicity and/or postcode decile values removed from analysis (approx. 2400)
+
+VI1<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+summary(VI1)
+#School has been added back in as a random effect
+VI1b<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity+subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI1,VI1b)
+#IsAccountRegistered is not a significant predictor in a wider sense (probably because it depends on the point of registration)
+#VI1 gives a better fit than the best fitting GLM. ChildID improves fit (based on AIC), as does the interaction between age and gender.
+
+Ethnicity2<-subsad$Ethnicity
+levels(Ethnicity2)
+levels(Ethnicity2)[1:2]<-"white British"
+VI2<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity2+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+
+#cant group other white with british and irish but can group british and irish
+anova(VI1, VI2)
+Ethnicity3<-Ethnicity2
+levels(Ethnicity3)[3:4]<-"mixed white/black"
+VI3<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity3+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI2, VI3)
+#mixed white/african and mixed white/caribbean can be grouped
+
+Ethnicity4<-Ethnicity3
+levels(Ethnicity4)[14:15]<-"other"
+VI4<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity4+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI3, VI4)
+#These can be grouped
+
+Ethnicity5<-Ethnicity4
+levels(Ethnicity5)
+levels(Ethnicity5)[11:12]<-"African"
+VI5<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity5+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI4, VI5)
+#N (aFRICAN) can be grouped with P (other black ancestry)
+
+Ethnicity6<-Ethnicity5
+levels(Ethnicity6)
+levels(Ethnicity6)[12]<-"asian"
+levels(Ethnicity6)[9]<-"asian"
+VI6<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity6+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI5, VI6)
+#chinese does not group with other asian
+
+Ethnicity8<-Ethnicity5
+levels(Ethnicity8)[10]<-"African"
+VI8<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity8+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI5, VI8)
+#African and carribean will group
+
+Ethnicity9<-Ethnicity8
+levels(Ethnicity9)[8]<-"Indian/Bangladeshi"
+levels(Ethnicity9)[6]<-"Indian/Bangladeshi"
+VI9<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity9+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI8, VI9)
+#Indian and Bangladeshi cannot be grouped
+
+Ethnicity10<-Ethnicity8
+levels(Ethnicity10)[5]<-"other"
+VI10<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity10+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI8, VI10)
+#Other mixed background can be grouped with 'other'
+
+Ethnicity11<-Ethnicity10
+levels(Ethnicity11)[9]<-"other"
+VI11<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity11+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI10, VI11)
+#Other mixed background cannot be grouped with 'other'
+levels(Ethnicity11)[2]<-"other white"
+levels(Ethnicity11)[4]<-"mixed white/Asian"
+levels(Ethnicity11)[6]<-"Indian"
+levels(Ethnicity11)[7]<-"Pakistani"
+levels(Ethnicity11)[8]<-"Bangladeshi"
+levels(Ethnicity11)[10]<-"Chinese"
+subsad$Ethnicity11<-Ethnicity11
+
+VI12<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity11+subsad$PostcodeDecile +(1|subsad$ChildID),REML=FALSE)
+anova(VI10, VI12, test = "F")
+#school is important
+VI13<- lmer(subsad$SDS_BMI~ subsad$ageattest+subsad$Gender + Ethnicity11+subsad$PostcodeDecile +(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI10, VI13, test = "F")
+#The interaction between age and gender is important
+VI14<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity11+(1|subsad$ChildID)+(1|subsad$School),REML=FALSE)
+anova(VI10, VI14, test = "F")
+#Postcode decile is important
+VI15<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + Ethnicity11+subsad$PostcodeDecile +(1|subsad$School),REML=FALSE)
+anova(VI10, VI15, test = "F")
+#Child ID is also important, VI10 is the simplest model
+summary(VI10)
+
+#Females differ by more SDs from the UK90
+#BMI diverges increasingly with age, especially for boys
+print(VI10,correlation=TRUE)
+#Using white British children as a reference, the following have lower SD from UK90 values
+#C,F,other,H,J,K,R
+#There is greater SD in white/black mixed race children and black children
+#Postcode decile was negatively correlated with SD
+
+#Other Asian background cannot be grouped with other
+library(plyr)
+subsad$Ethnicity11<-Ethnicity11
+seq.long.sum<-ddply(subsad,.(Ethnicity11,ageattest),summarize,value=mean(BMI))
+
+#Plot to visualise trajectories by ethnicity
+
+ggplot(seq.long.sum,aes(x=ageattest,y=value,colour=Ethnicity11,group=Ethnicity11))+
+geom_point()+geom_line()+
+scale_colour_brewer(palette = "Paired",name="Ethnicity")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+scale_y_continuous(minor_breaks = seq(0 , 25, 0.2), breaks = seq(0, 25, 0.2))+
+scale_x_continuous(minor_breaks = seq(4 , 11, 1), breaks = seq(4, 11, 1))+
+xlab("Child age (yrs)")+ylab("Mean body mass index by ethnicity")+
+theme(legend.key = element_rect(colour = NA))
+
+#Visualise trajectories by gender
+seq.gender<-ddply(alldata,.(Gender,ageattest),summarize,value=mean(BMI))
+levels(seq.gender$Gender)[1]<-"Female"
+levels(seq.gender$Gender)[2]<-"Male"
+UK90<-read.table ("UK90REF.csv",header=TRUE, sep=",")
+curve<-rbind(seq.gender,UK90)
+cbPalette <- c("#FF0000", "#0066FF", "#FF0000", "#0066FF")
+ggplot(curve,aes(x=ageattest,y=value,colour=Gender,linetype=Gender,group=Gender))+
+geom_point()+geom_line()+
+scale_linetype_manual(values=c(rep("solid",2),rep("dashed",2)))+
+scale_color_manual(values = c("#FF0000", "#0066FF", "#FF0000", "#0066FF"),name="Gender")+
+theme_bw() +
+theme(axis.line = element_line(colour = "black"))+
+scale_y_continuous(minor_breaks = seq(0 , 25, 0.2), breaks = seq(0, 25, 0.2))+
+scale_x_continuous(minor_breaks = seq(4 , 11, 1), breaks = seq(4, 11, 1))+
+xlab("Child age (yrs)")+ylab("Mean body mass index by gender")+
+theme(legend.key = element_rect(colour = NA))
