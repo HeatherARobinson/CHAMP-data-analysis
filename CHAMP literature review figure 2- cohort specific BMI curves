@@ -43,13 +43,13 @@ library(ggplot2)
 
 e<-ggplot(girls, aes(x=age, y=bmi, colour=study, shape=study,linetype=as.factor(lt))) + geom_line(size=1.05)+
   labs(x="Age (yrs)",y="Mean BMI")+theme_bw()+scale_x_continuous(breaks = seq(4, 12, 1), limits =c(4,12))+
-  scale_y_continuous(breaks = seq(13.4, 26.5, 0.4),limits = c(13.4, 26.5))+ theme(legend.title=element_blank())+
+  scale_y_continuous(breaks = seq(13.4, 27, 0.4),limits = c(13.4, 27))+ theme(legend.title=element_blank())+
 ggtitle("Mean BMI by age and study population, girls")
 
 
 f<-ggplot(boys, aes(x=age, y=bmi, colour=study, shape=study,linetype=as.factor(lt))) + geom_line(size=1.05)+
   labs(x="Age (yrs)",y="Mean BMI")+theme_bw()+scale_x_continuous(breaks = seq(4, 12, 1), limits =c(4,12))+
-  scale_y_continuous(breaks = seq(27, 0.4),limits = c(13.4, 27))+ theme(legend.title=element_blank())+
+  scale_y_continuous(breaks = seq(13.4, 27, 0.4),limits = c(13.4, 27))+ theme(legend.title=element_blank())+
 ggtitle("Mean BMI by age and study population, boys")
 
 
