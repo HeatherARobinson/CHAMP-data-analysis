@@ -9,29 +9,24 @@ library(ggplot2)
 scaleFUN <- function(x) sprintf("%.0f", x)
 
 g<-ggplot(girls, aes(x=age, y=bmi, colour=study, shape=study,linetype=as.factor(lt))) + geom_line(size=1.05)+
-  labs(x="Age (yrs)",y="Median BMI")+theme_bw()+scale_x_continuous(breaks = seq(4, 12, 1), limits =c(4,12))+
-  scale_y_continuous(breaks = seq(14, 20.5, 0.25),limits = c(14, 20))+
- theme(legend.title=element_blank())+
-theme(legend.text = element_text(size=8),axis.text=element_text(size=10),
-axis.title=element_text(size=10))+
-  scale_y_continuous(breaks = seq(14, 20.5, 0.25),limits = c(14, 20))+
- theme(legend.title=element_blank())+
-theme(legend.text = element_text(size=8),axis.text=element_text(size=10),axis.title=element_text(size=10))
-
-b<-ggplot(boys, aes(x=age, y=bmi, colour=study, shape=study,linetype=as.factor(lt))) + geom_line(size=1.05)+
-  labs(x="Age (yrs)",y="Median BMI")+theme_bw()+scale_x_continuous(breaks = seq(4, 12, 1), limits =c(4,12))+
-  scale_y_continuous(breaks = seq(14, 23, 0.25),limits = c(14, 23))+
- theme(legend.title=element_blank())+
-theme(legend.text = element_text(size=8),axis.text=element_text(size=10),
-axis.title=element_text(size=10))+
-  scale_y_continuous(breaks = seq(14, 23, 0.25),limits = c(14, 23))+
+ labs(x="Age (yrs)",y="Median BMI")+
+ theme_bw()+
+ scale_x_continuous(breaks = seq(4, 12, 1), limits =c(4,12))+
+  scale_y_continuous(breaks = seq(14, 20.5, 0.25),limits = c(14, 20.5))+
  theme(legend.title=element_blank())+
 theme(legend.text = element_text(size=8),axis.text=element_text(size=10),
 axis.title=element_text(size=10))
 
-c<-g+scale_shape_manual(values = c(3,0, 1,2,3,4,5, 6, 8,15,17,19,21,10,2,8,0,0,0,8,8))+
+b<-ggplot(boys, aes(x=age, y=bmi, colour=study, shape=study,linetype=as.factor(lt))) + geom_line(size=1.05)+
+  labs(x="Age (yrs)",y="Median BMI")+theme_bw()+scale_x_continuous(breaks = seq(4, 12, 1), limits =c(4,12))+
+  scale_y_continuous(breaks = seq(14, 20.5, 0.25),limits = c(14, 20.5))+
+ theme(legend.title=element_blank())+
+theme(legend.text = element_text(size=8),axis.text=element_text(size=10),
+axis.title=element_text(size=10))
+
+c<-g+scale_shape_manual(values = c(3,0, 1,2,3,4,5, 6, 8,15,17,19,21,10,2,8,0,0,5,5,8))+
 scale_colour_manual(values=c("blue3","red","blue3","blue3","goldenrod","forestgreen","forestgreen","blue3", 
-                "blue3","blue3","goldenrod","blue3","blue3","forestgreen","red","red","blue3","blue3","goldenrod","blue3","goldenrod"))+
+                "blue3","blue3","goldenrod","goldenrod","blue3","forestgreen","red","red","blue3","goldenrod","goldenrod","blue3","goldenrod"))+
 ggtitle("Median BMI by age and study population, girls")+geom_point(aes(x=age, y=bmi, colour=study))
 
 d<-b+scale_shape_manual(values = c(3,0, 1,2,3,4,5, 6, 8,15,17,19,21,10,2,8,0,0,5,5,8))+
@@ -54,7 +49,7 @@ library(ggplot2)
 
 e<-ggplot(girls, aes(x=age, y=bmi, colour=study, shape=study,linetype=as.factor(lt))) + geom_line(size=1.05)+
   labs(x="Age (yrs)",y="Mean BMI")+theme_bw()+scale_x_continuous(breaks = seq(4, 12, 1), limits =c(4,12))+
-  scale_y_continuous(breaks = seq(13.4, 27, 0.4),limits = c(13.4, 27))+ theme(legend.title=element_blank())+
+  scale_y_continuous(breaks = seq(13.4, 26.2, 0.4),limits = c(13.4, 26.2))+ theme(legend.title=element_blank())+
 ggtitle("Mean BMI by age and study population, girls")
 
 
@@ -65,14 +60,15 @@ ggtitle("Mean BMI by age and study population, boys")
 
 
 
-l<-e+scale_shape_manual(values = c(0,8,11,8,2,3,4,5, 0, 8,15,17,19,21,10,2, 18,0,3,1,15,25,8,1,1))+
+l<-e+scale_shape_manual(values = c(0,8,11,8,2,3,4,5, 0, 8,15,17,19,21,10,2, 18,0,1,3,1,15,25,8,1,1))+
 scale_colour_manual(values=c("forestgreen","blue3","blue3","blue3","red","blue3","blue3","blue3","blue3","goldenrod","blue3","goldenrod","blue3",
-"blue3","blue3","blue3","blue3","blue3","blue3","forestgreen","blue3","blue3","forestgreen","red"))+
+"blue3","blue3","blue3","blue3","black","blue3","blue3","forestgreen","blue3","blue3","forestgreen","red"))+
 geom_point(aes(x=age, y=bmi, colour=study))
+l
 
-m<-f+scale_shape_manual(values = c(0,8,11,8,2,3,4,5, 0, 8,15,17,19,21,10,2, 18,0,3,1,15,25,8,1,1))+
+m<-f+scale_shape_manual(values = c(0,8,11,8,2,3,4,5, 0, 8,15,17,19,21,10,2, 18,0,3,1,15,25,8,1,1,1))+
 scale_colour_manual(values=c("forestgreen","blue3","blue3","blue3","red","blue3","blue3","blue3","blue3","goldenrod","blue3","goldenrod","blue3",
-"blue3","blue3","blue3","blue3","blue3","blue3","forestgreen","blue3","blue3","forestgreen","red"))+
+"blue3","blue3","blue3","blue3","blue3","blue3","forestgreen","blue3","blue3","forestgreen","red","black"))+
 geom_point(aes(x=age, y=bmi, colour=study, shape=study))
 
 library(gridExtra)
